@@ -377,6 +377,101 @@ const hotelUtils = {
   },
 };
 
+// Rental-specific utilities
+const rentalUtils = {
+  houseTypes: ['studio', '1-bedroom', '2-bedroom', '3-bedroom', '4-bedroom'],
+  buildingStyles: ['flat_storey', 'single_level'],
+  accessRoadTypes: ['tarmac', 'murram_gravel'],
+  billingPayers: ['tenant', 'landlord'],
+
+  furnitureItems: [
+    'Bed',
+    'Sofa',
+    'Fridge',
+    'Cooker',
+    'Dining Table',
+    'Chairs',
+    'Wardrobe',
+    'Desk',
+    'Shelving',
+    'Cabinet',
+  ],
+
+  features: [
+    'isSelfContained',
+    'isFenced',
+    'isCompoundPaved',
+    'hasAmpleParking',
+    'hasOutsideWashrooms',
+    'hasSecurity',
+    'hasWater',
+  ],
+
+  featureLabels: {
+    isSelfContained: 'Self Contained',
+    isFenced: 'Fenced',
+    isCompoundPaved: 'Compound Paved',
+    hasAmpleParking: 'Ample Parking',
+    hasOutsideWashrooms: 'Outside Washrooms',
+    hasSecurity: 'Security',
+    hasWater: 'Water Available',
+  },
+
+  formatHouseType(type) {
+    const formatted = type.replace(/-/g, ' ');
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  },
+
+  formatBuildingStyle(style) {
+    const styles = {
+      flat_storey: 'Flat/Storey',
+      single_level: 'Single Level',
+    };
+    return styles[style] || style;
+  },
+
+  formatAccessRoadType(type) {
+    const types = {
+      tarmac: 'Tarmac',
+      murram_gravel: 'Murram/Gravel',
+    };
+    return types[type] || type;
+  },
+
+  formatBillingPayer(payer) {
+    return payer.charAt(0).toUpperCase() + payer.slice(1);
+  },
+
+  getPropertySummary(property) {
+    const types = {
+      unverified: 'Unverified',
+      pending: 'Pending Verification',
+      verified: 'Verified & Active',
+      rejected: 'Verification Rejected',
+    };
+
+    return {
+      title: property.propertyName,
+      type: this.formatHouseType(property.houseType),
+      location: `${property.nearestTown}, ${property.nearestCity}`,
+      units: `${property.unitCount} unit${property.unitCount !== 1 ? 's' : ''}`,
+      rent: property.monthlyRent ? `UGX ${property.monthlyRent.toLocaleString()}` : 'Not set',
+      status: types[property.verificationStatus],
+    };
+  },
+
+  isPropertyComplete(property) {
+    return (
+      property.propertyName &&
+      property.houseType &&
+      property.unitCount &&
+      property.nearestCity &&
+      property.nearestTown &&
+      property.accessRoadType
+    );
+  },
+};
+
 // Global toast function
 function showToast(message, type = 'info') {
   const container = document.querySelector('[x-data*="toastManager"]');
