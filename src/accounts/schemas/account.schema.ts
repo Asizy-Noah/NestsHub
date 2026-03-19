@@ -6,6 +6,8 @@ export enum AccountRole {
   HOSTEL_OWNER = 'hostel_owner',
   HOTEL_OWNER = 'hotel_owner',
   PROPERTY_MANAGER = 'property_manager',
+  ADMIN = 'admin',
+  STAFF = 'staff',
 }
 
 export enum AccountStatus {

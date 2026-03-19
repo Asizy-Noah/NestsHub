@@ -8,6 +8,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { HostelsModule } from './hostels/hostels.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { RentalsModule } from './rentals/rentals.module';
+import { BlogsModule } from './blogs/blogs.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RentalsModule } from './rentals/rentals.module';
     HostelsModule,
     HotelsModule,
     RentalsModule,
+    BlogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

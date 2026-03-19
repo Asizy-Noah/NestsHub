@@ -71,7 +71,22 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    return await this.authService.login(loginDto);
+    const result = await this.authService.login(loginDto);
+    
+    // Add redirect information based on role
+    if (result.user) {
+      const roleRedirectMap = {
+        'admin': '/dashboard/admin',
+        'staff': '/dashboard/staff',
+        'hostel_owner': '/dashboard/hostel',
+        'hotel_owner': '/dashboard/hotel',
+        'property_manager': '/dashboard/properties',
+        'individual': '/dashboard',
+      };
+      result.redirect = roleRedirectMap[result.user.role] || '/dashboard';
+    }
+    
+    return result;
   }
 
   @Post('forgot-password')
