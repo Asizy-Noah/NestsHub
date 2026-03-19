@@ -250,3 +250,63 @@ function createLoadingState() {
     },
   };
 }
+
+// Hostel-specific utilities
+const hostelUtils = {
+  proximityRanges: [
+    { label: '< 1 km', value: 0.5 },
+    { label: '1-2 km', value: 1.5 },
+    { label: '2-5 km', value: 3.5 },
+    { label: '5-10 km', value: 7.5 },
+    { label: '10+ km', value: 15 },
+  ],
+
+  roomTypes: ['single', 'double', 'triple', 'dormitory'],
+
+  cookingPolicies: ['electricity', 'charcoal', 'gas', 'not_allowed'],
+
+  amenitiesIcons: {
+    security: 'fa-shield-alt',
+    tvRoom: 'fa-tv',
+    readingRoom: 'fa-book',
+    gym: 'fa-dumbbell',
+    swimmingPool: 'fa-water',
+    parking: 'fa-parking',
+    wifi: 'fa-wifi',
+    laundry: 'fa-socks',
+    generator: 'fa-bolt',
+  },
+
+  getAmenityIcon(amenity) {
+    return this.amenitiesIcons[amenity] || 'fa-check';
+  },
+
+  formatVerificationStatus(status) {
+    const statuses = {
+      unverified: { text: 'Unverified', color: 'text-slate-600', bgColor: 'bg-slate-100', icon: 'fa-times-circle' },
+      pending: { text: 'Pending', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: 'fa-clock' },
+      verified: { text: 'Verified', color: 'text-emerald-600', bgColor: 'bg-emerald-100', icon: 'fa-check-circle' },
+      rejected: { text: 'Rejected', color: 'text-red-600', bgColor: 'bg-red-100', icon: 'fa-times-circle' },
+    };
+    return statuses[status] || statuses.unverified;
+  },
+
+  formatRoomType(type) {
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  },
+
+  calculateOccupancy(totalRooms, availableRooms) {
+    if (totalRooms === 0) return 0;
+    return Math.round(((totalRooms - availableRooms) / totalRooms) * 100);
+  },
+};
+
+// Global toast function
+function showToast(message, type = 'info') {
+  const container = document.querySelector('[x-data*="toastManager"]');
+  if (container && container.__x) {
+    container.__x.add(message, type);
+  } else {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+  }
+}

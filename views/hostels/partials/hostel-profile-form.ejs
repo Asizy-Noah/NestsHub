@@ -1,0 +1,393 @@
+<div x-data="hostelProfileForm()" class="space-y-6">
+  <!-- Progress Tracker -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Setup Progress</h3>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between mb-2">
+          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Basic Information</span>
+          <span class="text-sm text-slate-600 dark:text-slate-400" x-text="'Step 1 of 3'"></span>
+        </div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+          <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 33%;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between mb-2">
+          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Amenities & Services</span>
+          <span class="text-sm text-slate-600 dark:text-slate-400" x-text="'Step 2 of 3'"></span>
+        </div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+          <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 33%;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between mb-2">
+          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Media & Verification</span>
+          <span class="text-sm text-slate-600 dark:text-slate-400" x-text="'Step 3 of 3'"></span>
+        </div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+          <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 33%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Basic Information -->
+  <form @submit="submitForm" class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6 space-y-6">
+    <div>
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Basic Information</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Hostel Name</label>
+          <input type="text" x-model="form.name" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="Enter hostel name">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+          <input type="email" x-model="form.email" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="hostel@example.com">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone Number</label>
+          <input type="tel" x-model="form.telephone" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="+1 (555) 000-0000">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">WhatsApp Number</label>
+          <input type="tel" x-model="form.whatsapp" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="+1 (555) 000-0000">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Description</label>
+          <textarea x-model="form.description" rows="4" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="Describe your hostel..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Information -->
+    <div>
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Location</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Address</label>
+          <input type="text" x-model="form.address" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="Street address">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">City</label>
+          <input type="text" x-model="form.city" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="City">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Country</label>
+          <input type="text" x-model="form.country" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="Country">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Location Type</label>
+          <div class="flex space-x-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.locationType" value="university" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">University</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.locationType" value="town" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">Town</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Distance (km)</label>
+          <input type="number" x-model.number="form.distance" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="Distance from center">
+        </div>
+      </div>
+    </div>
+
+    <!-- Amenities -->
+    <div>
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Amenities</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <label class="flex items-center space-x-3 p-3 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+          <input type="checkbox" x-model="form.amenities.security" class="w-4 h-4">
+          <span class="text-slate-700 dark:text-slate-300"><i class="fas fa-shield-alt mr-2 text-indigo-600"></i>Security</span>
+        </label>
+        <label class="flex items-center space-x-3 p-3 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+          <input type="checkbox" x-model="form.amenities.tvRoom" class="w-4 h-4">
+          <span class="text-slate-700 dark:text-slate-300"><i class="fas fa-tv mr-2 text-indigo-600"></i>TV Room</span>
+        </label>
+        <label class="flex items-center space-x-3 p-3 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+          <input type="checkbox" x-model="form.amenities.readingRoom" class="w-4 h-4">
+          <span class="text-slate-700 dark:text-slate-300"><i class="fas fa-book mr-2 text-indigo-600"></i>Reading Room</span>
+        </label>
+        <label class="flex items-center space-x-3 p-3 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+          <input type="checkbox" x-model="form.amenities.gym" class="w-4 h-4">
+          <span class="text-slate-700 dark:text-slate-300"><i class="fas fa-dumbbell mr-2 text-indigo-600"></i>Gym</span>
+        </label>
+        <label class="flex items-center space-x-3 p-3 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+          <input type="checkbox" x-model="form.amenities.swimmingPool" class="w-4 h-4">
+          <span class="text-slate-700 dark:text-slate-300"><i class="fas fa-water mr-2 text-indigo-600"></i>Swimming Pool</span>
+        </label>
+        <label class="flex items-center space-x-3 p-3 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+          <input type="checkbox" x-model="form.amenities.parking" class="w-4 h-4">
+          <span class="text-slate-700 dark:text-slate-300"><i class="fas fa-parking mr-2 text-indigo-600"></i>Parking</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <div>
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Services</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Internet</label>
+          <div class="space-y-2">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.services.internet" value="free" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">Free</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.services.internet" value="paid" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">Paid</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.services.internet" value="none" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">None</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Catering</label>
+          <div class="space-y-2">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.services.catering" value="included" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">Included</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.services.catering" value="additional_fee" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">Additional Fee</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" x-model="form.services.catering" value="none" class="w-4 h-4">
+              <span class="text-slate-700 dark:text-slate-300">None</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Distance to Market</label>
+            <div class="flex">
+              <input type="number" x-model.number="form.services.distanceToMarket" class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-l-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="0">
+              <span class="px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-300 dark:border-slate-600 rounded-r-lg text-slate-700 dark:text-slate-300">km</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Distance to Hospital</label>
+            <div class="flex">
+              <input type="number" x-model.number="form.services.distanceToHospital" class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-l-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="0">
+              <span class="px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-300 dark:border-slate-600 rounded-r-lg text-slate-700 dark:text-slate-300">km</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Distance to Pharmacy</label>
+            <div class="flex">
+              <input type="number" x-model.number="form.services.distanceToPharmacy" class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-l-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="0">
+              <span class="px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-300 dark:border-slate-600 rounded-r-lg text-slate-700 dark:text-slate-300">km</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Distance to Clinic</label>
+            <div class="flex">
+              <input type="number" x-model.number="form.services.distanceToClinic" class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-l-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white" placeholder="0">
+              <span class="px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-300 dark:border-slate-600 rounded-r-lg text-slate-700 dark:text-slate-300">km</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div>
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Media</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cover Image</label>
+          <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+            <input type="file" @change="previewCoverImage" accept="image/*" class="hidden" id="coverImage">
+            <label for="coverImage" class="cursor-pointer">
+              <i class="fas fa-cloud-upload-alt text-2xl text-slate-400 mb-2"></i>
+              <p class="text-slate-700 dark:text-slate-300">Click to upload</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">PNG, JPG up to 5MB</p>
+            </label>
+            <img x-show="coverImagePreview" :src="coverImagePreview" class="mt-4 max-h-48 mx-auto rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Utility Images</label>
+          <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+            <input type="file" @change="previewUtilityImages" multiple accept="image/*" class="hidden" id="utilityImages">
+            <label for="utilityImages" class="cursor-pointer">
+              <i class="fas fa-cloud-upload-alt text-2xl text-slate-400 mb-2"></i>
+              <p class="text-slate-700 dark:text-slate-300">Click to upload multiple</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">PNG, JPG up to 5MB each</p>
+            </label>
+          </div>
+          <div class="grid grid-cols-3 gap-3 mt-4">
+            <template x-for="(img, idx) in utilityImagePreviews" :key="idx">
+              <div class="relative">
+                <img :src="img" class="w-full h-24 object-cover rounded-lg">
+                <button @click="removeUtilityImage(idx)" type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">✕</button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-between pt-4">
+      <button type="button" @click="resetForm" class="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+        Reset
+      </button>
+      <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center space-x-2">
+        <i class="fas fa-save"></i>
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Verification Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Hostel Verification</h3>
+        <p class="text-slate-600 dark:text-slate-400 mt-2">Get verified to appear in search results and boost trust</p>
+      </div>
+      <button x-show="verificationStatus !== 'pending' && verificationStatus !== 'verified'" @click="applyVerification" class="px-6 py-2 gradient-purple text-white rounded-lg hover:opacity-90 transition">
+        Apply for Verification
+      </button>
+      <div x-show="verificationStatus === 'pending'" class="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+        <i class="fas fa-clock"></i>
+        <span>Pending Review</span>
+      </div>
+      <div x-show="verificationStatus === 'verified'" class="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
+        <i class="fas fa-check-circle"></i>
+        <span>Verified</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function hostelProfileForm() {
+    return {
+      form: {
+        name: '<%= hostel?.name || "" %>',
+        description: '<%= hostel?.description || "" %>',
+        email: '<%= hostel?.email || "" %>',
+        telephone: '<%= hostel?.telephone || "" %>',
+        whatsapp: '<%= hostel?.whatsapp || "" %>',
+        address: '<%= hostel?.address || "" %>',
+        city: '<%= hostel?.city || "" %>',
+        country: '<%= hostel?.country || "" %>',
+        locationType: '<%= hostel?.locationType || "university" %>',
+        distance: <%= hostel?.distance || 0 %>,
+        amenities: {
+          security: <%= hostel?.amenities?.security || false %>,
+          tvRoom: <%= hostel?.amenities?.tvRoom || false %>,
+          readingRoom: <%= hostel?.amenities?.readingRoom || false %>,
+          gym: <%= hostel?.amenities?.gym || false %>,
+          swimmingPool: <%= hostel?.amenities?.swimmingPool || false %>,
+          parking: <%= hostel?.amenities?.parking || false %>,
+        },
+        services: {
+          internet: '<%= hostel?.services?.internet || "none" %>',
+          catering: '<%= hostel?.services?.catering || "none" %>',
+          distanceToMarket: <%= hostel?.services?.distanceToMarket || 0 %>,
+          distanceToHospital: <%= hostel?.services?.distanceToHospital || 0 %>,
+          distanceToPharmacy: <%= hostel?.services?.distanceToPharmacy || 0 %>,
+          distanceToClinic: <%= hostel?.services?.distanceToClinic || 0 %>,
+        },
+      },
+      coverImagePreview: '',
+      utilityImagePreviews: [],
+      verificationStatus: '<%= hostel?.verificationStatus || "unverified" %>',
+
+      async submitForm(e) {
+        e.preventDefault();
+        try {
+          const response = await fetch('/hostels/<%= hostel?._id %>', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify(this.form),
+          });
+          
+          if (response.ok) {
+            showToast('Hostel profile updated successfully!', 'success');
+          } else {
+            showToast('Error updating hostel profile', 'error');
+          }
+        } catch (error) {
+          showToast('Error: ' + error.message, 'error');
+        }
+      },
+
+      previewCoverImage(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            this.coverImagePreview = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      },
+
+      previewUtilityImages(e) {
+        const files = Array.from(e.target.files);
+        this.utilityImagePreviews = [];
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            this.utilityImagePreviews.push(event.target.result);
+          };
+          reader.readAsDataURL(file);
+        });
+      },
+
+      removeUtilityImage(idx) {
+        this.utilityImagePreviews.splice(idx, 1);
+      },
+
+      resetForm() {
+        location.reload();
+      },
+
+      async applyVerification() {
+        try {
+          const response = await fetch('/hostels/<%= hostel?._id %>/apply-verification', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify({}),
+          });
+          
+          if (response.ok) {
+            this.verificationStatus = 'pending';
+            showToast('Verification application submitted successfully!', 'success');
+          } else {
+            showToast('Error applying for verification', 'error');
+          }
+        } catch (error) {
+          showToast('Error: ' + error.message, 'error');
+        }
+      }
+    };
+  }
+</script>

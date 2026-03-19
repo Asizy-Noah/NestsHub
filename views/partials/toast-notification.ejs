@@ -1,0 +1,75 @@
+<div x-data="toastManager()" class="fixed bottom-4 right-4 z-50 space-y-3" style="max-width: 400px;">
+  <template x-for="(toast, index) in toasts" :key="index">
+    <div class="animate-slide-in-right" :class="{
+      'bg-emerald-500': toast.type === 'success',
+      'bg-red-500': toast.type === 'error',
+      'bg-amber-500': toast.type === 'warning',
+      'bg-blue-500': toast.type === 'info'
+    }">
+      <div class="text-white p-4 rounded-lg shadow-lg flex items-start space-x-3">
+        <i :class="{
+          'fas fa-check-circle': toast.type === 'success',
+          'fas fa-exclamation-circle': toast.type === 'error',
+          'fas fa-warning': toast.type === 'warning',
+          'fas fa-info-circle': toast.type === 'info'
+        }" class="flex-shrink-0 mt-0.5"></i>
+        <div class="flex-1">
+          <p x-text="toast.message" class="text-sm font-medium"></p>
+        </div>
+        <button @click="removeToast(index)" class="text-white hover:opacity-75 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </template>
+</div>
+
+<style>
+  @keyframes slideInRight {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+</style>
+
+<script>
+  function toastManager() {
+    return {
+      toasts: [],
+
+      add(message, type = 'info') {
+        const toast = { message, type };
+        this.toasts.push(toast);
+        
+        setTimeout(() => {
+          const idx = this.toasts.indexOf(toast);
+          if (idx !== -1) {
+            this.toasts.splice(idx, 1);
+          }
+        }, 4000);
+      },
+
+      removeToast(index) {
+        this.toasts.splice(index, 1);
+      }
+    };
+  }
+
+  // Global function to show toast
+  function showToast(message, type = 'info') {
+    // Find the toast manager component and call its add method
+    const toastEl = document.querySelector('[x-data*="toastManager"]');
+    if (toastEl && toastEl.__x) {
+      toastEl.__x.add(message, type);
+    }
+  }
+</script>
