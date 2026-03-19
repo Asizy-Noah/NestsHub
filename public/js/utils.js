@@ -301,6 +301,82 @@ const hostelUtils = {
   },
 };
 
+// Hotel-specific utilities
+const hotelUtils = {
+  roomTypes: ['single', 'double', 'suite'],
+  bedSizes: ['3x6', '4x6', '6x6'],
+  floorLevels: Array.from({ length: 11 }, (_, i) => i),
+  
+  distanceOptions: [
+    { value: 'on_the_road', label: 'On the road' },
+    { value: 'less_500m', label: '< 500m' },
+    { value: '500m_1km', label: '500m - 1km' },
+    { value: '1km_5km', label: '1km - 5km' },
+    { value: '5km_plus', label: '5km+' },
+  ],
+
+  wifiOptions: [
+    { value: 'free', label: 'Free WiFi' },
+    { value: 'extra_charge', label: 'WiFi with Extra Charge' },
+    { value: 'none', label: 'No WiFi' },
+  ],
+
+  paymentMethods: [
+    { value: 'cash', label: 'Cash' },
+    { value: 'mobile_money', label: 'Mobile Money' },
+    { value: 'visa', label: 'Visa/Card' },
+  ],
+
+  amenitiesIcons: {
+    gym: 'fa-dumbbell',
+    bar: 'fa-wine-glass-alt',
+    restaurant: 'fa-utensils',
+    parkingSpace: 'fa-parking',
+    storageBuilding: 'fa-warehouse',
+    supermarketNearby: 'fa-shopping-cart',
+    hasBalcony: 'fa-sun',
+    hasHotWater: 'fa-water',
+    hasTV: 'fa-tv',
+    hasDSTV: 'fa-satellite',
+    hasTableChair: 'fa-chair',
+  },
+
+  getAmenityIcon(amenity) {
+    return this.amenitiesIcons[amenity] || 'fa-check';
+  },
+
+  formatRoomType(type) {
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  },
+
+  calculateOccupancy(totalRooms, bookedRooms) {
+    if (totalRooms === 0) return 0;
+    return Math.round((bookedRooms / totalRooms) * 100);
+  },
+
+  getAvailableRooms(totalRooms, bookedRooms) {
+    return Math.max(0, totalRooms - bookedRooms);
+  },
+
+  formatCurrency(amount) {
+    return amount.toLocaleString('en-UG', {
+      style: 'currency',
+      currency: 'UGX',
+      minimumFractionDigits: 0,
+    });
+  },
+
+  formatVerificationStatus(status) {
+    const statuses = {
+      unverified: { text: 'Unverified', color: 'text-slate-600', bgColor: 'bg-slate-100', icon: 'fa-times-circle' },
+      pending: { text: 'Pending', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: 'fa-clock' },
+      verified: { text: 'Verified', color: 'text-emerald-600', bgColor: 'bg-emerald-100', icon: 'fa-check-circle' },
+      rejected: { text: 'Rejected', color: 'text-red-600', bgColor: 'bg-red-100', icon: 'fa-times-circle' },
+    };
+    return statuses[status] || statuses.unverified;
+  },
+};
+
 // Global toast function
 function showToast(message, type = 'info') {
   const container = document.querySelector('[x-data*="toastManager"]');

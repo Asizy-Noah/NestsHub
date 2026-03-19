@@ -1,0 +1,415 @@
+<div x-data="roomManagement()" class="space-y-6">
+  <!-- Add Room Button -->
+  <button
+    @click="showAddRoomModal = true"
+    class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+    </svg>
+    Add New Room
+  </button>
+
+  <!-- Rooms Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <template x-for="(room, idx) in rooms" :key="idx">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
+        <!-- Room Image -->
+        <div class="relative h-48 bg-slate-200 dark:bg-slate-700 overflow-hidden">
+          <img :src="room.photo || 'https://via.placeholder.com/400x300'" :alt="room.roomType" class="w-full h-full object-cover" />
+          <div class="absolute top-4 right-4">
+            <span
+              :class="room.availableRooms > 0 ? 'bg-emerald-500' : 'bg-red-500'"
+              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-white text-sm font-medium"
+            >
+              <span class="w-2 h-2 rounded-full bg-white"></span>
+              <span x-text="room.availableRooms > 0 ? 'Available' : 'Fully Booked'"></span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Room Details -->
+        <div class="p-4 space-y-3">
+          <div>
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white" x-text="room.roomType + ' Room'"></h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400" x-text="`Floor ${room.floor} • ${room.bedSize} Bed`"></p>
+          </div>
+
+          <!-- Pricing -->
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
+            <div>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Cost per night</p>
+              <p class="text-xl font-bold text-slate-900 dark:text-white" x-text="`UGX ${room.costPerNight.toLocaleString()}`"></p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-slate-600 dark:text-slate-400">Breakfast</p>
+              <p class="font-medium" :class="room.breakfastIncluded ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'"
+                x-text="room.breakfastIncluded ? 'Included' : 'Not Included'"></p>
+            </div>
+          </div>
+
+          <!-- Inventory Counter -->
+          <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Total Rooms</span>
+              <span class="font-semibold text-slate-900 dark:text-white" x-text="room.totalRooms"></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Available</span>
+              <span class="font-semibold text-emerald-600 dark:text-emerald-400" x-text="room.availableRooms"></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Booked</span>
+              <span class="font-semibold text-red-600 dark:text-red-400" x-text="room.bookedRooms"></span>
+            </div>
+          </div>
+
+          <!-- Amenities Icons -->
+          <div class="flex gap-2 pt-2">
+            <template x-for="amenity in getAmenityList(room)" :key="amenity">
+              <div
+                title="Has amenity"
+                class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400"
+              >
+                <i :class="`fas ${getAmenityIcon(amenity)}`" class="text-xs"></i>
+              </div>
+            </template>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <button
+              @click="editRoom(idx)"
+              class="flex-1 px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+            >
+              Edit
+            </button>
+            <button
+              @click="deleteRoom(idx)"
+              class="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors text-sm font-medium"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Empty State -->
+  <div x-show="rooms.length === 0" class="text-center py-12">
+    <svg class="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+    </svg>
+    <p class="text-slate-600 dark:text-slate-400 mb-4">No rooms added yet</p>
+    <button
+      @click="showAddRoomModal = true"
+      class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+    >
+      Add Your First Room
+    </button>
+  </div>
+
+  <!-- Add/Edit Room Modal -->
+  <div x-show="showAddRoomModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white" x-text="editingIndex !== null ? 'Edit Room' : 'Add New Room'"></h2>
+        <button @click="closeModal()" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <form @submit.prevent="saveRoom()" class="space-y-6">
+        <!-- Room Type Selection -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Room Type *</label>
+          <div class="grid grid-cols-3 gap-3">
+            <template x-for="type in ['single', 'double', 'suite']" :key="type">
+              <label class="relative cursor-pointer">
+                <input type="radio" :value="type" x-model="newRoom.roomType" class="sr-only" />
+                <div
+                  :class="newRoom.roomType === type ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-300 dark:border-slate-600'"
+                  class="border-2 rounded-lg p-4 text-center transition-all"
+                >
+                  <svg class="w-8 h-8 mx-auto mb-2" :class="newRoom.roomType === type ? 'text-indigo-600' : 'text-slate-400'" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+                  </svg>
+                  <p class="font-medium text-slate-900 dark:text-white capitalize" x-text="type"></p>
+                </div>
+              </label>
+            </template>
+          </div>
+        </div>
+
+        <!-- Bed Size Selection -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Bed Size *</label>
+          <div class="grid grid-cols-3 gap-3">
+            <template x-for="size in ['3x6', '4x6', '6x6']" :key="size">
+              <label class="relative cursor-pointer">
+                <input type="radio" :value="size" x-model="newRoom.bedSize" class="sr-only" />
+                <div
+                  :class="newRoom.bedSize === size ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-300 dark:border-slate-600'"
+                  class="border-2 rounded-lg p-3 text-center transition-all"
+                >
+                  <p class="font-medium text-slate-900 dark:text-white" x-text="`${size}ft`"></p>
+                </div>
+              </label>
+            </template>
+          </div>
+        </div>
+
+        <!-- Floor Selection -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Floor Level</label>
+          <div class="flex items-center gap-4">
+            <button
+              type="button"
+              @click="newRoom.floor = Math.max(0, newRoom.floor - 1)"
+              class="p-2 border border-slate-300 dark:border-slate-600 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+              </svg>
+            </button>
+            <span class="text-3xl font-bold text-slate-900 dark:text-white w-12 text-center" x-text="newRoom.floor"></span>
+            <button
+              type="button"
+              @click="newRoom.floor = Math.min(10, newRoom.floor + 1)"
+              class="p-2 border border-slate-300 dark:border-slate-600 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cost Per Night (UGX) *</label>
+            <input
+              type="number"
+              x-model.number="newRoom.costPerNight"
+              min="0"
+              placeholder="50000"
+              class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                x-model="newRoom.breakfastIncluded"
+                class="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
+              />
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Breakfast Included</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Total Rooms *</label>
+            <input
+              type="number"
+              x-model.number="newRoom.totalRooms"
+              min="1"
+              placeholder="5"
+              class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Currently Booked</label>
+            <input
+              type="number"
+              x-model.number="newRoom.bookedRooms"
+              min="0"
+              placeholder="0"
+              class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <!-- Room Amenities -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Room Amenities</label>
+          <div class="space-y-2">
+            <template x-for="amenity in [
+              { key: 'hasBalcony', label: 'Balcony' },
+              { key: 'hasHotWater', label: 'Hot Water' },
+              { key: 'hasTV', label: 'TV' },
+              { key: 'hasDSTV', label: 'DSTV' },
+              { key: 'hasTableChair', label: 'Table & Chair' }
+            ]" :key="amenity.key">
+              <label class="flex items-center">
+                <input
+                  type="checkbox"
+                  :checked="newRoom.amenities[amenity.key]"
+                  @change="newRoom.amenities[amenity.key] = $el.checked"
+                  class="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
+                />
+                <span class="ml-3 text-slate-700 dark:text-slate-300" x-text="amenity.label"></span>
+              </label>
+            </template>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <button
+            type="button"
+            @click="closeModal()"
+            class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            :disabled="isSubmitting"
+            class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          >
+            <span x-show="!isSubmitting" x-text="editingIndex !== null ? 'Update Room' : 'Add Room'"></span>
+            <span x-show="isSubmitting">Saving...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function roomManagement() {
+  return {
+    showAddRoomModal: false,
+    isSubmitting: false,
+    editingIndex: null,
+    rooms: [
+      {
+        roomType: 'double',
+        bedSize: '4x6',
+        floor: 1,
+        costPerNight: 120000,
+        breakfastIncluded: true,
+        totalRooms: 5,
+        bookedRooms: 2,
+        availableRooms: 3,
+        photo: 'https://via.placeholder.com/400x300',
+        amenities: {
+          hasBalcony: true,
+          hasHotWater: true,
+          hasTV: true,
+          hasDSTV: false,
+          hasTableChair: true,
+        },
+      },
+      {
+        roomType: 'single',
+        bedSize: '3x6',
+        floor: 2,
+        costPerNight: 80000,
+        breakfastIncluded: false,
+        totalRooms: 8,
+        bookedRooms: 5,
+        availableRooms: 3,
+        photo: 'https://via.placeholder.com/400x300',
+        amenities: {
+          hasBalcony: false,
+          hasHotWater: true,
+          hasTV: true,
+          hasDSTV: true,
+          hasTableChair: false,
+        },
+      },
+    ],
+    newRoom: {
+      roomType: 'double',
+      bedSize: '4x6',
+      floor: 1,
+      costPerNight: 0,
+      breakfastIncluded: false,
+      totalRooms: 1,
+      bookedRooms: 0,
+      photo: '',
+      amenities: {
+        hasBalcony: false,
+        hasHotWater: false,
+        hasTV: false,
+        hasDSTV: false,
+        hasTableChair: false,
+      },
+    },
+
+    getAmenityList(room) {
+      return Object.entries(room.amenities)
+        .filter(([, value]) => value)
+        .map(([key]) => key);
+    },
+
+    getAmenityIcon(amenity) {
+      const icons = {
+        hasBalcony: 'fa-sun',
+        hasHotWater: 'fa-water',
+        hasTV: 'fa-tv',
+        hasDSTV: 'fa-satellite',
+        hasTableChair: 'fa-chair',
+      };
+      return icons[amenity] || 'fa-check';
+    },
+
+    editRoom(index) {
+      this.editingIndex = index;
+      this.newRoom = { ...this.rooms[index], amenities: { ...this.rooms[index].amenities } };
+      this.showAddRoomModal = true;
+    },
+
+    async saveRoom() {
+      this.isSubmitting = true;
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (this.editingIndex !== null) {
+          this.rooms.splice(this.editingIndex, 1, this.newRoom);
+        } else {
+          this.rooms.push({ ...this.newRoom });
+        }
+        this.closeModal();
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    deleteRoom(index) {
+      if (confirm('Are you sure you want to delete this room?')) {
+        this.rooms.splice(index, 1);
+      }
+    },
+
+    closeModal() {
+      this.showAddRoomModal = false;
+      this.editingIndex = null;
+      this.newRoom = {
+        roomType: 'double',
+        bedSize: '4x6',
+        floor: 1,
+        costPerNight: 0,
+        breakfastIncluded: false,
+        totalRooms: 1,
+        bookedRooms: 0,
+        photo: '',
+        amenities: {
+          hasBalcony: false,
+          hasHotWater: false,
+          hasTV: false,
+          hasDSTV: false,
+          hasTableChair: false,
+        },
+      };
+    },
+  };
+}
+</script>
