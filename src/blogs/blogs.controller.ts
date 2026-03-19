@@ -9,8 +9,34 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 export class BlogsController {
   constructor(private blogsService: BlogsService) {}
 
-  // Frontend routes
-  @Get('index')
+  // API - Create blog
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  async create(@Body() createBlogDto: CreateBlogDto, @Request() req) {
+    return await this.blogsService.create(createBlogDto, req.user.userId, req.user.firstName);
+  }
+
+  // API - List all blogs
+  @Get()
+  async findAll(@Query('page') page = '1', @Query('status') status = 'published') {
+    return await this.blogsService.findAll(parseInt(page), 10, status);
+  }
+
+  // API - Search blogs
+  @Get('search')
+  async search(@Query('q') query: string, @Query('page') page = '1') {
+    return await this.blogsService.search(query, parseInt(page), 10);
+  }
+
+  // API - Get by author
+  @Get('author/:authorId')
+  async findByAuthor(@Param('authorId') authorId: string, @Query('page') page = '1') {
+    return await this.blogsService.findByAuthor(authorId, parseInt(page), 10);
+  }
+
+  // Frontend - List blogs (HTML)
+  @Get('list')
   @Render('blogs/index')
   async index(@Query('page') page = '1', @Query('status') status = 'published') {
     const data = await this.blogsService.findAll(parseInt(page), 10, status);
@@ -20,7 +46,8 @@ export class BlogsController {
     };
   }
 
-  @Get('create')
+  // Frontend - Create blog page
+  @Get('new')
   @UseGuards(JwtAuthGuard)
   @Render('blogs/create')
   getCreate() {
@@ -29,7 +56,8 @@ export class BlogsController {
     };
   }
 
-  @Get('edit/:id')
+  // Frontend - Edit blog page
+  @Get(':id/edit')
   @UseGuards(JwtAuthGuard)
   @Render('blogs/edit')
   async getEdit(@Param('id') id: string) {
@@ -40,34 +68,7 @@ export class BlogsController {
     };
   }
 
-  @Get(':slug')
-  @Render('blogs/show')
-  async show(@Param('slug') slug: string) {
-    const blog = await this.blogsService.findOne(slug);
-    return {
-      title: blog.title,
-      blog,
-    };
-  }
-
-  // API routes
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'staff')
-  async create(@Body() createBlogDto: CreateBlogDto, @Request() req) {
-    return await this.blogsService.create(createBlogDto, req.user.userId, req.user.firstName);
-  }
-
-  @Get()
-  async findAll(@Query('page') page = '1', @Query('status') status = 'published') {
-    return await this.blogsService.findAll(parseInt(page), 10, status);
-  }
-
-  @Get('author/:authorId')
-  async findByAuthor(@Param('authorId') authorId: string, @Query('page') page = '1') {
-    return await this.blogsService.findByAuthor(authorId, parseInt(page), 10);
-  }
-
+  // API - Update blog
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'staff')
@@ -79,6 +80,7 @@ export class BlogsController {
     return await this.blogsService.update(id, updateBlogDto, req.user.userId);
   }
 
+  // API - Delete blog
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'staff')
@@ -86,8 +88,14 @@ export class BlogsController {
     return await this.blogsService.delete(id, req.user.userId);
   }
 
-  @Get('search')
-  async search(@Query('q') query: string, @Query('page') page = '1') {
-    return await this.blogsService.search(query, parseInt(page), 10);
+  // Frontend - Show blog (must be last to avoid conflicts)
+  @Get(':slug')
+  @Render('blogs/show')
+  async show(@Param('slug') slug: string) {
+    const blog = await this.blogsService.findOne(slug);
+    return {
+      title: blog.title,
+      blog,
+    };
   }
 }
