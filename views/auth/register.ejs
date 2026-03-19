@@ -1,0 +1,215 @@
+<%- include('../layout', { title, body: `
+<div class="max-w-2xl mx-auto px-4 py-12" x-data="registerForm()" x-cloak>
+    <div class="card">
+        <h1 class="text-3xl font-bold text-center mb-8">Create Your Account</h1>
+        
+        <!-- Step Tracker -->
+        <div class="step-tracker mb-8">
+            <div class="step" :class="currentStep >= 1 ? (currentStep > 1 ? 'completed' : 'active') : 'pending'">
+                <div class="step-number">
+                    <span x-show="currentStep <= 1">1</span>
+                    <span x-show="currentStep > 1">✓</span>
+                </div>
+                <div class="step-label">Account Info</div>
+            </div>
+            <div class="flex-1 h-1 bg-gray-300 mx-2" :class="currentStep >= 2 ? 'bg-blue-600' : ''"></div>
+            <div class="step" :class="currentStep >= 2 ? (currentStep > 2 ? 'completed' : 'active') : 'pending'">
+                <div class="step-number">
+                    <span x-show="currentStep <= 2">2</span>
+                    <span x-show="currentStep > 2">✓</span>
+                </div>
+                <div class="step-label">Role Selection</div>
+            </div>
+            <div class="flex-1 h-1 bg-gray-300 mx-2" :class="currentStep >= 3 ? 'bg-blue-600' : ''"></div>
+            <div class="step" :class="currentStep >= 3 ? (currentStep > 3 ? 'completed' : 'active') : 'pending'">
+                <div class="step-number">
+                    <span x-show="currentStep <= 3">3</span>
+                    <span x-show="currentStep > 3">✓</span>
+                </div>
+                <div class="step-label">Confirm</div>
+            </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div x-show="error" class="alert-error mb-6">
+            <span x-text="error"></span>
+            <button @click="error = ''" class="float-right text-xl">&times;</button>
+        </div>
+
+        <!-- Success Message -->
+        <div x-show="successMessage" class="alert-success mb-6">
+            <span x-text="successMessage"></span>
+        </div>
+
+        <form @submit.prevent="submitForm()">
+            <!-- Step 1: Account Information -->
+            <div x-show="currentStep === 1" class="space-y-4">
+                <h2 class="text-xl font-bold mb-4">Account Information</h2>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">First Name</label>
+                    <input 
+                        type="text" 
+                        x-model="formData.firstName" 
+                        class="input-field"
+                        placeholder="John"
+                        required
+                    >
+                    <span x-show="errors.firstName" class="text-red-600 text-sm" x-text="errors.firstName"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">Last Name</label>
+                    <input 
+                        type="text" 
+                        x-model="formData.lastName" 
+                        class="input-field"
+                        placeholder="Doe"
+                        required
+                    >
+                    <span x-show="errors.lastName" class="text-red-600 text-sm" x-text="errors.lastName"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email Address</label>
+                    <input 
+                        type="email" 
+                        x-model="formData.email" 
+                        class="input-field"
+                        placeholder="john@example.com"
+                        required
+                    >
+                    <span x-show="errors.email" class="text-red-600 text-sm" x-text="errors.email"></span>
+                </div>
+
+                <button type="button" @click="currentStep = 2" class="btn-primary w-full mt-6">
+                    Continue
+                </button>
+            </div>
+
+            <!-- Step 2: Role Selection -->
+            <div x-show="currentStep === 2" class="space-y-4">
+                <h2 class="text-xl font-bold mb-4">Select Your Role</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="border-2 rounded-lg p-4 cursor-pointer transition-colors" 
+                           :class="formData.role === 'individual' ? 'border-blue-600 bg-blue-50 dark-mode:bg-blue-900' : 'border-gray-300'">
+                        <input type="radio" x-model="formData.role" value="individual" required>
+                        <span class="ml-2 font-medium">Individual</span>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400 mt-1">Looking to rent a property</p>
+                    </label>
+
+                    <label class="border-2 rounded-lg p-4 cursor-pointer transition-colors" 
+                           :class="formData.role === 'hostel_owner' ? 'border-blue-600 bg-blue-50 dark-mode:bg-blue-900' : 'border-gray-300'">
+                        <input type="radio" x-model="formData.role" value="hostel_owner" required>
+                        <span class="ml-2 font-medium">Hostel Owner</span>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400 mt-1">Manage a hostel</p>
+                    </label>
+
+                    <label class="border-2 rounded-lg p-4 cursor-pointer transition-colors" 
+                           :class="formData.role === 'hotel_owner' ? 'border-blue-600 bg-blue-50 dark-mode:bg-blue-900' : 'border-gray-300'">
+                        <input type="radio" x-model="formData.role" value="hotel_owner" required>
+                        <span class="ml-2 font-medium">Hotel Owner</span>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400 mt-1">Manage a hotel</p>
+                    </label>
+
+                    <label class="border-2 rounded-lg p-4 cursor-pointer transition-colors" 
+                           :class="formData.role === 'property_manager' ? 'border-blue-600 bg-blue-50 dark-mode:bg-blue-900' : 'border-gray-300'">
+                        <input type="radio" x-model="formData.role" value="property_manager" required>
+                        <span class="ml-2 font-medium">Property Manager</span>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400 mt-1">Manage properties</p>
+                    </label>
+                </div>
+
+                <div class="flex gap-4 mt-6">
+                    <button type="button" @click="currentStep = 1" class="btn-secondary flex-1">Back</button>
+                    <button type="button" @click="currentStep = 3" class="btn-primary flex-1">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Confirmation -->
+            <div x-show="currentStep === 3" class="space-y-4">
+                <h2 class="text-xl font-bold mb-4">Confirm Your Details</h2>
+                
+                <div class="bg-gray-50 dark-mode:bg-gray-700 rounded-lg p-6 space-y-4 mb-6">
+                    <div>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400">Name</p>
+                        <p class="font-medium" x-text="\`\${formData.firstName} \${formData.lastName}\`"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400">Email</p>
+                        <p class="font-medium" x-text="formData.email"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400">Role</p>
+                        <p class="font-medium" x-text="formData.role.replace(/_/g, ' ').toUpperCase()"></p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" @click="currentStep = 2" class="btn-secondary flex-1">Back</button>
+                    <button 
+                        type="submit" 
+                        class="btn-primary flex-1"
+                        :disabled="loading"
+                        x-text="loading ? 'Creating Account...' : 'Create Account'"
+                    ></button>
+                </div>
+            </div>
+        </form>
+
+        <p class="text-center text-gray-600 dark-mode:text-gray-400 mt-6">
+            Already have an account? <a href="/auth/login" class="text-blue-600 hover:underline">Sign in</a>
+        </p>
+    </div>
+</div>
+
+<script>
+function registerForm() {
+    return {
+        currentStep: 1,
+        loading: false,
+        error: '',
+        successMessage: '',
+        formData: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            role: 'individual',
+        },
+        errors: {},
+
+        async submitForm() {
+            this.loading = true;
+            this.error = '';
+            this.successMessage = '';
+
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(this.formData),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+
+                this.successMessage = 'Account created successfully! Check your email to verify.';
+                setTimeout(() => {
+                    window.location.href = '/auth/login';
+                }, 2000);
+            } catch (err) {
+                this.error = err.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+    };
+}
+</script>
+`) %>

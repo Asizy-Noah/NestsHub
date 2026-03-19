@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary: #10b981;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        body.dark-mode {
+            @apply bg-gray-900 text-white;
+        }
+        
+        body.light-mode {
+            @apply bg-white text-gray-900;
+        }
+        
+        .btn-primary {
+            @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors;
+        }
+        
+        .btn-secondary {
+            @apply px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors;
+        }
+        
+        .input-field {
+            @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+        }
+        
+        .dark-mode .input-field {
+            @apply bg-gray-800 border-gray-600 text-white;
+        }
+        
+        .card {
+            @apply bg-white rounded-lg shadow-md p-6;
+        }
+        
+        .dark-mode .card {
+            @apply bg-gray-800 text-white;
+        }
+        
+        .alert-error {
+            @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg;
+        }
+        
+        .dark-mode .alert-error {
+            @apply bg-red-900 border-red-700 text-red-100;
+        }
+        
+        .alert-success {
+            @apply bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg;
+        }
+        
+        .dark-mode .alert-success {
+            @apply bg-green-900 border-green-700 text-green-100;
+        }
+        
+        .step-tracker {
+            @apply flex items-center justify-between mb-8;
+        }
+        
+        .step {
+            @apply flex flex-col items-center;
+        }
+        
+        .step-number {
+            @apply w-10 h-10 rounded-full flex items-center justify-center font-bold text-white;
+        }
+        
+        .step.active .step-number {
+            @apply bg-blue-600;
+        }
+        
+        .step.completed .step-number {
+            @apply bg-green-600;
+        }
+        
+        .step.pending .step-number {
+            @apply bg-gray-300;
+        }
+        
+        .step-label {
+            @apply text-sm font-medium mt-2;
+        }
+    </style>
+</head>
+<body x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" :class="darkMode ? 'dark-mode' : 'light-mode'" x-cloak>
+    <header class="border-b border-gray-200 dark-mode:border-gray-700">
+        <nav class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">RE</div>
+                <span class="font-bold text-xl">Real Estate</span>
+            </a>
+            
+            <div class="flex items-center space-x-4">
+                <button 
+                    @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                    class="p-2 rounded-lg hover:bg-gray-100 dark-mode:hover:bg-gray-700 transition-colors"
+                    title="Toggle dark mode"
+                >
+                    <svg x-show="!darkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg x-show="darkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.536l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm5.414 5.414a1 1 0 01-1.414 0l-.707-.707a1 1 0 011.414-1.414l.707.707zM5 8a1 1 0 100-2H4a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="px-4 py-2 rounded-lg hover:bg-gray-100 dark-mode:hover:bg-gray-700">
+                        Menu
+                    </button>
+                    <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white dark-mode:bg-gray-800 rounded-lg shadow-lg">
+                        <a href="/auth/login" class="block px-4 py-2 hover:bg-gray-100 dark-mode:hover:bg-gray-700">Login</a>
+                        <a href="/auth/register" class="block px-4 py-2 hover:bg-gray-100 dark-mode:hover:bg-gray-700">Register</a>
+                        <a href="/accounts/dashboard" class="block px-4 py-2 hover:bg-gray-100 dark-mode:hover:bg-gray-700">Dashboard</a>
+                        <a href="/accounts/profile" class="block px-4 py-2 hover:bg-gray-100 dark-mode:hover:bg-gray-700">Profile</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="min-h-[calc(100vh-120px)]">
+        <%- body %>
+    </main>
+
+    <footer class="border-t border-gray-200 dark-mode:border-gray-700 mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-8 text-center text-gray-600 dark-mode:text-gray-400">
+            <p>&copy; 2024 Real Estate Management. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

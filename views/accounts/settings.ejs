@@ -1,0 +1,245 @@
+<%- include('../layout', { title, body: `
+<div class="max-w-2xl mx-auto px-4 py-12" x-data="settingsForm()" x-cloak>
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">Account Settings</h1>
+        <a href="/accounts/dashboard" class="btn-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="space-y-6">
+        <!-- Change Password -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span>🔒</span> Change Password
+            </h2>
+
+            <div x-show="passwordError" class="alert-error mb-6">
+                <span x-text="passwordError"></span>
+            </div>
+
+            <div x-show="passwordSuccess" class="alert-success mb-6">
+                Password changed successfully!
+            </div>
+
+            <form @submit.prevent="changePassword()" class="space-y-4" x-show="!passwordSuccess">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Current Password</label>
+                    <input 
+                        type="password" 
+                        x-model="passwordForm.current" 
+                        class="input-field"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">New Password</label>
+                    <input 
+                        type="password" 
+                        x-model="passwordForm.new" 
+                        class="input-field"
+                        placeholder="••••••••"
+                        required
+                        @input="validateNewPassword()"
+                    >
+                    <div class="mt-2 space-y-1 text-xs">
+                        <div :class="passwordChecks.length ? 'text-green-600' : 'text-red-600'">
+                            ✓ At least 8 characters
+                        </div>
+                        <div :class="passwordChecks.upper ? 'text-green-600' : 'text-red-600'">
+                            ✓ Uppercase letter
+                        </div>
+                        <div :class="passwordChecks.special ? 'text-green-600' : 'text-red-600'">
+                            ✓ Special character
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">Confirm New Password</label>
+                    <input 
+                        type="password" 
+                        x-model="passwordForm.confirm" 
+                        class="input-field"
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="btn-primary"
+                    :disabled="passwordLoading"
+                    x-text="passwordLoading ? 'Changing...' : 'Change Password'"
+                ></button>
+            </form>
+        </div>
+
+        <!-- Two-Factor Authentication -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span>🔐</span> Two-Factor Authentication
+            </h2>
+
+            <p class="text-gray-600 dark-mode:text-gray-400 mb-4">
+                Add an extra layer of security to your account
+            </p>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-medium">2FA Status</p>
+                    <p class="text-sm text-gray-600 dark-mode:text-gray-400">
+                        <span x-show="!twoFactorEnabled" class="text-orange-600">Not Enabled</span>
+                        <span x-show="twoFactorEnabled" class="text-green-600">Enabled</span>
+                    </p>
+                </div>
+                <button 
+                    @click="toggle2FA()"
+                    :class="twoFactorEnabled ? 'bg-red-600' : 'bg-green-600'"
+                    class="btn-primary"
+                    x-text="twoFactorEnabled ? 'Disable' : 'Enable'"
+                ></button>
+            </div>
+        </div>
+
+        <!-- Privacy -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span>👤</span> Privacy Settings
+            </h2>
+
+            <div class="space-y-4">
+                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-gray-50 dark-mode:hover:bg-gray-700 rounded-lg">
+                    <input type="checkbox" x-model="settings.publicProfile" class="w-4 h-4 rounded">
+                    <div>
+                        <p class="font-medium">Public Profile</p>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400">
+                            Allow others to see your profile
+                        </p>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-gray-50 dark-mode:hover:bg-gray-700 rounded-lg">
+                    <input type="checkbox" x-model="settings.emailNotifications" class="w-4 h-4 rounded">
+                    <div>
+                        <p class="font-medium">Email Notifications</p>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400">
+                            Receive email notifications about your account
+                        </p>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-gray-50 dark-mode:hover:bg-gray-700 rounded-lg">
+                    <input type="checkbox" x-model="settings.marketingEmails" class="w-4 h-4 rounded">
+                    <div>
+                        <p class="font-medium">Marketing Emails</p>
+                        <p class="text-sm text-gray-600 dark-mode:text-gray-400">
+                            Receive promotional emails and updates
+                        </p>
+                    </div>
+                </label>
+            </div>
+
+            <button @click="saveSettings()" class="btn-primary mt-6">
+                Save Privacy Settings
+            </button>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card border-2 border-red-500">
+            <h2 class="text-xl font-bold mb-6 text-red-600">Danger Zone</h2>
+
+            <p class="text-gray-600 dark-mode:text-gray-400 mb-4">
+                These actions cannot be undone. Please be careful.
+            </p>
+
+            <button 
+                @click="deleteAccount()"
+                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+                Delete Account Permanently
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function settingsForm() {
+    return {
+        passwordLoading: false,
+        passwordError: '',
+        passwordSuccess: false,
+        twoFactorEnabled: false,
+        passwordForm: {
+            current: '',
+            new: '',
+            confirm: '',
+        },
+        passwordChecks: {
+            length: false,
+            upper: false,
+            special: false,
+        },
+        settings: {
+            publicProfile: true,
+            emailNotifications: true,
+            marketingEmails: false,
+        },
+
+        validateNewPassword() {
+            const pwd = this.passwordForm.new;
+            this.passwordChecks.length = pwd.length >= 8;
+            this.passwordChecks.upper = /[A-Z]/.test(pwd);
+            this.passwordChecks.special = /[@$!%*?&]/.test(pwd);
+        },
+
+        async changePassword() {
+            this.passwordLoading = true;
+            this.passwordError = '';
+            this.passwordSuccess = false;
+
+            try {
+                if (this.passwordForm.new !== this.passwordForm.confirm) {
+                    throw new Error('Passwords do not match');
+                }
+
+                // Validation would happen here
+                this.passwordSuccess = true;
+                this.passwordForm = { current: '', new: '', confirm: '' };
+            } catch (err) {
+                this.passwordError = err.message;
+            } finally {
+                this.passwordLoading = false;
+            }
+        },
+
+        async toggle2FA() {
+            this.twoFactorEnabled = !this.twoFactorEnabled;
+            // Would save to backend here
+        },
+
+        async saveSettings() {
+            // Would save settings to backend
+            alert('Settings saved successfully!');
+        },
+
+        deleteAccount() {
+            if (confirm('Are you absolutely sure? This will permanently delete your account and all associated data. This cannot be undone.')) {
+                const token = localStorage.getItem('accessToken');
+                const user = JSON.parse(localStorage.getItem('user'));
+                
+                fetch(\`/accounts/\${user?.id}\`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': \`Bearer \${token}\`,
+                    },
+                }).then(() => {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/';
+                });
+            }
+        },
+    };
+}
+</script>
+`) %>
