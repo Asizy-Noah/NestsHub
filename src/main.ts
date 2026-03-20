@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import expressLayouts from 'express-ejs-layouts';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -12,10 +13,15 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
 
-  // Global validation pipe
+  // 2. Initialize the layout middleware (CRITICAL)
+  app.use(expressLayouts);
+  
+  // 3. Set the default layout to 'layouts/main' 
+  app.set('layout', 'layouts/main');
+
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
+      whitelist: true, 
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: {
@@ -24,14 +30,10 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS for development
   app.enableCors();
-
-  app.set('layout', 'layouts/main');
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
 }
-
 bootstrap();

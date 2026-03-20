@@ -1,98 +1,37 @@
-
-<div class="max-w-md mx-auto px-4 py-12" x-data="loginForm()" x-cloak>
-    <div class="card">
-        <h1 class="text-3xl font-bold text-center mb-8">Sign In</h1>
-
-        <!-- Error Messages -->
-        <div x-show="error" class="alert-error mb-6">
-            <span x-text="error"></span>
-            <button @click="error = ''" class="float-right text-xl">&times;</button>
-        </div>
-
-        <form @submit.prevent="submitForm()" class="space-y-6">
-            <div>
-                <label class="block text-sm font-medium mb-2">Email Address</label>
-                <input 
-                    type="email" 
-                    x-model="formData.email" 
-                    class="input-field"
-                    placeholder="you@example.com"
-                    required
-                >
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-2">Password</label>
-                <input 
-                    type="password" 
-                    x-model="formData.password" 
-                    class="input-field"
-                    placeholder="••••••••"
-                    required
-                >
-            </div>
-
-            <button 
-                type="submit" 
-                class="btn-primary w-full"
-                :disabled="loading"
-                x-text="loading ? 'Signing in...' : 'Sign In'"
-            ></button>
-        </form>
-
-        <div class="mt-6 space-y-3 text-center">
-            <a href="/auth/forgot-password" class="block text-blue-600 hover:underline text-sm">
-                Forgot your password?
-            </a>
-            <p class="text-gray-600 dark-mode:text-gray-400">
-                Don't have an account? <a href="/auth/register" class="text-blue-600 hover:underline">Sign up</a>
-            </p>
-        </div>
+<div class="max-w-md mx-auto px-4 py-16">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-professional dark:text-white">Welcome Back</h1>
+        <p class="text-slate-500 mt-2">Sign in to your NestHub account</p>
     </div>
+
+    <div class="card">
+        <form action="/dashboard" method="GET" class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium mb-1 text-professional dark:text-slate-300">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
+                    </div>
+                    <input type="email" placeholder="you@example.com" required class="input-field">
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <label class="block text-sm font-medium text-professional dark:text-slate-300">Password</label>
+                    <a href="/auth/forgot-password" class="text-sm text-accent hover:underline font-medium">Forgot password?</a>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                    </div>
+                    <input type="password" placeholder="••••••••" required class="input-field">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-full mt-2">Sign In</button>
+        </form>
+    </div>
+
+    <p class="text-center mt-6 text-slate-500">Don't have an account? <a href="/auth/register" class="text-primary hover:underline font-semibold">Create one</a></p>
 </div>
-
-<script>
-function loginForm() {
-    return {
-        loading: false,
-        error: '',
-        formData: {
-            email: '',
-            password: '',
-        },
-
-        async submitForm() {
-            this.loading = true;
-            this.error = '';
-
-            try {
-                const response = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(this.formData),
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Login failed');
-                }
-
-                // Store token
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('user', JSON.stringify(data.user));
-
-                // Redirect to dashboard
-                window.location.href = '/accounts/dashboard';
-            } catch (err) {
-                this.error = err.message;
-            } finally {
-                this.loading = false;
-            }
-        },
-    };
-}
-</script>
-

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title><%= typeof title !== 'undefined' ? title : 'Real Estate Management' %></title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -26,21 +26,21 @@
     <script type="text/tailwindcss">
         @layer components {
             .btn-primary {
-                @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm inline-block text-center cursor-pointer;
+                @apply px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md inline-block text-center cursor-pointer font-semibold;
             }
             .btn-secondary {
-                @apply px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 transition-all duration-200 inline-block text-center cursor-pointer;
+                @apply px-6 py-2.5 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 transition-all duration-200 inline-block text-center cursor-pointer font-semibold;
+            }
+            .card {
+                @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300;
             }
             .input-field {
                 @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white bg-white;
             }
-            .card {
-                @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-700;
-            }
         }
         @layer base {
             [x-cloak] { display: none !important; }
-            body { @apply antialiased; }
+            body { @apply antialiased transition-colors duration-200; }
         }
     </script>
 </head>
@@ -51,34 +51,19 @@
 >
     <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <nav class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="/" class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">RE</div>
-                <span class="font-bold text-xl tracking-tight">Real Estate</span>
+            <a href="/" class="font-bold text-xl flex items-center space-x-2">
+                <span class="p-1.5 bg-blue-600 text-white rounded-lg">RE</span>
+                <span>NestHub</span>
             </a>
-            
-            <div class="flex items-center space-x-4">
-                <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
-                    <svg x-show="!darkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                    <svg x-show="darkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.536l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm5.414 5.414a1 1 0 01-1.414 0l-.707-.707a1 1 0 011.414-1.414l.707.707zM5 8a1 1 0 100-2H4a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
-                </button>
-                
-                <div x-data="{ open: false }" class="relative">
-                    <button @click="open = !open" class="flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium">
-                        <span>Menu</span>
-                    </button>
-                    <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2">
-                        <a href="/auth/login" class="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Login</a>
-                        <a href="/auth/register" class="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Register</a>
-                        <hr class="my-1 border-gray-100 dark:border-gray-700">
-                        <a href="/accounts/dashboard" class="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Dashboard</a>
-                    </div>
-                </div>
-            </div>
+            <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-full">
+                <span x-show="!darkMode">🌙</span>
+                <span x-show="darkMode">☀️</span>
+            </button>
         </nav>
     </header>
 
     <main class="min-h-[calc(100vh-160px)]">
-        <%- body %>
+        <%- body %> 
     </main>
 
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 text-center text-sm text-gray-500">
