@@ -1,12 +1,18 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Render, UseGuards, Req, Query } from '@nestjs/common';
 import { HostelsService } from './hostels.service';
 import { CreateHostelDto, UpdateHostelDto, ApplyVerificationDto } from './dto/create-hostel.dto';
 import { CreateRoomDto, UpdateRoomDto } from './dto/create-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@Controller('hostels')
+@Controller('dashboard/hostels')
 export class HostelsController {
   constructor(private readonly hostelService: HostelsService) {}
+
+  @Get()
+  @Render('hostels/dashboard')
+  getHostelDashboard() {
+    return { title: 'Hostel Dashboard' };
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -36,10 +42,10 @@ export class HostelsController {
     return this.hostelService.getHostelStats(req.user.sub);
   }
 
-  @Get()
+  /* @Get()
   async getAllHostels(@Query('skip') skip = 0, @Query('limit') limit = 10) {
     return this.hostelService.getAllHostels(skip, limit);
-  }
+  } */
 
   @Get(':id')
   async getHostelById(@Param('id') id: string) {

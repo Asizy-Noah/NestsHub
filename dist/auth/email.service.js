@@ -50,30 +50,81 @@ let EmailService = EmailService_1 = class EmailService {
     constructor() {
         this.logger = new common_1.Logger(EmailService_1.name);
         this.transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
-            port: parseInt(process.env.SMTP_PORT || '2525'),
+            host: process.env.SMTP_HOST || 'smtp.gmail.com',
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: process.env.SMTP_PORT === '465',
             auth: {
-                user: process.env.SMTP_USER || 'test',
-                pass: process.env.SMTP_PASS || 'test',
+                user: process.env.SMTP_USER || 'asionoah@gmail.com',
+                pass: process.env.SMTP_PASS || 'zifx acyy ngku ivdx',
             },
         });
     }
+    getBaseTemplate(content) {
+        return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #FFFFFF; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); border: 1px solid #E2E8F0;">
+                <tr>
+                  <td style="background-color: #1E293B; padding: 40px; text-align: center;">
+                    <div style="display: inline-block; background-color: #10B981; padding: 10px; border-radius: 12px; margin-bottom: 15px;">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/apartment-complex.png" width="30" height="30" alt="Logo" style="display: block;">
+                    </div>
+                    <h1 style="color: #FFFFFF; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;">Nest<span style="color: #10B981;">Hub</span></h1>
+                    <p style="color: #94A3B8; margin: 5px 0 0 0; font-size: 14px; font-weight: 500;">Real Estate Management Platform</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 50px 40px; color: #0F172A;">
+                    ${content}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="background-color: #F1F5F9; padding: 30px; text-align: center; color: #64748B; font-size: 13px;">
+                    <p style="margin: 0; font-weight: 600; color: #1E293B;">&copy; 2026 NestsHub Uganda</p>
+                    <p style="margin: 5px 0;">Providing professional property and hospitality management solutions.</p>
+                    <div style="margin-top: 15px;">
+                        <a href="#" style="color: #10B981; text-decoration: none; margin: 0 10px;">Support</a>
+                        <a href="#" style="color: #10B981; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+    }
     async sendVerificationEmail(email, firstName, token) {
         const verificationUrl = `${process.env.APP_URL || 'http://localhost:3000'}/auth/verify-email?token=${token}`;
+        const content = `
+      <h2 style="margin-top: 0; font-size: 24px; font-weight: 700;">Welcome to the family, ${firstName}!</h2>
+      <p style="font-size: 16px; line-height: 1.6; color: #475569;">We're excited to have you join our real estate community. To get started with managing your properties or hostels, please verify your email address below.</p>
+      
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="${verificationUrl}" style="background-color: #F59E0B; color: #FFFFFF; padding: 16px 35px; text-decoration: none; border-radius: 12px; font-weight: 700; display: inline-block; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);">Verify Account</a>
+      </div>
+      
+      <p style="font-size: 14px; color: #94A3B8; background: #F8FAFC; padding: 15px; border-radius: 8px; border: 1px dashed #E2E8F0;">
+        <b>Link Troubles?</b> Copy and paste this into your browser:<br>
+        <span style="color: #10B981;">${verificationUrl}</span>
+      </p>
+      <p style="font-size: 14px; color: #64748B; margin-top: 20px;">This verification link will expire in <b>24 hours</b>.</p>
+    `;
         const mailOptions = {
-            from: process.env.SMTP_FROM || 'noreply@realestate.com',
+            from: process.env.FROM_EMAIL || '"NestsHubUg" <asionoah@gmail.com>',
             to: email,
-            subject: 'Verify Your Email - Real Estate',
-            html: `
-        <h2>Welcome ${firstName}!</h2>
-        <p>Please verify your email address by clicking the link below:</p>
-        <a href="${verificationUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-          Verify Email
-        </a>
-        <p>Or copy and paste this link in your browser:</p>
-        <p>${verificationUrl}</p>
-        <p>This link will expire in 24 hours.</p>
-      `,
+            subject: 'Verify Your Email - NestHub',
+            html: this.getBaseTemplate(content),
         };
         try {
             await this.transporter.sendMail(mailOptions);
@@ -86,22 +137,22 @@ let EmailService = EmailService_1 = class EmailService {
     }
     async sendPasswordResetEmail(email, firstName, token) {
         const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
+        const content = `
+      <h2 style="margin-top: 0; font-size: 24px; font-weight: 700; color: #1E293B;">Password Reset Request</h2>
+      <p style="font-size: 16px; line-height: 1.6; color: #475569;">Hi ${firstName}, we received a request to reset your NestHub password. Click the button below to secure your account and set a new password.</p>
+      
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="${resetUrl}" style="background-color: #F59E0B; color: #FFFFFF; padding: 16px 35px; text-decoration: none; border-radius: 12px; font-weight: 700; display: inline-block; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);">Reset Password</a>
+      </div>
+      
+      <p style="font-size: 14px; line-height: 1.6; color: #64748B;">If you did not request this reset, you can safely ignore this email. Your password will remain unchanged.</p>
+      <p style="font-size: 14px; color: #64748B; margin-top: 20px;">This request is valid for <b>1 hour</b> only.</p>
+    `;
         const mailOptions = {
-            from: process.env.SMTP_FROM || 'noreply@realestate.com',
+            from: process.env.FROM_EMAIL || '"NestsHubUg" <asionoah@gmail.com>',
             to: email,
-            subject: 'Password Reset - Real Estate',
-            html: `
-        <h2>Password Reset Request</h2>
-        <p>Hi ${firstName},</p>
-        <p>You requested to reset your password. Click the link below to proceed:</p>
-        <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-          Reset Password
-        </a>
-        <p>Or copy and paste this link in your browser:</p>
-        <p>${resetUrl}</p>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-      `,
+            subject: 'Secure Password Reset - NestHub',
+            html: this.getBaseTemplate(content),
         };
         try {
             await this.transporter.sendMail(mailOptions);
@@ -113,16 +164,28 @@ let EmailService = EmailService_1 = class EmailService {
         }
     }
     async sendWelcomeEmail(email, firstName) {
+        const content = `
+      <h2 style="margin-top: 0; font-size: 24px; font-weight: 700; color: #10B981;">Account Verified!</h2>
+      <p style="font-size: 16px; line-height: 1.6; color: #475569;">Welcome aboard, ${firstName}! Your account has been successfully verified. You now have full access to the NestHub property management suite.</p>
+      
+      <div style="background-color: #F8FAFC; border-radius: 12px; padding: 25px; margin: 30px 0; border-left: 4px solid #10B981;">
+        <h4 style="margin: 0 0 10px 0; color: #1E293B;">Next Steps:</h4>
+        <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 15px;">
+            <li>Set up your property profile</li>
+            <li>List your first rental or hostel room</li>
+            <li>Enable two-factor authentication for added security</li>
+        </ul>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${process.env.APP_URL}/dashboard" style="background-color: #1E293B; color: #FFFFFF; padding: 14px 30px; text-decoration: none; border-radius: 12px; font-weight: 600; display: inline-block;">Go to Dashboard</a>
+      </div>
+    `;
         const mailOptions = {
-            from: process.env.SMTP_FROM || 'noreply@realestate.com',
+            from: process.env.FROM_EMAIL || '"NestsHubUg" <asionoah@gmail.com>',
             to: email,
-            subject: 'Welcome to Real Estate!',
-            html: `
-        <h2>Welcome ${firstName}!</h2>
-        <p>Your account has been successfully created and verified.</p>
-        <p>You can now access all features of our Real Estate platform.</p>
-        <p>If you have any questions, please contact our support team.</p>
-      `,
+            subject: 'Welcome to NestHub Uganda!',
+            html: this.getBaseTemplate(content),
         };
         try {
             await this.transporter.sendMail(mailOptions);

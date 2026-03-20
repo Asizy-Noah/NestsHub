@@ -15,8 +15,8 @@ const mongoose_2 = require("mongoose");
 var AccountRole;
 (function (AccountRole) {
     AccountRole["INDIVIDUAL"] = "individual";
-    AccountRole["HOSTEL_OWNER"] = "hostel_owner";
-    AccountRole["HOTEL_OWNER"] = "hotel_owner";
+    AccountRole["HOSTEL_MANAGER"] = "hostel_manager";
+    AccountRole["HOTEL_MANAGER"] = "hotel_manager";
     AccountRole["PROPERTY_MANAGER"] = "property_manager";
     AccountRole["ADMIN"] = "admin";
     AccountRole["STAFF"] = "staff";
@@ -24,6 +24,7 @@ var AccountRole;
 var AccountStatus;
 (function (AccountStatus) {
     AccountStatus["PENDING_EMAIL_VERIFICATION"] = "pending_email_verification";
+    AccountStatus["EMAIL_VERIFIED"] = "email_verified";
     AccountStatus["PENDING_PASSWORD_SET"] = "pending_password_set";
     AccountStatus["ACTIVE"] = "active";
     AccountStatus["SUSPENDED"] = "suspended";
@@ -55,7 +56,7 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
-], Account.prototype, "passwordHash", void 0);
+], Account.prototype, "password", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: String, default: null }),
     __metadata("design:type", Object)
@@ -160,6 +161,18 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], Account.prototype, "hotelStarRating", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Account.prototype, "otherNames", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Account.prototype, "nationality", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Account.prototype, "idNumber", void 0);
 exports.Account = Account = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true, discriminatorKey: 'role' })
 ], Account);

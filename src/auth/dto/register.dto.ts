@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsEnum, MinLength } from 'class-validator';
+import { IsEmail, IsString, IsEnum, MinLength, IsOptional } from 'class-validator';
 import { AccountRole } from '../../accounts/schemas/account.schema';
 
 export class RegisterDto {
@@ -15,4 +15,32 @@ export class RegisterDto {
 
   @IsEnum(AccountRole)
   role!: AccountRole;
+
+  @IsOptional()
+  @IsString()
+  otherNames?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  nationality?: string;
+
+  @IsOptional()
+  @IsString()
+  idNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  hostelName?: string;
+
+  @IsOptional()
+  @IsString()
+  hotelName?: string;
+  
+  @IsOptional()
+  @IsString()
+  adminCode?: string;
 }

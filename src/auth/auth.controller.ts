@@ -5,6 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AccountRole } from '@/accounts/schemas/account.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -33,25 +34,40 @@ export class AuthController {
   @Get('verify-email')
   @Render('auth/verify-email')
   getVerifyEmail(@Query('token') token: string) {
-    return { title: 'Verify Email', token };
+    return { 
+      title: 'Verify Email', 
+      token,
+      layout: 'layouts/auth',
+     };
   }
 
   @Get('set-password')
   @Render('auth/set-password')
   getSetPassword(@Query('accountId') accountId: string) {
-    return { title: 'Set Password', accountId };
+    return { 
+      title: 'Set Password', 
+      accountId,
+      layout: 'layouts/auth',
+     };
   }
 
   @Get('reset-password')
   @Render('auth/reset-password')
   getResetPassword(@Query('token') token: string) {
-    return { title: 'Reset Password', token };
+    return { 
+      title: 'Reset Password', 
+      token,
+      layout: 'layouts/auth',
+     };
   }
 
   @Get('forgot-password')
   @Render('auth/forgot-password')
   getForgotPassword() {
-    return { title: 'Forgot Password' };
+    return { 
+      title: 'Forgot Password',
+      layout: 'layouts/auth',
+     };
   }
 
   // API Routes
@@ -67,35 +83,37 @@ export class AuthController {
 
   @Post('set-password')
   async setPassword(
-    @Body('accountId') accountId: string,
-    @Body() setPasswordDto: SetPasswordDto,
+    @Query('accountId') accountId: string, 
+    @Body() setPasswordDto: SetPasswordDto
   ) {
     return await this.authService.setPassword(accountId, setPasswordDto);
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    const result = await this.authService.login(loginDto);
-    
-    // Add redirect information based on role
-    if (result.user) {
-      const roleRedirectMap = {
-        'admin': '/dashboard/admin',
-        'staff': '/dashboard/staff',
-        'hostel_owner': '/dashboard/hostel',
-        'hotel_owner': '/dashboard/hotel',
-        'property_manager': '/dashboard/properties',
-        'individual': '/dashboard',
-      };
-      (result as any).redirect = roleRedirectMap[result.user.role] || '/dashboard';
-    }
-    
-    return result;
+async login(@Body() loginDto: LoginDto) {
+  const result = await this.authService.login(loginDto);
+  
+  if (result.user) {
+    // FIX: Map keys to the exact enum values defined in account.schema.ts
+    const roleRedirectMap: Record<string, string> = {
+      [AccountRole.ADMIN]: '/dashboard/admin',
+      [AccountRole.STAFF]: '/dashboard/staff',
+      [AccountRole.HOSTEL_MANAGER]: '/dashboard/hostel',
+      [AccountRole.HOTEL_MANAGER]: '/dashboard/hotel',
+      [AccountRole.PROPERTY_MANAGER]: '/dashboard/properties',
+      [AccountRole.INDIVIDUAL]: '/',
+    };
+
+    // Use the user's role to find the correct redirect path
+    (result as any).redirect = roleRedirectMap[result.user.role] || '/dashboard';
   }
+  
+  return result;
+}
 
   @Post('forgot-password')
   async forgotPassword(@Body('email') email: string) {
-    return await this.authService.initiatePasswordReset(email);
+      return await this.authService.initiatePasswordReset(email);
   }
 
   @Post('reset-password')

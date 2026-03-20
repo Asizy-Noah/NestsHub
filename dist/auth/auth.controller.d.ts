@@ -3,6 +3,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AccountRole } from '@/accounts/schemas/account.schema';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
@@ -18,17 +19,21 @@ export declare class AuthController {
     getVerifyEmail(token: string): {
         title: string;
         token: string;
+        layout: string;
     };
     getSetPassword(accountId: string): {
         title: string;
         accountId: string;
+        layout: string;
     };
     getResetPassword(token: string): {
         title: string;
         token: string;
+        layout: string;
     };
     getForgotPassword(): {
         title: string;
+        layout: string;
     };
     register(registerDto: RegisterDto): Promise<{
         message: string;
@@ -48,7 +53,7 @@ export declare class AuthController {
             email: string;
             firstName: string;
             lastName: string;
-            role: import("../accounts/schemas/account.schema").AccountRole;
+            role: AccountRole;
         };
     }>;
     forgotPassword(email: string): Promise<{
@@ -61,7 +66,7 @@ export declare class AuthController {
         valid: boolean;
         user: any;
     }>;
-    getCurrentUser(req: any): Promise<(import("mongoose").Document<unknown, {}, import("../accounts/schemas/account.schema").Account, {}, {}> & import("../accounts/schemas/account.schema").Account & Required<{
+    getCurrentUser(req: any): Promise<(import("mongoose").Document<unknown, {}, import("@/accounts/schemas/account.schema").Account, {}, {}> & import("@/accounts/schemas/account.schema").Account & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;

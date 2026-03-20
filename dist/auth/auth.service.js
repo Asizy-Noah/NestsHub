@@ -61,7 +61,7 @@ let AuthService = class AuthService {
         this.emailService = emailService;
     }
     async register(registerDto) {
-        const { email, firstName, lastName, role } = registerDto;
+        const { email, firstName, lastName, role, otherNames, phone, nationality, idNumber, hostelName, hotelName } = registerDto;
         const existingAccount = await this.accountModel.findOne({ email: email.toLowerCase() });
         if (existingAccount) {
             throw new common_1.ConflictException('Email already registered');
@@ -72,56 +72,50 @@ let AuthService = class AuthService {
             email: email.toLowerCase(),
             firstName,
             lastName,
+            otherNames,
             role,
+            phoneNumber: phone,
+            nationality,
+            idNumber,
+            hostelName,
+            hotelName,
             status: account_schema_1.AccountStatus.PENDING_EMAIL_VERIFICATION,
             emailVerificationToken,
             emailVerificationExpiry,
         });
         await account.save();
         await this.emailService.sendVerificationEmail(email, firstName, emailVerificationToken);
-        return {
-            message: 'Registration successful. Please verify your email.',
-            accountId: account._id,
-        };
+        return { message: 'Registration successful. Please verify your email.', accountId: account._id };
     }
     async verifyEmail(token) {
         const account = await this.accountModel.findOne({
             emailVerificationToken: token,
-            emailVerificationExpiry: { $gt: Date.now() },
+            emailVerificationExpiry: { $gt: new Date() },
         });
         if (!account) {
             throw new common_1.BadRequestException('Invalid or expired verification token');
         }
+        account.status = account_schema_1.AccountStatus.EMAIL_VERIFIED;
         account.emailVerified = true;
         account.emailVerificationToken = null;
-        account.passwordResetToken = null;
-        account.status = account_schema_1.AccountStatus.PENDING_PASSWORD_SET;
         await account.save();
         return {
             message: 'Email verified successfully',
-            accountId: account._id,
+            accountId: account._id
         };
     }
     async setPassword(accountId, setPasswordDto) {
-        const { password, confirmPassword } = setPasswordDto;
-        if (password !== confirmPassword) {
-            throw new common_1.BadRequestException('Passwords do not match');
-        }
+        const { password } = setPasswordDto;
         const account = await this.accountModel.findById(accountId);
         if (!account) {
-            throw new common_1.BadRequestException('Account not found');
+            throw new common_1.NotFoundException('Account not found');
         }
-        if (account.status !== account_schema_1.AccountStatus.PENDING_PASSWORD_SET && account.passwordHash) {
-            throw new common_1.BadRequestException('Password already set');
-        }
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
-        account.passwordHash = passwordHash;
+        const salt = await bcrypt.genSalt();
+        account.password = await bcrypt.hash(password, salt);
         account.status = account_schema_1.AccountStatus.ACTIVE;
+        account.emailVerificationToken = null;
         await account.save();
-        return {
-            message: 'Password set successfully. You can now login.',
-        };
+        return { message: 'Password set successfully' };
     }
     async login(loginDto) {
         const { email, password } = loginDto;
@@ -132,10 +126,10 @@ let AuthService = class AuthService {
         if (!account.emailVerified) {
             throw new common_1.UnauthorizedException('Please verify your email first');
         }
-        if (!account.passwordHash) {
+        if (!account.password) {
             throw new common_1.UnauthorizedException('Password not set. Please set password first');
         }
-        const isPasswordValid = await bcrypt.compare(password, account.passwordHash);
+        const isPasswordValid = await bcrypt.compare(password, account.password);
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
@@ -182,14 +176,14 @@ let AuthService = class AuthService {
         }
         const account = await this.accountModel.findOne({
             passwordResetToken: token,
-            passwordResetExpiry: { $gt: Date.now() },
+            passwordResetExpiry: { $gt: new Date() },
         });
         if (!account) {
             throw new common_1.BadRequestException('Invalid or expired reset token');
         }
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
-        account.passwordHash = passwordHash;
+        account.password = passwordHash;
         account.passwordResetToken = null;
         account.passwordResetExpiry = null;
         await account.save();

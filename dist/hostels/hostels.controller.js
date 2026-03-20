@@ -22,6 +22,9 @@ let HostelsController = class HostelsController {
     constructor(hostelService) {
         this.hostelService = hostelService;
     }
+    getHostelDashboard() {
+        return { title: 'Hostel Dashboard' };
+    }
     async createHostel(req, createHostelDto) {
         return this.hostelService.createHostel(req.user.sub, createHostelDto);
     }
@@ -36,9 +39,6 @@ let HostelsController = class HostelsController {
     }
     async getHostelStats(req) {
         return this.hostelService.getHostelStats(req.user.sub);
-    }
-    async getAllHostels(skip = 0, limit = 10) {
-        return this.hostelService.getAllHostels(skip, limit);
     }
     async getHostelById(id) {
         return this.hostelService.findHostelById(id);
@@ -67,6 +67,13 @@ let HostelsController = class HostelsController {
     }
 };
 exports.HostelsController = HostelsController;
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.Render)('hostels/dashboard'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HostelsController.prototype, "getHostelDashboard", null);
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
@@ -109,14 +116,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], HostelsController.prototype, "getHostelStats", null);
-__decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('skip')),
-    __param(1, (0, common_1.Query)('limit')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getAllHostels", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -190,7 +189,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], HostelsController.prototype, "deleteRoom", null);
 exports.HostelsController = HostelsController = __decorate([
-    (0, common_1.Controller)('hostels'),
+    (0, common_1.Controller)('dashboard/hostels'),
     __metadata("design:paramtypes", [hostels_service_1.HostelsService])
 ], HostelsController);
 //# sourceMappingURL=hostels.controller.js.map

@@ -1,33 +1,31 @@
-<%- include('../layout', { title, body: `
-<div class="max-w-md mx-auto px-4 py-12" x-data="verifyEmailForm('${token}')" x-cloak>
-    <div class="card text-center">
-        <div class="text-5xl mb-4">✉️</div>
-        <h1 class="text-3xl font-bold mb-4">Verify Your Email</h1>
-
-        <!-- Loading State -->
-        <div x-show="loading" class="text-center py-12">
-            <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4">Verifying your email address...</p>
+<div class="w-full max-w-md mx-auto" x-data="verifyEmailForm('<%= typeof token !== 'undefined' ? token : '' %>')" x-init="init()">
+    
+    <div class="card text-center relative overflow-hidden">
+        <div x-show="success && !loading" x-transition.opacity x-cloak>
+            <div class="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <i class="fa-solid fa-check-double text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-professional dark:text-white mb-4">Email Verified!</h1>
+            <p class="text-slate-500 mb-8">Your email has been successfully verified. We are redirecting you to secure your account.</p>
+            <div class="flex items-center justify-center gap-2 text-primary font-bold">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Redirecting...
+            </div>
         </div>
 
-        <!-- Success State -->
-        <div x-show="success && !loading" class="space-y-6">
-            <div class="alert-success">Email verified successfully!</div>
-            <p class="text-gray-600 dark-mode:text-gray-400">
-                Your email has been verified. Now let's set up your password.
-            </p>
-            <a href="/auth/set-password" class="btn-primary w-full block">
-                Set Password
-            </a>
+        <div x-show="error && !loading" x-transition.opacity x-cloak>
+            <div class="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <i class="fa-solid fa-triangle-exclamation text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-professional dark:text-white mb-4">Verification Failed</h1>
+            <p class="text-slate-500 mb-8" x-text="error"></p>
+            <a href="/auth/register" class="btn-outline w-full justify-center">Back to Registration</a>
         </div>
 
-        <!-- Error State -->
-        <div x-show="error && !loading" class="space-y-6">
-            <div class="alert-error">Verification Failed</div>
-            <p class="text-gray-600 dark-mode:text-gray-400" x-text="error"></p>
-            <a href="/auth/register" class="btn-primary w-full block">
-                Back to Registration
-            </a>
+        <div x-show="loading" class="py-8">
+            <div class="w-16 h-16 text-primary mx-auto mb-6 animate-spin">
+                <i class="fa-solid fa-circle-notch text-5xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-professional dark:text-white">Verifying...</h2>
         </div>
     </div>
 </div>
@@ -38,35 +36,41 @@ function verifyEmailForm(token) {
         loading: true,
         success: false,
         error: '',
-
         async init() {
+            if (!token) {
+                this.error = 'No verification token provided.';
+                this.loading = false;
+                return;
+            }
             try {
                 const response = await fetch('/auth/verify-email', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token }),
                 });
-
+                
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Verification failed');
-                }
-
+                
+                if (!response.ok) throw new Error(data.message || 'Verification failed');
+                
                 this.success = true;
+
+                // RECTIFICATION: Pass the accountId in the query string during redirect
+                setTimeout(() => { 
+                    if (data.accountId) {
+                        window.location.href = `/auth/set-password?accountId=${data.accountId}`; 
+                    } else {
+                        this.error = "Verified, but failed to retrieve account ID.";
+                        this.success = false;
+                    }
+                }, 2000);
+
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
-        },
-
-        init() {
-            this.init();
-        },
+        }
     };
 }
 </script>
-`) %>

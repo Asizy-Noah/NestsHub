@@ -3,8 +3,8 @@ import { Document } from 'mongoose';
 
 export enum AccountRole {
   INDIVIDUAL = 'individual',
-  HOSTEL_OWNER = 'hostel_owner',
-  HOTEL_OWNER = 'hotel_owner',
+  HOSTEL_MANAGER = 'hostel_manager',
+  HOTEL_MANAGER = 'hotel_manager',
   PROPERTY_MANAGER = 'property_manager',
   ADMIN = 'admin',
   STAFF = 'staff',
@@ -12,6 +12,7 @@ export enum AccountRole {
 
 export enum AccountStatus {
   PENDING_EMAIL_VERIFICATION = 'pending_email_verification',
+  EMAIL_VERIFIED = 'email_verified',
   PENDING_PASSWORD_SET = 'pending_password_set',
   ACTIVE = 'active',
   SUSPENDED = 'suspended',
@@ -35,11 +36,11 @@ export class Account extends Document {
   @Prop({ type: String, enum: Object.values(AccountStatus), default: AccountStatus.PENDING_EMAIL_VERIFICATION })
   status!: AccountStatus;
 
-  @Prop()
-  passwordHash!: string;
+  @Prop() // Add this line
+  password?: string;
 
   @Prop({ type: String, default: null }) 
-emailVerificationToken!: string | null;
+  emailVerificationToken!: string | null;
 
   @Prop()
   emailVerificationExpiry!: Date;
@@ -117,6 +118,15 @@ emailVerificationToken!: string | null;
 
   @Prop()
   hotelStarRating!: number;
+
+  @Prop()
+  otherNames!: string;
+
+  @Prop()
+  nationality!: string;
+
+  @Prop()
+  idNumber!: string;
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account);

@@ -20,6 +20,7 @@ const login_dto_1 = require("./dto/login.dto");
 const set_password_dto_1 = require("./dto/set-password.dto");
 const reset_password_dto_1 = require("./dto/reset-password.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
+const account_schema_1 = require("../accounts/schemas/account.schema");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -38,16 +39,31 @@ let AuthController = class AuthController {
         };
     }
     getVerifyEmail(token) {
-        return { title: 'Verify Email', token };
+        return {
+            title: 'Verify Email',
+            token,
+            layout: 'layouts/auth',
+        };
     }
     getSetPassword(accountId) {
-        return { title: 'Set Password', accountId };
+        return {
+            title: 'Set Password',
+            accountId,
+            layout: 'layouts/auth',
+        };
     }
     getResetPassword(token) {
-        return { title: 'Reset Password', token };
+        return {
+            title: 'Reset Password',
+            token,
+            layout: 'layouts/auth',
+        };
     }
     getForgotPassword() {
-        return { title: 'Forgot Password' };
+        return {
+            title: 'Forgot Password',
+            layout: 'layouts/auth',
+        };
     }
     async register(registerDto) {
         return await this.authService.register(registerDto);
@@ -62,12 +78,12 @@ let AuthController = class AuthController {
         const result = await this.authService.login(loginDto);
         if (result.user) {
             const roleRedirectMap = {
-                'admin': '/dashboard/admin',
-                'staff': '/dashboard/staff',
-                'hostel_owner': '/dashboard/hostel',
-                'hotel_owner': '/dashboard/hotel',
-                'property_manager': '/dashboard/properties',
-                'individual': '/dashboard',
+                [account_schema_1.AccountRole.ADMIN]: '/dashboard/admin',
+                [account_schema_1.AccountRole.STAFF]: '/dashboard/staff',
+                [account_schema_1.AccountRole.HOSTEL_MANAGER]: '/dashboard/hostel',
+                [account_schema_1.AccountRole.HOTEL_MANAGER]: '/dashboard/hotel',
+                [account_schema_1.AccountRole.PROPERTY_MANAGER]: '/dashboard/properties',
+                [account_schema_1.AccountRole.INDIVIDUAL]: '/',
             };
             result.redirect = roleRedirectMap[result.user.role] || '/dashboard';
         }
@@ -149,7 +165,7 @@ __decorate([
 ], AuthController.prototype, "verifyEmail", null);
 __decorate([
     (0, common_1.Post)('set-password'),
-    __param(0, (0, common_1.Body)('accountId')),
+    __param(0, (0, common_1.Query)('accountId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, set_password_dto_1.SetPasswordDto]),

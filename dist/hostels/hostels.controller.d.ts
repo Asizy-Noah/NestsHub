@@ -4,6 +4,9 @@ import { CreateRoomDto, UpdateRoomDto } from './dto/create-room.dto';
 export declare class HostelsController {
     private readonly hostelService;
     constructor(hostelService: HostelsService);
+    getHostelDashboard(): {
+        title: string;
+    };
     createHostel(req: any, createHostelDto: CreateHostelDto): Promise<import("./schemas/hostel.schema").Hostel>;
     getMyHostel(req: any): Promise<import("./schemas/hostel.schema").Hostel>;
     searchHostels(query: string, skip?: number, limit?: number): Promise<{
@@ -22,10 +25,6 @@ export declare class HostelsController {
         availableRooms: number;
         occupiedRooms: number;
         amenitiesCount: number;
-    }>;
-    getAllHostels(skip?: number, limit?: number): Promise<{
-        data: import("./schemas/hostel.schema").Hostel[];
-        total: number;
     }>;
     getHostelById(id: string): Promise<import("./schemas/hostel.schema").Hostel>;
     updateHostel(id: string, req: any, updateHostelDto: UpdateHostelDto): Promise<import("./schemas/hostel.schema").Hostel>;

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,89 +20,86 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, firstName, lastName, role } = registerDto;
+    // Destructure all incoming fields
+    const { email, firstName, lastName, role, otherNames, phone, nationality, idNumber, hostelName, hotelName } = registerDto;
 
-    // Check if email already exists
     const existingAccount = await this.accountModel.findOne({ email: email.toLowerCase() });
     if (existingAccount) {
       throw new ConflictException('Email already registered');
     }
 
-    // Generate email verification token
     const emailVerificationToken = uuid();
-    const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Create new account
+    // Map all the data to the new account
     const account = new this.accountModel({
       email: email.toLowerCase(),
       firstName,
       lastName,
+      otherNames,
       role,
+      phoneNumber: phone,
+      nationality,
+      idNumber,
+      hostelName,
+      hotelName,
       status: AccountStatus.PENDING_EMAIL_VERIFICATION,
       emailVerificationToken,
       emailVerificationExpiry,
     });
 
     await account.save();
-
-    // Send verification email
     await this.emailService.sendVerificationEmail(email, firstName, emailVerificationToken);
 
-    return {
-      message: 'Registration successful. Please verify your email.',
-      accountId: account._id,
-    };
+    return { message: 'Registration successful. Please verify your email.', accountId: account._id };
   }
 
   async verifyEmail(token: string) {
-    const account = await this.accountModel.findOne({
-      emailVerificationToken: token,
-      emailVerificationExpiry: { $gt: Date.now() },
-    });
+  const account = await this.accountModel.findOne({
+    emailVerificationToken: token,
+    emailVerificationExpiry: { $gt: new Date() },
+  });
 
-    if (!account) {
-      throw new BadRequestException('Invalid or expired verification token');
-    }
-
-    account.emailVerified = true;
-    account.emailVerificationToken = null;
-    account.passwordResetToken = null as any;
-    account.status = AccountStatus.PENDING_PASSWORD_SET;
-    await account.save();
-
-    return {
-      message: 'Email verified successfully',
-      accountId: account._id,
-    };
+  if (!account) {
+    throw new BadRequestException('Invalid or expired verification token');
   }
 
+  // 1. Update the status enum
+  account.status = AccountStatus.EMAIL_VERIFIED;
+
+  // 2. CRITICAL: Update the boolean property to true
+  account.emailVerified = true;
+
+  // 3. Clear the token and expiry for security
+  account.emailVerificationToken = null;
+
+  await account.save(); //
+
+  return { 
+    message: 'Email verified successfully', 
+    accountId: account._id 
+  };
+}
+
   async setPassword(accountId: string, setPasswordDto: SetPasswordDto) {
-    const { password, confirmPassword } = setPasswordDto;
-
-    if (password !== confirmPassword) {
-      throw new BadRequestException('Passwords do not match');
-    }
-
+    const { password } = setPasswordDto;
+    
+    // 1. Find user
     const account = await this.accountModel.findById(accountId);
     if (!account) {
-      throw new BadRequestException('Account not found');
+      throw new NotFoundException('Account not found');
     }
 
-    if (account.status !== AccountStatus.PENDING_PASSWORD_SET && account.passwordHash) {
-      throw new BadRequestException('Password already set');
-    }
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    account.passwordHash = passwordHash;
+    // 2. Hash password (assuming you use bcrypt)
+    const salt = await bcrypt.genSalt();
+    account.password = await bcrypt.hash(password, salt);
+    
+    // 3. Update status and clear token
     account.status = AccountStatus.ACTIVE;
+    account.emailVerificationToken = null; 
+    
     await account.save();
-
-    return {
-      message: 'Password set successfully. You can now login.',
-    };
+    return { message: 'Password set successfully' };
   }
 
   async login(loginDto: LoginDto) {
@@ -117,12 +114,12 @@ export class AuthService {
       throw new UnauthorizedException('Please verify your email first');
     }
 
-    if (!account.passwordHash) {
+    if (!account.password) {
       throw new UnauthorizedException('Password not set. Please set password first');
     }
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, account.passwordHash);
+    const isPasswordValid = await bcrypt.compare(password, account.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -185,7 +182,7 @@ export class AuthService {
 
     const account = await this.accountModel.findOne({
       passwordResetToken: token,
-      passwordResetExpiry: { $gt: Date.now() },
+      passwordResetExpiry: { $gt: new Date() },
     });
 
     if (!account) {
@@ -196,7 +193,9 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    account.passwordHash = passwordHash;
+    // CORRECTED: Save the HASH, not the plain text
+    account.password = passwordHash; 
+    
     account.passwordResetToken = null as any;
     account.passwordResetExpiry = null as any;
     await account.save();
@@ -204,7 +203,7 @@ export class AuthService {
     return {
       message: 'Password reset successfully. You can now login.',
     };
-  }
+}
 
   async validateToken(token: string) {
     try {

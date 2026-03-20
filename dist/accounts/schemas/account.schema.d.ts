@@ -1,14 +1,15 @@
 import { Document } from 'mongoose';
 export declare enum AccountRole {
     INDIVIDUAL = "individual",
-    HOSTEL_OWNER = "hostel_owner",
-    HOTEL_OWNER = "hotel_owner",
+    HOSTEL_MANAGER = "hostel_manager",
+    HOTEL_MANAGER = "hotel_manager",
     PROPERTY_MANAGER = "property_manager",
     ADMIN = "admin",
     STAFF = "staff"
 }
 export declare enum AccountStatus {
     PENDING_EMAIL_VERIFICATION = "pending_email_verification",
+    EMAIL_VERIFIED = "email_verified",
     PENDING_PASSWORD_SET = "pending_password_set",
     ACTIVE = "active",
     SUSPENDED = "suspended",
@@ -20,7 +21,7 @@ export declare class Account extends Document {
     lastName: string;
     role: AccountRole;
     status: AccountStatus;
-    passwordHash: string;
+    password?: string;
     emailVerificationToken: string | null;
     emailVerificationExpiry: Date;
     emailVerified: boolean;
@@ -47,6 +48,9 @@ export declare class Account extends Document {
     hotelPhoneNumber: string;
     hotelRegistrationNumber: string;
     hotelStarRating: number;
+    otherNames: string;
+    nationality: string;
+    idNumber: string;
 }
 export declare const AccountSchema: import("mongoose").Schema<Account, import("mongoose").Model<Account, any, any, any, Document<unknown, any, Account, any, {}> & Account & Required<{
     _id: import("mongoose").Types.ObjectId;

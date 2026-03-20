@@ -11,7 +11,7 @@ const common_1 = require("@nestjs/common");
 const account_schema_1 = require("../../accounts/schemas/account.schema");
 let HostelRedirectMiddleware = class HostelRedirectMiddleware {
     use(req, res, next) {
-        if (req.user && req.user.role === account_schema_1.AccountRole.HOSTEL_OWNER) {
+        if (req.user && req.user.role === account_schema_1.AccountRole.HOSTEL_MANAGER) {
             if (req.path === '/login' && res.headersSent === false) {
                 return res.redirect('/dashboard/hostel');
             }
