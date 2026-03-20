@@ -56,6 +56,29 @@ export class HostelsService {
     return await newRoom.save();
   }
 
+  async updateRoom(roomId: string, managerId: string, roomData: any) {
+  // 1. Verify the hostel belongs to this manager
+  const hostel = await this.hostelModel.findOne({ managerId });
+  if (!hostel) throw new NotFoundException('Hostel profile not found');
+
+  // 2. Remove _id from data to prevent Mongoose error
+  const { _id, hostelId, ...updateData } = roomData;
+
+  // 3. Logic check: If totalRooms decreased below availableRooms, cap availability
+  if (updateData.totalRooms < updateData.availableRooms) {
+    updateData.availableRooms = updateData.totalRooms;
+  }
+
+  const updatedRoom = await this.roomModel.findOneAndUpdate(
+    { _id: roomId, hostelId: hostel._id }, // Security: Must match manager's hostel
+    { $set: updateData },
+    { new: true } // Return the updated document for frontend UI sync
+  );
+
+  if (!updatedRoom) throw new NotFoundException('Room group not found or unauthorized');
+  return updatedRoom;
+}
+
   async updateRoomQuantity(roomId: string, managerId: string, change: number) {
     const room = await this.roomModel.findById(roomId);
     if (!room) throw new NotFoundException('Room group not found');
@@ -71,6 +94,16 @@ export class HostelsService {
     await room.save();
     return room;
   }
+
+async deleteRoom(roomId: string, managerId: string) {
+  const hostel = await this.hostelModel.findOne({ managerId });
+  if (!hostel) throw new NotFoundException('Hostel profile not found');
+
+  const result = await this.roomModel.findOneAndDelete({ _id: roomId, hostelId: hostel._id });
+  if (!result) throw new NotFoundException('Room group not found or unauthorized');
+  
+  return { success: true, message: 'Room deleted' };
+}
 
   async applyVerification(managerId: string) {
   const hostel = await this.hostelModel.findOne({ managerId });

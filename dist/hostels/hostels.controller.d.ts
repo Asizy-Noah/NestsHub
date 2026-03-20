@@ -22,10 +22,19 @@ export declare class HostelsController {
     }> & {
         __v: number;
     }>;
+    updateRoom(req: any, roomId: string, roomData: any): Promise<import("mongoose").Document<unknown, {}, import("./schemas/room.schema").Room, {}, {}> & import("./schemas/room.schema").Room & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
     updateRoomQuantity(req: any, roomId: string, change: number): Promise<import("mongoose").Document<unknown, {}, import("./schemas/room.schema").Room, {}, {}> & import("./schemas/room.schema").Room & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;
+    }>;
+    deleteRoom(req: any, roomId: string): Promise<{
+        success: boolean;
+        message: string;
     }>;
 }
 //# sourceMappingURL=hostels.controller.d.ts.map

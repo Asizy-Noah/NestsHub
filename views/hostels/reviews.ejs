@@ -1,0 +1,45 @@
+<div class="max-w-6xl mx-auto p-4 sm:p-8" x-data="reviewBoard()">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card p-6 flex flex-col items-center justify-center">
+            <h4 class="text-4xl font-black text-professional" x-text="stats.avg"></h4>
+            <div class="flex text-amber-400 gap-1 my-2"><template x-for="i in 5"><i class="fa-solid fa-star"></i></template></div>
+            <p class="text-xs text-slate-400 font-bold uppercase">Overall Rating</p>
+        </div>
+        <div class="card col-span-2 p-6 flex flex-col gap-2 justify-center">
+             <template x-for="score in [5,4,3,2,1]">
+                 <div class="flex items-center gap-4">
+                     <span class="text-xs font-bold w-4" x-text="score"></span>
+                     <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                         <div class="h-full bg-primary" :style="`width: ${stats.distribution[score]}%`"></div>
+                     </div>
+                 </div>
+             </template>
+        </div>
+    </div>
+
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <template x-for="filter in [{id:'all', label:'All'}, {id:'good', label:'Good'}, {id:'bad', label:'Bad'}]">
+            <button @click="activeFilter = filter.id" 
+                    class="px-6 py-2 rounded-xl text-sm font-bold transition-all border"
+                    :class="activeFilter === filter.id ? 'bg-professional text-white' : 'bg-white text-slate-500'">
+                <span x-text="filter.label"></span>
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md text-[10px]" x-text="getReviewCount(filter.id)"></span>
+            </button>
+        </template>
+    </div>
+
+    <div class="space-y-4">
+        <template x-for="review in filteredReviews" :key="review.id">
+            <div class="card p-6 border-l-4" :class="review.rating >= 3 ? 'border-primary' : 'border-red-400'">
+                <div class="flex justify-between mb-2">
+                    <h5 class="font-bold text-professional" x-text="review.userName"></h5>
+                    <span class="text-[10px] text-slate-400" x-text="review.date"></span>
+                </div>
+                <div class="flex text-amber-400 text-xs mb-3">
+                    <template x-for="i in review.rating"><i class="fa-solid fa-star"></i></template>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-400" x-text="review.comment"></p>
+            </div>
+        </template>
+    </div>
+</div>

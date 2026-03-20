@@ -28,7 +28,7 @@ let HostelsController = class HostelsController {
         const hostelData = await this.hostelsService.getHostelDataByManager(managerId);
         return {
             title: 'Hostel Manager Dashboard',
-            layout: 'layouts/dashboard',
+            layout: 'layouts/hostel',
             manager: req.user,
             hostelData: JSON.stringify(hostelData)
         };
@@ -42,8 +42,14 @@ let HostelsController = class HostelsController {
     async addRoom(req, roomData) {
         return await this.hostelsService.addRoom(req.user.userId, roomData);
     }
+    async updateRoom(req, roomId, roomData) {
+        return await this.hostelsService.updateRoom(roomId, req.user.userId, roomData);
+    }
     async updateRoomQuantity(req, roomId, change) {
         return await this.hostelsService.updateRoomQuantity(roomId, req.user.userId, change);
+    }
+    async deleteRoom(req, roomId) {
+        return await this.hostelsService.deleteRoom(roomId, req.user.userId);
     }
 };
 exports.HostelsController = HostelsController;
@@ -79,6 +85,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], HostelsController.prototype, "addRoom", null);
 __decorate([
+    (0, common_1.Patch)('rooms/:roomId'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('roomId')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], HostelsController.prototype, "updateRoom", null);
+__decorate([
     (0, common_1.Patch)('rooms/:roomId/quantity'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('roomId')),
@@ -87,6 +102,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Number]),
     __metadata("design:returntype", Promise)
 ], HostelsController.prototype, "updateRoomQuantity", null);
+__decorate([
+    (0, common_1.Delete)('rooms/:roomId'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('roomId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], HostelsController.prototype, "deleteRoom", null);
 exports.HostelsController = HostelsController = __decorate([
     (0, common_1.Controller)('dashboard/hostel'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

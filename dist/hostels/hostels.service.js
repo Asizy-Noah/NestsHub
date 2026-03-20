@@ -59,6 +59,19 @@ let HostelsService = HostelsService_1 = class HostelsService {
         });
         return await newRoom.save();
     }
+    async updateRoom(roomId, managerId, roomData) {
+        const hostel = await this.hostelModel.findOne({ managerId });
+        if (!hostel)
+            throw new common_1.NotFoundException('Hostel profile not found');
+        const { _id, hostelId, ...updateData } = roomData;
+        if (updateData.totalRooms < updateData.availableRooms) {
+            updateData.availableRooms = updateData.totalRooms;
+        }
+        const updatedRoom = await this.roomModel.findOneAndUpdate({ _id: roomId, hostelId: hostel._id }, { $set: updateData }, { new: true });
+        if (!updatedRoom)
+            throw new common_1.NotFoundException('Room group not found or unauthorized');
+        return updatedRoom;
+    }
     async updateRoomQuantity(roomId, managerId, change) {
         const room = await this.roomModel.findById(roomId);
         if (!room)
@@ -70,6 +83,15 @@ let HostelsService = HostelsService_1 = class HostelsService {
         room.availableRooms = newAvailable;
         await room.save();
         return room;
+    }
+    async deleteRoom(roomId, managerId) {
+        const hostel = await this.hostelModel.findOne({ managerId });
+        if (!hostel)
+            throw new common_1.NotFoundException('Hostel profile not found');
+        const result = await this.roomModel.findOneAndDelete({ _id: roomId, hostelId: hostel._id });
+        if (!result)
+            throw new common_1.NotFoundException('Room group not found or unauthorized');
+        return { success: true, message: 'Room deleted' };
     }
     async applyVerification(managerId) {
         const hostel = await this.hostelModel.findOne({ managerId });

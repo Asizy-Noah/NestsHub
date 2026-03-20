@@ -32,10 +32,19 @@ export declare class HostelsService {
     }> & {
         __v: number;
     }>;
+    updateRoom(roomId: string, managerId: string, roomData: any): Promise<import("mongoose").Document<unknown, {}, Room, {}, {}> & Room & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
     updateRoomQuantity(roomId: string, managerId: string, change: number): Promise<import("mongoose").Document<unknown, {}, Room, {}, {}> & Room & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;
+    }>;
+    deleteRoom(roomId: string, managerId: string): Promise<{
+        success: boolean;
+        message: string;
     }>;
     applyVerification(managerId: string): Promise<{
         message: string;

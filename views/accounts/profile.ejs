@@ -1,272 +1,50 @@
-<%- include('../layout', { title, body: `
-<div class="max-w-2xl mx-auto px-4 py-12" x-data="profileForm()" x-cloak>
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">Edit Profile</h1>
-        <a href="/accounts/dashboard" class="btn-secondary">Back to Dashboard</a>
-    </div>
-
-    <div class="card">
-        <!-- Error Messages -->
-        <div x-show="error" class="alert-error mb-6">
-            <span x-text="error"></span>
-            <button @click="error = ''" class="float-right text-xl">&times;</button>
-        </div>
-
-        <!-- Success Message -->
-        <div x-show="success" class="alert-success mb-6">
-            Profile updated successfully!
-        </div>
-
-        <form @submit.prevent="submitForm()" class="space-y-6">
-            <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium mb-2">First Name</label>
-                    <input 
-                        type="text" 
-                        x-model="formData.firstName" 
-                        class="input-field"
-                        required
-                    >
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-2">Last Name</label>
-                    <input 
-                        type="text" 
-                        x-model="formData.lastName" 
-                        class="input-field"
-                        required
-                    >
-                </div>
-            </div>
-
+<div class="max-w-4xl mx-auto p-4 sm:p-8" x-data="profileManager()">
+    <div class="card space-y-8">
+        <div class="border-b border-slate-100 dark:border-slate-800 pb-6 flex justify-between items-end">
             <div>
-                <label class="block text-sm font-medium mb-2">Phone Number</label>
-                <input 
-                    type="tel" 
-                    x-model="formData.phoneNumber" 
-                    class="input-field"
-                    placeholder="+1 (555) 000-0000"
-                >
+                <h2 class="text-2xl font-black text-professional dark:text-white">Account Identity</h2>
+                <p class="text-slate-500 text-sm">Update your personal and contact details.</p>
             </div>
+            <div class="text-right">
+                <span class="text-[10px] font-black bg-primary/10 text-primary px-3 py-1 rounded-full uppercase">Manager Since: <span x-text="user.startedDate || 'N/A'"></span></span>
+            </div>
+        </div>
 
-            <!-- Role-specific fields -->
-            <div x-show="user?.role === 'hostel_owner'" class="space-y-6 border-t pt-6">
-                <h3 class="text-lg font-bold">Hostel Information</h3>
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">Hostel Name</label>
-                    <input 
-                        type="text" 
-                        x-model="formData.hostelName" 
-                        class="input-field"
-                    >
+        <form @submit.prevent="updateProfile" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>First Name</label>
+                    <input type="text" x-model="user.firstName" class="input-field">
                 </div>
-
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Address</label>
-                        <input 
-                            type="text" 
-                            x-model="formData.hostelAddress" 
-                            class="input-field"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-2">City</label>
-                        <input 
-                            type="text" 
-                            x-model="formData.hostelCity" 
-                            class="input-field"
-                        >
-                    </div>
+                <div class="input-group">
+                    <label>Last Name</label>
+                    <input type="text" x-model="user.lastName" class="input-field">
                 </div>
-
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Country</label>
-                        <input 
-                            type="text" 
-                            x-model="formData.hostelCountry" 
-                            class="input-field"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Phone</label>
-                        <input 
-                            type="tel" 
-                            x-model="formData.hostelPhoneNumber" 
-                            class="input-field"
-                        >
-                    </div>
+                <div class="input-group">
+                    <label>Nationality</label>
+                    <input type="text" x-model="user.nationality" class="input-field">
+                </div>
+                <div class="input-group">
+                    <label>Physical Address</label>
+                    <input type="text" x-model="user.address" class="input-field" placeholder="City, Street">
                 </div>
             </div>
 
-            <!-- Hotel-specific fields -->
-            <div x-show="user?.role === 'hotel_owner'" class="space-y-6 border-t pt-6">
-                <h3 class="text-lg font-bold">Hotel Information</h3>
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">Hotel Name</label>
-                    <input 
-                        type="text" 
-                        x-model="formData.hotelName" 
-                        class="input-field"
-                    >
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Address</label>
-                        <input 
-                            type="text" 
-                            x-model="formData.hotelAddress" 
-                            class="input-field"
-                        >
+            <div class="space-y-4">
+                <label class="text-sm font-bold text-slate-700">Mobile Contacts</label>
+                <template x-for="(phone, index) in user.phones" :key="index">
+                    <div class="flex gap-2">
+                        <input type="tel" x-model="user.phones[index]" class="input-field py-2">
+                        <button type="button" @click="user.phones.splice(index,1)" class="w-10 text-red-500"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-2">City</label>
-                        <input 
-                            type="text" 
-                            x-model="formData.hotelCity" 
-                            class="input-field"
-                        >
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Country</label>
-                        <input 
-                            type="text" 
-                            x-model="formData.hotelCountry" 
-                            class="input-field"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Star Rating</label>
-                        <input 
-                            type="number" 
-                            x-model.number="formData.hotelStarRating" 
-                            class="input-field"
-                            min="1"
-                            max="5"
-                        >
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-2">Phone</label>
-                    <input 
-                        type="tel" 
-                        x-model="formData.hotelPhoneNumber" 
-                        class="input-field"
-                    >
-                </div>
+                </template>
+                <button type="button" @click="user.phones.push('')" class="btn-outline text-xs py-2"><i class="fa-solid fa-plus"></i> Add Phone</button>
             </div>
 
-            <div class="flex gap-4">
-                <button 
-                    type="submit" 
-                    class="btn-primary flex-1"
-                    :disabled="loading"
-                    x-text="loading ? 'Saving...' : 'Save Changes'"
-                ></button>
-                <button 
-                    type="button" 
-                    @click="resetForm()"
-                    class="btn-secondary flex-1"
-                >
-                    Cancel
-                </button>
-            </div>
+            <button type="submit" class="btn-primary w-full md:w-auto" :disabled="saving">
+                <span x-show="!saving">Save Account Changes</span>
+                <span x-show="saving"><i class="fa-solid fa-spinner fa-spin"></i> Processing...</span>
+            </button>
         </form>
     </div>
 </div>
-
-<script>
-function profileForm() {
-    return {
-        loading: false,
-        error: '',
-        success: false,
-        user: null,
-        formData: {
-            firstName: '',
-            lastName: '',
-            phoneNumber: '',
-            hostelName: '',
-            hostelAddress: '',
-            hostelCity: '',
-            hostelCountry: '',
-            hostelPhoneNumber: '',
-            hotelName: '',
-            hotelAddress: '',
-            hotelCity: '',
-            hotelCountry: '',
-            hotelPhoneNumber: '',
-            hotelStarRating: 0,
-        },
-
-        init() {
-            const user = localStorage.getItem('user');
-            if (user) {
-                this.user = JSON.parse(user);
-                this.loadUserData();
-            }
-        },
-
-        loadUserData() {
-            this.formData.firstName = this.user?.firstName || '';
-            this.formData.lastName = this.user?.lastName || '';
-        },
-
-        resetForm() {
-            this.success = false;
-            this.loadUserData();
-        },
-
-        async submitForm() {
-            this.loading = true;
-            this.error = '';
-            this.success = false;
-
-            try {
-                const token = localStorage.getItem('accessToken');
-                const response = await fetch(\`/accounts/\${this.user?.id}\`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': \`Bearer \${token}\`,
-                    },
-                    body: JSON.stringify(this.formData),
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to update profile');
-                }
-
-                this.success = true;
-                setTimeout(() => {
-                    this.success = false;
-                }, 3000);
-            } catch (err) {
-                this.error = err.message;
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        init() {
-            this.init();
-        },
-    };
-}
-</script>
-`) %>

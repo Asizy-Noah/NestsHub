@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Render, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Delete, Param, Render, Request, UseGuards } from '@nestjs/common';
 import { HostelsService } from './hostels.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -19,13 +19,13 @@ export class HostelsController {
     const hostelData = await this.hostelsService.getHostelDataByManager(managerId);
     return {
       title: 'Hostel Manager Dashboard',
-      layout: 'layouts/dashboard',
+      layout: 'layouts/hostel',
       manager: req.user,
       hostelData: JSON.stringify(hostelData) // Pass as JSON for Alpine
     };
   }
 
-  @Patch('update')
+  @Patch('update') 
   async updateHostel(@Request() req: any, @Body() data: any) {
     return await this.hostelsService.updateHostel(req.user.userId, data);
   }
@@ -40,6 +40,16 @@ export class HostelsController {
     return await this.hostelsService.addRoom(req.user.userId, roomData);
   }
 
+  // UPDATE EXISTING ROOM (PATCH)
+  @Patch('rooms/:roomId')
+  async updateRoom(
+    @Request() req: any, 
+    @Param('roomId') roomId: string, 
+    @Body() roomData: any
+  ) {
+    return await this.hostelsService.updateRoom(roomId, req.user.userId, roomData);
+  }
+
   @Patch('rooms/:roomId/quantity')
   async updateRoomQuantity(
     @Request() req: any, 
@@ -48,5 +58,11 @@ export class HostelsController {
   ) {
     // change will be +1 or -1 from the frontend
     return await this.hostelsService.updateRoomQuantity(roomId, req.user.userId, change);
+  }
+
+  // DELETE ROOM GROUP (DELETE)
+  @Delete('rooms/:roomId')
+  async deleteRoom(@Request() req: any, @Param('roomId') roomId: string) {
+    return await this.hostelsService.deleteRoom(roomId, req.user.userId);
   }
 }

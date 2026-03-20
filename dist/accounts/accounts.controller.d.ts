@@ -10,6 +10,7 @@ export declare class AccountsController {
     getProfile(req: any): {
         title: string;
         user: any;
+        layout: string;
     };
     getSettings(req: any): {
         title: string;

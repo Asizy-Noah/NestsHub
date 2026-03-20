@@ -31,6 +31,7 @@ let AccountsController = class AccountsController {
         return {
             title: 'Profile - Real Estate',
             user: req.user,
+            layout: 'layouts/hostel'
         };
     }
     getSettings(req) {

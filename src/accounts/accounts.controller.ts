@@ -25,6 +25,7 @@ export class AccountsController {
     return {
       title: 'Profile - Real Estate',
       user: req.user,
+      layout: 'layouts/hostel'
     };
   }
 
