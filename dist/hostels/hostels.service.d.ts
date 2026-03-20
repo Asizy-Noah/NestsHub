@@ -1,42 +1,45 @@
-import { Model, Types } from 'mongoose';
-import { Hostel, VerificationStatus } from './schemas/hostel.schema';
+import { Model } from 'mongoose';
+import { Hostel } from './schemas/hostel.schema';
 import { Room } from './schemas/room.schema';
-import { CreateHostelDto, UpdateHostelDto, ApplyVerificationDto } from './dto/create-hostel.dto';
-import { CreateRoomDto, UpdateRoomDto } from './dto/create-room.dto';
+import { Account } from '../accounts/schemas/account.schema';
+import { EmailService } from '../auth/email.service';
 export declare class HostelsService {
     private hostelModel;
     private roomModel;
-    constructor(hostelModel: Model<Hostel>, roomModel: Model<Room>);
-    createHostel(managerId: string, createHostelDto: CreateHostelDto): Promise<Hostel>;
-    findHostelByManager(managerId: string): Promise<Hostel>;
-    findHostelById(hostelId: string): Promise<Hostel>;
-    getAllHostels(skip?: number, limit?: number): Promise<{
-        data: Hostel[];
-        total: number;
+    private accountModel;
+    private emailService;
+    private readonly logger;
+    constructor(hostelModel: Model<Hostel>, roomModel: Model<Room>, accountModel: Model<Account>, emailService: EmailService);
+    getHostelDataByManager(managerId: string): Promise<{
+        hostel: import("mongoose").Document<unknown, {}, Hostel, {}, {}> & Hostel & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        };
+        rooms: (import("mongoose").Document<unknown, {}, Room, {}, {}> & Room & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        })[];
     }>;
-    getVerifiedHostels(skip?: number, limit?: number): Promise<{
-        data: Hostel[];
-        total: number;
+    updateHostel(managerId: string, data: any): Promise<import("mongoose").Document<unknown, {}, Hostel, {}, {}> & Hostel & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
     }>;
-    updateHostel(hostelId: string, managerId: string, updateHostelDto: UpdateHostelDto): Promise<Hostel>;
-    applyVerification(hostelId: string, managerId: string, applyVerificationDto: ApplyVerificationDto): Promise<Hostel>;
-    searchHostels(query: string, skip?: number, limit?: number): Promise<{
-        data: Hostel[];
-        total: number;
+    addRoom(managerId: string, roomData: any): Promise<import("mongoose").Document<unknown, {}, Room, {}, {}> & Room & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
     }>;
-    createRoom(hostelId: string, managerId: string, createRoomDto: CreateRoomDto): Promise<Room>;
-    getRoomsByHostel(hostelId: string): Promise<Room[]>;
-    getRoomById(roomId: string): Promise<Room>;
-    updateRoom(roomId: string, hostelId: string, managerId: string, updateRoomDto: UpdateRoomDto): Promise<Room>;
-    deleteRoom(roomId: string, hostelId: string, managerId: string): Promise<void>;
-    getHostelStats(managerId: string): Promise<{
-        hostelId: Types.ObjectId;
-        name: string;
-        verificationStatus: VerificationStatus;
-        totalRooms: number;
-        availableRooms: number;
-        occupiedRooms: number;
-        amenitiesCount: number;
+    updateRoomQuantity(roomId: string, managerId: string, change: number): Promise<import("mongoose").Document<unknown, {}, Room, {}, {}> & Room & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    applyVerification(managerId: string): Promise<{
+        message: string;
+        status: string;
     }>;
 }
 //# sourceMappingURL=hostels.service.d.ts.map

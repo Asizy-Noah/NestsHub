@@ -1,38 +1,24 @@
-import { Document, Types } from 'mongoose';
-export declare enum RoomType {
-    SINGLE = "single",
-    DOUBLE = "double",
-    TRIPLE = "triple",
-    DORMITORY = "dormitory"
-}
-export declare enum CookingPolicy {
-    ELECTRICITY = "electricity",
-    CHARCOAL = "charcoal",
-    GAS = "gas",
-    NOT_ALLOWED = "not_allowed"
-}
+import mongoose, { Document } from 'mongoose';
 export declare class Room extends Document {
-    hostelId: Types.ObjectId;
-    type: RoomType;
-    roomNumber: string;
-    floor: number;
+    hostelId: mongoose.Schema.Types.ObjectId;
+    totalRooms: number;
+    availableRooms: number;
+    photos: string[];
+    type: string;
     isSelfContained: boolean;
-    cookingPolicy: CookingPolicy;
-    images: string[];
-    pricePerMonth: number;
-    capacity: number;
-    isAvailable: boolean;
-    description: string;
-    amenities: string[];
-    createdAt: Date;
-    updatedAt: Date;
+    floorLevel: number;
+    cooking: {
+        allowed: boolean;
+        method: string;
+    };
+    pricePerSemester: number;
 }
-export declare const RoomSchema: import("mongoose").Schema<Room, import("mongoose").Model<Room, any, any, any, Document<unknown, any, Room, any, {}> & Room & Required<{
-    _id: Types.ObjectId;
+export declare const RoomSchema: mongoose.Schema<Room, mongoose.Model<Room, any, any, any, mongoose.Document<unknown, any, Room, any, {}> & Room & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, Room, Document<unknown, {}, import("mongoose").FlatRecord<Room>, {}, import("mongoose").DefaultSchemaOptions> & import("mongoose").FlatRecord<Room> & Required<{
-    _id: Types.ObjectId;
+}, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, Room, mongoose.Document<unknown, {}, mongoose.FlatRecord<Room>, {}, mongoose.DefaultSchemaOptions> & mongoose.FlatRecord<Room> & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
 }>;

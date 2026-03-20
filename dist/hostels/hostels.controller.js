@@ -15,181 +15,82 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HostelsController = void 0;
 const common_1 = require("@nestjs/common");
 const hostels_service_1 = require("./hostels.service");
-const create_hostel_dto_1 = require("./dto/create-hostel.dto");
-const create_room_dto_1 = require("./dto/create-room.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const account_schema_1 = require("../accounts/schemas/account.schema");
 let HostelsController = class HostelsController {
-    constructor(hostelService) {
-        this.hostelService = hostelService;
+    constructor(hostelsService) {
+        this.hostelsService = hostelsService;
     }
-    getHostelDashboard() {
-        return { title: 'Hostel Dashboard' };
+    async getDashboard(req) {
+        const managerId = req.user.userId;
+        const hostelData = await this.hostelsService.getHostelDataByManager(managerId);
+        return {
+            title: 'Hostel Manager Dashboard',
+            layout: 'layouts/dashboard',
+            manager: req.user,
+            hostelData: JSON.stringify(hostelData)
+        };
     }
-    async createHostel(req, createHostelDto) {
-        return this.hostelService.createHostel(req.user.sub, createHostelDto);
+    async updateHostel(req, data) {
+        return await this.hostelsService.updateHostel(req.user.userId, data);
     }
-    async getMyHostel(req) {
-        return this.hostelService.findHostelByManager(req.user.sub);
+    async applyForVerification(req) {
+        return await this.hostelsService.applyVerification(req.user.userId);
     }
-    async searchHostels(query, skip = 0, limit = 10) {
-        return this.hostelService.searchHostels(query, skip, limit);
+    async addRoom(req, roomData) {
+        return await this.hostelsService.addRoom(req.user.userId, roomData);
     }
-    async getVerifiedHostels(skip = 0, limit = 10) {
-        return this.hostelService.getVerifiedHostels(skip, limit);
-    }
-    async getHostelStats(req) {
-        return this.hostelService.getHostelStats(req.user.sub);
-    }
-    async getHostelById(id) {
-        return this.hostelService.findHostelById(id);
-    }
-    async updateHostel(id, req, updateHostelDto) {
-        return this.hostelService.updateHostel(id, req.user.sub, updateHostelDto);
-    }
-    async applyVerification(id, req, applyVerificationDto) {
-        return this.hostelService.applyVerification(id, req.user.sub, applyVerificationDto);
-    }
-    async createRoom(hostelId, req, createRoomDto) {
-        return this.hostelService.createRoom(hostelId, req.user.sub, createRoomDto);
-    }
-    async getRoomsByHostel(hostelId) {
-        return this.hostelService.getRoomsByHostel(hostelId);
-    }
-    async getRoomById(roomId) {
-        return this.hostelService.getRoomById(roomId);
-    }
-    async updateRoom(hostelId, roomId, req, updateRoomDto) {
-        return this.hostelService.updateRoom(roomId, hostelId, req.user.sub, updateRoomDto);
-    }
-    async deleteRoom(hostelId, roomId, req) {
-        await this.hostelService.deleteRoom(roomId, hostelId, req.user.sub);
-        return { message: 'Room deleted successfully' };
+    async updateRoomQuantity(req, roomId, change) {
+        return await this.hostelsService.updateRoomQuantity(roomId, req.user.userId, change);
     }
 };
 exports.HostelsController = HostelsController;
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.Render)('hostels/dashboard'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], HostelsController.prototype, "getHostelDashboard", null);
-__decorate([
-    (0, common_1.Post)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_hostel_dto_1.CreateHostelDto]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "createHostel", null);
-__decorate([
-    (0, common_1.Get)('my-hostel'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Req)()),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getMyHostel", null);
+], HostelsController.prototype, "getDashboard", null);
 __decorate([
-    (0, common_1.Get)('search'),
-    __param(0, (0, common_1.Query)('q')),
-    __param(1, (0, common_1.Query)('skip')),
-    __param(2, (0, common_1.Query)('limit')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "searchHostels", null);
-__decorate([
-    (0, common_1.Get)('verified'),
-    __param(0, (0, common_1.Query)('skip')),
-    __param(1, (0, common_1.Query)('limit')),
+    (0, common_1.Patch)('update'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getVerifiedHostels", null);
+], HostelsController.prototype, "updateHostel", null);
 __decorate([
-    (0, common_1.Get)('stats'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Req)()),
+    (0, common_1.Patch)('verify'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getHostelStats", null);
+], HostelsController.prototype, "applyForVerification", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Post)('rooms'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getHostelById", null);
+], HostelsController.prototype, "addRoom", null);
 __decorate([
-    (0, common_1.Put)(':id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Req)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_hostel_dto_1.UpdateHostelDto]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "updateHostel", null);
-__decorate([
-    (0, common_1.Post)(':id/apply-verification'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Req)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_hostel_dto_1.ApplyVerificationDto]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "applyVerification", null);
-__decorate([
-    (0, common_1.Post)(':hostelId/rooms'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hostelId')),
-    __param(1, (0, common_1.Req)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_room_dto_1.CreateRoomDto]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "createRoom", null);
-__decorate([
-    (0, common_1.Get)(':hostelId/rooms'),
-    __param(0, (0, common_1.Param)('hostelId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getRoomsByHostel", null);
-__decorate([
-    (0, common_1.Get)(':hostelId/rooms/:roomId'),
-    __param(0, (0, common_1.Param)('roomId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "getRoomById", null);
-__decorate([
-    (0, common_1.Put)(':hostelId/rooms/:roomId'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hostelId')),
+    (0, common_1.Patch)('rooms/:roomId/quantity'),
+    __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('roomId')),
-    __param(2, (0, common_1.Req)()),
-    __param(3, (0, common_1.Body)()),
+    __param(2, (0, common_1.Body)('change')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object, create_room_dto_1.UpdateRoomDto]),
+    __metadata("design:paramtypes", [Object, String, Number]),
     __metadata("design:returntype", Promise)
-], HostelsController.prototype, "updateRoom", null);
-__decorate([
-    (0, common_1.Delete)(':hostelId/rooms/:roomId'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hostelId')),
-    __param(1, (0, common_1.Param)('roomId')),
-    __param(2, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object]),
-    __metadata("design:returntype", Promise)
-], HostelsController.prototype, "deleteRoom", null);
+], HostelsController.prototype, "updateRoomQuantity", null);
 exports.HostelsController = HostelsController = __decorate([
-    (0, common_1.Controller)('dashboard/hostels'),
+    (0, common_1.Controller)('dashboard/hostel'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOSTEL_MANAGER),
     __metadata("design:paramtypes", [hostels_service_1.HostelsService])
 ], HostelsController);
 //# sourceMappingURL=hostels.controller.js.map

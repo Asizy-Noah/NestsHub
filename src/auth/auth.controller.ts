@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Body, Query, Render, UseGuards, Request, Redirect } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Logger, Render, UseGuards, Res, Request, Redirect } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -6,6 +7,7 @@ import { SetPasswordDto } from './dto/set-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AccountRole } from '@/accounts/schemas/account.schema';
+
 
 @Controller('auth')
 export class AuthController {
@@ -90,11 +92,25 @@ export class AuthController {
   }
 
   @Post('login')
-async login(@Body() loginDto: LoginDto) {
+async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  const logger = new Logger('AuthDebug');
+  logger.log(`Attempting login for: ${loginDto.email}`);
+
   const result = await this.authService.login(loginDto);
   
+  logger.log(`Login Service result for ${loginDto.email}: Role -> ${result.user?.role}`);
+
+  // Set the cookie
+  res.cookie('accessToken', result.accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  
+  logger.log('AccessToken cookie set in response');
+
   if (result.user) {
-    // FIX: Map keys to the exact enum values defined in account.schema.ts
     const roleRedirectMap: Record<string, string> = {
       [AccountRole.ADMIN]: '/dashboard/admin',
       [AccountRole.STAFF]: '/dashboard/staff',
@@ -104,13 +120,14 @@ async login(@Body() loginDto: LoginDto) {
       [AccountRole.INDIVIDUAL]: '/',
     };
 
-    // Use the user's role to find the correct redirect path
-    (result as any).redirect = roleRedirectMap[result.user.role] || '/dashboard';
+    const targetPath = roleRedirectMap[result.user.role] || '/dashboard';
+    (result as any).redirect = targetPath;
+
+    logger.log(`Role: ${result.user.role} -> Redirecting to: ${targetPath}`);
   }
   
   return result;
 }
-
   @Post('forgot-password')
   async forgotPassword(@Body('email') email: string) {
       return await this.authService.initiatePasswordReset(email);

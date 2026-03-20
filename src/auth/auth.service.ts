@@ -130,12 +130,8 @@ export class AuthService {
 
     // Generate JWT token
     const token = this.jwtService.sign(
-      {
-        sub: account._id,
-        email: account.email,
-        role: account.role,
-      },
-      { expiresIn: '24h' },
+      { sub: account._id, email: account.email, role: account.role },
+      { secret: process.env.JWT_SECRET } // Must match JwtStrategy!
     );
 
     return {

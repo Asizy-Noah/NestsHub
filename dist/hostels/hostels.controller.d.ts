@@ -1,40 +1,31 @@
 import { HostelsService } from './hostels.service';
-import { CreateHostelDto, UpdateHostelDto, ApplyVerificationDto } from './dto/create-hostel.dto';
-import { CreateRoomDto, UpdateRoomDto } from './dto/create-room.dto';
 export declare class HostelsController {
-    private readonly hostelService;
-    constructor(hostelService: HostelsService);
-    getHostelDashboard(): {
+    private readonly hostelsService;
+    constructor(hostelsService: HostelsService);
+    getDashboard(req: any): Promise<{
         title: string;
-    };
-    createHostel(req: any, createHostelDto: CreateHostelDto): Promise<import("./schemas/hostel.schema").Hostel>;
-    getMyHostel(req: any): Promise<import("./schemas/hostel.schema").Hostel>;
-    searchHostels(query: string, skip?: number, limit?: number): Promise<{
-        data: import("./schemas/hostel.schema").Hostel[];
-        total: number;
+        layout: string;
+        manager: any;
+        hostelData: string;
     }>;
-    getVerifiedHostels(skip?: number, limit?: number): Promise<{
-        data: import("./schemas/hostel.schema").Hostel[];
-        total: number;
+    updateHostel(req: any, data: any): Promise<import("mongoose").Document<unknown, {}, import("./schemas/hostel.schema").Hostel, {}, {}> & import("./schemas/hostel.schema").Hostel & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
     }>;
-    getHostelStats(req: any): Promise<{
-        hostelId: import("mongoose").Types.ObjectId;
-        name: string;
-        verificationStatus: import("./schemas/hostel.schema").VerificationStatus;
-        totalRooms: number;
-        availableRooms: number;
-        occupiedRooms: number;
-        amenitiesCount: number;
-    }>;
-    getHostelById(id: string): Promise<import("./schemas/hostel.schema").Hostel>;
-    updateHostel(id: string, req: any, updateHostelDto: UpdateHostelDto): Promise<import("./schemas/hostel.schema").Hostel>;
-    applyVerification(id: string, req: any, applyVerificationDto: ApplyVerificationDto): Promise<import("./schemas/hostel.schema").Hostel>;
-    createRoom(hostelId: string, req: any, createRoomDto: CreateRoomDto): Promise<import("./schemas/room.schema").Room>;
-    getRoomsByHostel(hostelId: string): Promise<import("./schemas/room.schema").Room[]>;
-    getRoomById(roomId: string): Promise<import("./schemas/room.schema").Room>;
-    updateRoom(hostelId: string, roomId: string, req: any, updateRoomDto: UpdateRoomDto): Promise<import("./schemas/room.schema").Room>;
-    deleteRoom(hostelId: string, roomId: string, req: any): Promise<{
+    applyForVerification(req: any): Promise<{
         message: string;
+        status: string;
+    }>;
+    addRoom(req: any, roomData: any): Promise<import("mongoose").Document<unknown, {}, import("./schemas/room.schema").Room, {}, {}> & import("./schemas/room.schema").Room & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    updateRoomQuantity(req: any, roomId: string, change: number): Promise<import("mongoose").Document<unknown, {}, import("./schemas/room.schema").Room, {}, {}> & import("./schemas/room.schema").Room & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
     }>;
 }
 //# sourceMappingURL=hostels.controller.d.ts.map

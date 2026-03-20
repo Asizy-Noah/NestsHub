@@ -1,181 +1,343 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hostel Dashboard - Real Estate Platform</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="/js/utils.js"></script>
-  <style>
-    [x-cloak] { display: none; }
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="hostelDashboard(<%= hostelData %>)">
     
-    .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .gradient-emerald { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-    .gradient-amber { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-    
-    .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
-    .card-shadow-lg { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-  </style>
-</head>
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-  <div x-data="hostelDashboard()" x-cloak class="min-h-screen">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white dark:bg-slate-800 card-shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 gradient-purple rounded-lg flex items-center justify-center text-white">
-              <i class="fas fa-building"></i>
-            </div>
-            <div>
-              <h1 class="text-xl font-bold text-slate-900 dark:text-white">Hostel Manager</h1>
-              <p class="text-sm text-slate-500 dark:text-slate-400">Dashboard & Management</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <button @click="toggleDarkMode()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <i x-show="!isDarkMode" class="fas fa-moon text-slate-600"></i>
-              <i x-show="isDarkMode" class="fas fa-sun text-yellow-400"></i>
-            </button>
-            <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
-              <%= account.firstName[0] %><%= account.lastName[0] %>
-            </div>
-          </div>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-professional dark:text-white">Hostel Dashboard</h1>
+            <p class="text-slate-500">Manage your property, rooms, and services.</p>
         </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Quick Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-slate-600 dark:text-slate-400 text-sm">Verification Status</p>
-              <p class="text-2xl font-bold text-slate-900 dark:text-white mt-2" x-text="verificationStatus"></p>
-            </div>
-            <div class="w-12 h-12 rounded-lg" :class="verificationStatusColor" style="opacity: 0.2;"></div>
-          </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-slate-600 dark:text-slate-400 text-sm">Total Rooms</p>
-              <p class="text-2xl font-bold text-slate-900 dark:text-white mt-2" x-text="totalRooms"></p>
-            </div>
-            <div class="w-12 h-12 bg-blue-500 rounded-lg" style="opacity: 0.2;"></div>
-          </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-slate-600 dark:text-slate-400 text-sm">Available Rooms</p>
-              <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2" x-text="availableRooms"></p>
-            </div>
-            <div class="w-12 h-12 bg-emerald-500 rounded-lg" style="opacity: 0.2;"></div>
-          </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-slate-600 dark:text-slate-400 text-sm">Amenities</p>
-              <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-2" x-text="amenitiesCount"></p>
-            </div>
-            <div class="w-12 h-12 bg-indigo-500 rounded-lg" style="opacity: 0.2;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="flex space-x-4 mb-8 border-b border-slate-200 dark:border-slate-700">
-        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'" class="px-4 py-3 font-medium transition">
-          <i class="fas fa-building mr-2"></i>Hostel Profile
-        </button>
-        <button @click="activeTab = 'rooms'" :class="activeTab === 'rooms' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'" class="px-4 py-3 font-medium transition">
-          <i class="fas fa-door-open mr-2"></i>Room Management
-        </button>
-        <button @click="activeTab = 'settings'" :class="activeTab === 'settings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'" class="px-4 py-3 font-medium transition">
-          <i class="fas fa-cog mr-2"></i>Settings
-        </button>
-      </div>
-
-      <!-- Profile Tab -->
-      <div x-show="activeTab === 'profile'" class="space-y-6">
-        <%- include('./partials/hostel-profile-form'); %>
-      </div>
-
-      <!-- Rooms Tab -->
-      <div x-show="activeTab === 'rooms'" class="space-y-6">
-        <%- include('./partials/room-management'); %>
-      </div>
-
-      <!-- Settings Tab -->
-      <div x-show="activeTab === 'settings'" class="space-y-6">
-        <%- include('./partials/hostel-settings'); %>
-      </div>
-    </main>
-
-    <!-- Toast Notifications -->
-    <%- include('../partials/toast-notification'); %>
-  </div>
-
-  <script>
-    function hostelDashboard() {
-      return {
-        activeTab: 'profile',
-        isDarkMode: localStorage.getItem('darkMode') === 'true',
-        verificationStatus: '<%= verificationStatus %>',
-        totalRooms: <%= totalRooms %>,
-        availableRooms: <%= availableRooms %>,
-        amenitiesCount: <%= amenitiesCount %>,
         
-        get verificationStatusColor() {
-          switch(this.verificationStatus) {
-            case 'verified': return 'bg-emerald-500';
-            case 'pending': return 'bg-amber-500';
-            case 'unverified': return 'bg-slate-400';
-            default: return 'bg-slate-400';
-          }
+        <button @click="applyVerification" 
+                :disabled="hostel.verificationStatus !== 'Draft'"
+                class="px-6 py-3 rounded-xl font-bold shadow-md transition-all flex items-center gap-2"
+                :class="hostel.isVerified ? 'bg-primary/10 text-primary cursor-not-allowed' : (hostel.verificationStatus === 'Pending' ? 'bg-amber-100 text-amber-600 cursor-not-allowed' : 'bg-accent text-white hover:bg-amber-600 hover:shadow-lg')">
+            <i class="fa-solid" :class="hostel.isVerified ? 'fa-shield-check' : 'fa-paper-plane'"></i>
+            <span x-text="hostel.isVerified ? 'Verified Property' : (hostel.verificationStatus === 'Pending' ? 'Verification Pending' : 'Apply for Verification')"></span>
+        </button>
+    </div>
+
+    <div class="flex space-x-2 bg-slate-200/50 dark:bg-slate-800/50 p-1 rounded-2xl mb-8 overflow-x-auto">
+        <template x-for="tab in ['Hostel Profile', 'Smart Configuration', 'Room Management']">
+            <button @click="currentTab = tab" 
+                    class="flex-1 py-3 px-6 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300"
+                    :class="currentTab === tab ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'">
+                <span x-text="tab"></span>
+            </button>
+        </template>
+    </div>
+
+    <div x-show="currentTab === 'Hostel Profile'" x-transition.opacity class="space-y-6" x-cloak>
+        <div class="card grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="input-group">
+                <label>Hostel Name</label>
+                <input type="text" x-model="hostel.name" class="input-field" placeholder="e.g. Sunrise Hostels">
+            </div>
+            <div class="input-group">
+                <label>Contact Phone</label>
+                <input type="tel" x-model="hostel.tel" class="input-field" placeholder="+256...">
+            </div>
+            <div class="input-group md:col-span-2">
+                <label>WhatsApp Number</label>
+                <input type="tel" x-model="hostel.whatsapp" class="input-field" placeholder="For quick student inquiries">
+            </div>
+            <button @click="saveHostel" class="btn-primary md:col-span-2 w-full mt-4">Save Profile</button>
+        </div>
+    </div>
+
+    <div x-show="currentTab === 'Smart Configuration'" x-transition.opacity class="space-y-6" x-cloak>
+        <div class="card space-y-8">
+            
+            <div>
+                <h3 class="text-lg font-bold text-professional dark:text-white mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Location & Proximity</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Environment Type</label>
+                        <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                            <label class="flex-1 text-center cursor-pointer">
+                                <input type="radio" x-model="hostel.locationType" value="University" class="hidden peer">
+                                <div class="py-2.5 rounded-lg text-sm font-bold peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-primary text-slate-400 transition-all">University Zone</div>
+                            </label>
+                            <label class="flex-1 text-center cursor-pointer">
+                                <input type="radio" x-model="hostel.locationType" value="Town" class="hidden peer">
+                                <div class="py-2.5 rounded-lg text-sm font-bold peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-primary text-slate-400 transition-all">Town Center</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2" x-show="hostel.locationType === 'University'" x-collapse>
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Distance from Campus</label>
+                        <select x-model="hostel.distance" class="input-field cursor-pointer">
+                            <option value="100">Less than 100m</option>
+                            <option value="500">100m - 500m</option>
+                            <option value="1000">500m - 1km</option>
+                            <option value="2000">Over 1km</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-professional dark:text-white mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Provided Amenities</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <template x-for="(value, key) in hostel.amenities" :key="key">
+                        <div class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-colors">
+                            <span class="font-semibold text-slate-600 dark:text-slate-300 capitalize" x-text="key.replace(/([A-Z])/g, ' $1').trim()"></span>
+                            <button type="button" @click="hostel.amenities[key] = !hostel.amenities[key]" 
+                                    class="w-12 h-6 rounded-full relative transition-colors duration-300" 
+                                    :class="hostel.amenities[key] ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'">
+                                <div class="w-4 h-4 bg-white rounded-full absolute top-1 transition-transform duration-300" 
+                                     :class="hostel.amenities[key] ? 'left-7' : 'left-1'"></div>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-professional dark:text-white mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Food & Connectivity</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700">Catering Service</label>
+                        <select x-model="hostel.services.catering" class="input-field cursor-pointer">
+                            <option value="None">No Catering Provided</option>
+                            <option value="Provided">Catering Provided</option>
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-2" x-show="hostel.services.catering === 'Provided'" x-collapse>
+                        <label class="text-sm font-semibold text-slate-700">Catering Payment Structure</label>
+                        <select class="input-field border-primary ring-1 ring-primary/20">
+                            <option>Included in Rent Fee</option>
+                            <option>Paid Separately (Optional)</option>
+                            <option>Paid Separately (Mandatory)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="saveHostel" class="btn-primary w-full md:w-auto">Update Smart Configuration</button>
+        </div>
+    </div>
+
+    <div x-show="currentTab === 'Room Management'" x-transition.opacity class="space-y-6" x-cloak>
+        
+        <div class="flex justify-end">
+            <button @click="showRoomModal = true" class="btn-primary"><i class="fa-solid fa-plus"></i> Add New Room</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="room in rooms" :key="room._id">
+                <div class="card p-0 overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="h-32 bg-slate-200 dark:bg-slate-800 relative">
+                            <div class="absolute bottom-3 left-3 bg-white/90 dark:bg-black/80 px-3 py-1 rounded-lg backdrop-blur-sm font-bold text-professional dark:text-white shadow-sm">
+                                <span x-text="room.type"></span> Room
+                            </div>
+                        </div>
+                        <div class="p-5 pb-0">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xl font-extrabold text-professional dark:text-white">UGX <span x-text="room.pricePerSemester.toLocaleString()"></span><span class="text-xs text-slate-400 font-normal">/sem</span></span>
+                            </div>
+                            <div class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                <div><i class="fa-solid fa-layer-group w-5 text-center"></i> Floor <span x-text="room.floorLevel"></span></div>
+                                <div><i class="fa-solid fa-fire-burner w-5 text-center"></i> Cooking: <span x-text="room.cooking.allowed ? room.cooking.method : 'Not Allowed'"></span></div>
+                                <div><i class="fa-solid fa-sink w-5 text-center"></i> <span x-text="room.isSelfContained ? 'Self Contained' : 'Shared Bathrooms'"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 pt-4 mt-auto">
+                        <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div class="flex flex-col px-2">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Available</span>
+                                <span class="text-sm font-semibold" :class="room.availableRooms === 0 ? 'text-red-500' : 'text-primary'"><span x-text="room.availableRooms"></span> of <span x-text="room.totalRooms"></span></span>
+                            </div>
+                            <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+                                <button @click="updateRoomCount(room, -1)" 
+                                        class="w-8 h-8 rounded-md flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" 
+                                        :disabled="room.availableRooms <= 0 || loadingRoom === room._id">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <div class="w-8 text-center font-extrabold text-professional dark:text-white" x-show="loadingRoom !== room._id" x-text="room.availableRooms"></div>
+                                <div class="w-8 text-center text-primary" x-show="loadingRoom === room._id"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                                <button @click="updateRoomCount(room, 1)" 
+                                        class="w-8 h-8 rounded-md flex items-center justify-center text-slate-500 hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" 
+                                        :disabled="room.availableRooms >= room.totalRooms || loadingRoom === room._id">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="showRoomModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" x-cloak>
+            <div @click.outside="showRoomModal = false" class="card w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+                <h2 class="text-2xl font-bold text-professional dark:text-white mb-6">Add Room Group</h2>
+                
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label>Room Type</label>
+                            <select x-model="newRoom.type" class="input-field">
+                                <option value="Single">Single</option>
+                                <option value="Double">Double</option>
+                                <option value="Triple">Triple</option>
+                                <option value="Quad">Quad</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Floor Level</label>
+                            <select x-model="newRoom.floorLevel" class="input-field">
+                                <template x-for="i in 10"><option :value="i">Floor <span x-text="i"></span></option></template>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label>Quantity of Rooms</label>
+                            <input type="number" min="1" x-model="newRoom.totalRooms" class="input-field" placeholder="e.g. 10">
+                        </div>
+                        <div class="input-group">
+                            <label>Price per Semester (UGX)</label>
+                            <input type="number" x-model="newRoom.pricePerSemester" class="input-field" placeholder="e.g. 1500000">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+                        <span class="font-semibold text-slate-600 dark:text-slate-300">Are they Self Contained?</span>
+                        <button type="button" @click="newRoom.isSelfContained = !newRoom.isSelfContained" class="w-12 h-6 rounded-full relative transition-colors duration-300" :class="newRoom.isSelfContained ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 transition-transform duration-300" :class="newRoom.isSelfContained ? 'left-7' : 'left-1'"></div>
+                        </button>
+                    </div>
+
+                    <div class="flex gap-4 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button @click="showRoomModal = false" class="btn-outline flex-1">Cancel</button>
+                        <button @click="saveNewRoom" class="btn-primary flex-1">Save Room Group</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div x-data="hostelDashboard()" x-init="init()">
+    <div x-show="loading" class="fixed inset-0 bg-slate-50 dark:bg-dark-bg z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-professional dark:text-white font-bold">Securing your session...</p>
+        </div>
+    </div>
+
+    <div x-show="!loading" x-cloak>
+        </div>
+</div>
+
+<script>
+function hostelDashboard(initialData) {
+    return {
+        loading: true,
+        hostel: { name: 'Loading...', verificationStatus: 'Draft', amenities: {}, services: {} },
+        rooms: [],
+        
+        async init() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            try {
+                // Fetch data using the JWT Token from localStorage
+                const response = await fetch('/dashboard/hostel/data', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401) throw new Error('Session expired');
+                
+                const data = await response.json();
+                this.hostel = data.hostel;
+                this.rooms = data.rooms;
+            } catch (err) {
+                console.error(err);
+                window.location.href = '/auth/login';
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async saveHostel() {
+            try {
+                await fetch('/dashboard/hostel/update', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                    body: JSON.stringify(this.hostel)
+                });
+                alert('Configuration saved successfully!');
+            } catch (e) { alert('Failed to save.'); }
         },
 
-        toggleDarkMode() {
-          this.isDarkMode = !this.isDarkMode;
-          localStorage.setItem('darkMode', this.isDarkMode);
-          this.applyDarkMode();
+        async applyVerification() {
+            if(this.hostel.verificationStatus !== 'Draft') return;
+            try {
+                await fetch('/dashboard/hostel/verify', { method: 'PATCH', headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` } });
+                this.hostel.verificationStatus = 'Pending';
+                alert('Application submitted! We will review your hostel soon.');
+            } catch (e) { alert('Application failed.'); }
         },
 
-        applyDarkMode() {
-          if (this.isDarkMode) {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
+        async saveNewRoom() {
+            try {
+                const res = await fetch('/dashboard/hostel/rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                    body: JSON.stringify(this.newRoom)
+                });
+                const saved = await res.json();
+                this.rooms.push(saved);
+                this.showRoomModal = false;
+            } catch (e) { alert('Failed to add room.'); }
         },
 
-        init() {
-          this.applyDarkMode();
-          loadHostelStats();
+        async toggleRoomStatus(room) {
+            try {
+                await fetch(`/dashboard/hostel/rooms/${room._id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                    body: JSON.stringify({ isAvailable: !room.isAvailable })
+                });
+                room.isAvailable = !room.isAvailable;
+            } catch (e) { alert('Failed to update status.'); }
+        },
+
+        loadingRoom: null, // Used to show spinner on specific room during update
+        newRoom: {
+            type: 'Single', totalRooms: 1, isSelfContained: true, floorLevel: 1, pricePerSemester: '',
+            cooking: { allowed: false, method: 'Electricity' }
+        },
+
+        // Update the toggle logic to quantity logic
+        async updateRoomCount(room, change) {
+            this.loadingRoom = room._id;
+            try {
+                const res = await fetch(`/dashboard/hostel/rooms/${room._id}/quantity`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                    body: JSON.stringify({ change })
+                });
+                
+                if (!res.ok) throw new Error('Update failed');
+                
+                // Update local state smoothly
+                room.availableRooms += change;
+            } catch (e) { 
+                alert('Failed to update availability.'); 
+            } finally {
+                this.loadingRoom = null;
+            }
         }
-      };
     }
-
-    async function loadHostelStats() {
-      try {
-        const response = await fetch('/hostels/stats', {
-          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-        });
-        const data = await response.json();
-        // Update stats dynamically
-      } catch (error) {
-        console.error('Error loading hostel stats:', error);
-      }
-    }
-  </script>
-</body>
-</html>
+}
+</script>

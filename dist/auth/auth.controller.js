@@ -74,8 +74,18 @@ let AuthController = class AuthController {
     async setPassword(accountId, setPasswordDto) {
         return await this.authService.setPassword(accountId, setPasswordDto);
     }
-    async login(loginDto) {
+    async login(loginDto, res) {
+        const logger = new common_1.Logger('AuthDebug');
+        logger.log(`Attempting login for: ${loginDto.email}`);
         const result = await this.authService.login(loginDto);
+        logger.log(`Login Service result for ${loginDto.email}: Role -> ${result.user?.role}`);
+        res.cookie('accessToken', result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000,
+        });
+        logger.log('AccessToken cookie set in response');
         if (result.user) {
             const roleRedirectMap = {
                 [account_schema_1.AccountRole.ADMIN]: '/dashboard/admin',
@@ -85,7 +95,9 @@ let AuthController = class AuthController {
                 [account_schema_1.AccountRole.PROPERTY_MANAGER]: '/dashboard/properties',
                 [account_schema_1.AccountRole.INDIVIDUAL]: '/',
             };
-            result.redirect = roleRedirectMap[result.user.role] || '/dashboard';
+            const targetPath = roleRedirectMap[result.user.role] || '/dashboard';
+            result.redirect = targetPath;
+            logger.log(`Role: ${result.user.role} -> Redirecting to: ${targetPath}`);
         }
         return result;
     }
@@ -174,8 +186,9 @@ __decorate([
 __decorate([
     (0, common_1.Post)('login'),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([

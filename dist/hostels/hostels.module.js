@@ -13,6 +13,8 @@ const hostels_service_1 = require("./hostels.service");
 const hostels_controller_1 = require("./hostels.controller");
 const hostel_schema_1 = require("./schemas/hostel.schema");
 const room_schema_1 = require("./schemas/room.schema");
+const auth_module_1 = require("../auth/auth.module");
+const account_schema_1 = require("../accounts/schemas/account.schema");
 let HostelsModule = class HostelsModule {
 };
 exports.HostelsModule = HostelsModule;
@@ -22,7 +24,9 @@ exports.HostelsModule = HostelsModule = __decorate([
             mongoose_1.MongooseModule.forFeature([
                 { name: hostel_schema_1.Hostel.name, schema: hostel_schema_1.HostelSchema },
                 { name: room_schema_1.Room.name, schema: room_schema_1.RoomSchema },
+                { name: account_schema_1.Account.name, schema: account_schema_1.AccountSchema },
             ]),
+            auth_module_1.AuthModule
         ],
         controllers: [hostels_controller_1.HostelsController],
         providers: [hostels_service_1.HostelsService],

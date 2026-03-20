@@ -19,6 +19,6 @@ import { Account, AccountSchema } from '../accounts/schemas/account.schema';
   ],
   controllers: [AuthController],
   providers: [AuthService, EmailService, JwtStrategy],
-  exports: [AuthService],
+  exports: [AuthService, EmailService],
 })
 export class AuthModule {}

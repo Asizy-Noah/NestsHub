@@ -136,11 +136,7 @@ let AuthService = class AuthService {
         if (account.status !== account_schema_1.AccountStatus.ACTIVE) {
             throw new common_1.UnauthorizedException('Account is not active');
         }
-        const token = this.jwtService.sign({
-            sub: account._id,
-            email: account.email,
-            role: account.role,
-        }, { expiresIn: '24h' });
+        const token = this.jwtService.sign({ sub: account._id, email: account.email, role: account.role }, { secret: process.env.JWT_SECRET });
         return {
             accessToken: token,
             user: {

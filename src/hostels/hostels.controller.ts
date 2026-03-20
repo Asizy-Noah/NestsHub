@@ -1,117 +1,52 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Render, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Render, Request, UseGuards } from '@nestjs/common';
 import { HostelsService } from './hostels.service';
-import { CreateHostelDto, UpdateHostelDto, ApplyVerificationDto } from './dto/create-hostel.dto';
-import { CreateRoomDto, UpdateRoomDto } from './dto/create-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AccountRole } from '../accounts/schemas/account.schema';
 
-@Controller('dashboard/hostels')
+@Controller('dashboard/hostel')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(AccountRole.HOSTEL_MANAGER) // Ensures only hostel managers access this
 export class HostelsController {
-  constructor(private readonly hostelService: HostelsService) {}
+  constructor(private readonly hostelsService: HostelsService) {}
 
   @Get()
   @Render('hostels/dashboard')
-  getHostelDashboard() {
-    return { title: 'Hostel Dashboard' };
+  async getDashboard(@Request() req: any) {
+    const managerId = req.user.userId;
+    // We pass the data to the EJS template to hydrate Alpine.js
+    const hostelData = await this.hostelsService.getHostelDataByManager(managerId);
+    return {
+      title: 'Hostel Manager Dashboard',
+      layout: 'layouts/dashboard',
+      manager: req.user,
+      hostelData: JSON.stringify(hostelData) // Pass as JSON for Alpine
+    };
   }
 
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  async createHostel(@Req() req: any, @Body() createHostelDto: CreateHostelDto) {
-    return this.hostelService.createHostel(req.user.sub, createHostelDto);
+  @Patch('update')
+  async updateHostel(@Request() req: any, @Body() data: any) {
+    return await this.hostelsService.updateHostel(req.user.userId, data);
   }
 
-  @Get('my-hostel')
-  @UseGuards(JwtAuthGuard)
-  async getMyHostel(@Req() req: any) {
-    return this.hostelService.findHostelByManager(req.user.sub);
+  @Patch('verify')
+  async applyForVerification(@Request() req: any) {
+    return await this.hostelsService.applyVerification(req.user.userId);
   }
 
-  @Get('search')
-  async searchHostels(@Query('q') query: string, @Query('skip') skip = 0, @Query('limit') limit = 10) {
-    return this.hostelService.searchHostels(query, skip, limit);
+  @Post('rooms')
+  async addRoom(@Request() req: any, @Body() roomData: any) {
+    return await this.hostelsService.addRoom(req.user.userId, roomData);
   }
 
-  @Get('verified')
-  async getVerifiedHostels(@Query('skip') skip = 0, @Query('limit') limit = 10) {
-    return this.hostelService.getVerifiedHostels(skip, limit);
-  }
-
-  @Get('stats')
-  @UseGuards(JwtAuthGuard)
-  async getHostelStats(@Req() req: any) {
-    return this.hostelService.getHostelStats(req.user.sub);
-  }
-
-  /* @Get()
-  async getAllHostels(@Query('skip') skip = 0, @Query('limit') limit = 10) {
-    return this.hostelService.getAllHostels(skip, limit);
-  } */
-
-  @Get(':id')
-  async getHostelById(@Param('id') id: string) {
-    return this.hostelService.findHostelById(id);
-  }
-
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  async updateHostel(
-    @Param('id') id: string,
-    @Req() req: any,
-    @Body() updateHostelDto: UpdateHostelDto,
+  @Patch('rooms/:roomId/quantity')
+  async updateRoomQuantity(
+    @Request() req: any, 
+    @Param('roomId') roomId: string, 
+    @Body('change') change: number
   ) {
-    return this.hostelService.updateHostel(id, req.user.sub, updateHostelDto);
-  }
-
-  @Post(':id/apply-verification')
-  @UseGuards(JwtAuthGuard)
-  async applyVerification(
-    @Param('id') id: string,
-    @Req() req: any,
-    @Body() applyVerificationDto: ApplyVerificationDto,
-  ) {
-    return this.hostelService.applyVerification(id, req.user.sub, applyVerificationDto);
-  }
-
-  // Room endpoints
-  @Post(':hostelId/rooms')
-  @UseGuards(JwtAuthGuard)
-  async createRoom(
-    @Param('hostelId') hostelId: string,
-    @Req() req: any,
-    @Body() createRoomDto: CreateRoomDto,
-  ) {
-    return this.hostelService.createRoom(hostelId, req.user.sub, createRoomDto);
-  }
-
-  @Get(':hostelId/rooms')
-  async getRoomsByHostel(@Param('hostelId') hostelId: string) {
-    return this.hostelService.getRoomsByHostel(hostelId);
-  }
-
-  @Get(':hostelId/rooms/:roomId')
-  async getRoomById(@Param('roomId') roomId: string) {
-    return this.hostelService.getRoomById(roomId);
-  }
-
-  @Put(':hostelId/rooms/:roomId')
-  @UseGuards(JwtAuthGuard)
-  async updateRoom(
-    @Param('hostelId') hostelId: string,
-    @Param('roomId') roomId: string,
-    @Req() req: any,
-    @Body() updateRoomDto: UpdateRoomDto,
-  ) {
-    return this.hostelService.updateRoom(roomId, hostelId, req.user.sub, updateRoomDto);
-  }
-
-  @Delete(':hostelId/rooms/:roomId')
-  @UseGuards(JwtAuthGuard)
-  async deleteRoom(
-    @Param('hostelId') hostelId: string,
-    @Param('roomId') roomId: string,
-    @Req() req: any,
-  ) {
-    await this.hostelService.deleteRoom(roomId, hostelId, req.user.sub);
-    return { message: 'Room deleted successfully' };
+    // change will be +1 or -1 from the frontend
+    return await this.hostelsService.updateRoomQuantity(roomId, req.user.userId, change);
   }
 }

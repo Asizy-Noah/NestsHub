@@ -195,6 +195,48 @@ let EmailService = EmailService_1 = class EmailService {
             this.logger.error(`Failed to send welcome email to ${email}:`, error);
         }
     }
+    async sendVerificationApplicationManagerEmail(emails, firstName, hostelName) {
+        const content = `
+      <h2 style="margin-top: 0; font-size: 24px; font-weight: 700; color: #10B981;">Application Received!</h2>
+      <p style="font-size: 16px; line-height: 1.6; color: #475569;">Hi ${firstName},</p>
+      <p style="font-size: 16px; line-height: 1.6; color: #475569;">We have successfully received your verification application for <b>${hostelName}</b>.</p>
+      
+      <div style="background-color: #F8FAFC; border-radius: 12px; padding: 25px; margin: 30px 0; border-left: 4px solid #F59E0B;">
+        <h4 style="margin: 0 0 10px 0; color: #1E293B;">What happens next?</h4>
+        <p style="margin: 0; color: #475569; font-size: 15px;">Our team will review your property details. Once verified, you will unlock premium features including <b>direct online booking payments</b> from students.</p>
+      </div>
+      <p style="font-size: 14px; color: #64748B;">We will notify you once the review is complete.</p>
+    `;
+        const mailOptions = {
+            from: process.env.FROM_EMAIL,
+            to: emails.join(', '),
+            subject: `Verification Application Received - ${hostelName}`,
+            html: this.getBaseTemplate(content),
+        };
+        await this.transporter.sendMail(mailOptions);
+    }
+    async sendVerificationApplicationAdminEmail(adminEmail, hostelName, phone) {
+        const content = `
+      <h2 style="margin-top: 0; font-size: 24px; font-weight: 700; color: #1E293B;">New Verification Request</h2>
+      <p style="font-size: 16px; line-height: 1.6; color: #475569;">A new hostel has submitted their profile for verification.</p>
+      
+      <div style="background-color: #F8FAFC; border-radius: 12px; padding: 20px; margin: 20px 0;">
+        <p style="margin: 5px 0;"><b>Property:</b> ${hostelName}</p>
+        <p style="margin: 5px 0;"><b>Contact:</b> ${phone}</p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${process.env.APP_URL}/dashboard/admin" style="background-color: #10B981; color: #FFFFFF; padding: 14px 30px; text-decoration: none; border-radius: 12px; font-weight: 600; display: inline-block;">Review in Admin Panel</a>
+      </div>
+    `;
+        const mailOptions = {
+            from: process.env.FROM_EMAIL,
+            to: adminEmail,
+            subject: `ACTION REQUIRED: Verify ${hostelName}`,
+            html: this.getBaseTemplate(content),
+        };
+        await this.transporter.sendMail(mailOptions);
+    }
 };
 exports.EmailService = EmailService;
 exports.EmailService = EmailService = EmailService_1 = __decorate([

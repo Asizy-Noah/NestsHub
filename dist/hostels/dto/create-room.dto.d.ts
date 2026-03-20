@@ -1,28 +1,12 @@
-import { RoomType, CookingPolicy } from '../schemas/room.schema';
 export declare class CreateRoomDto {
-    roomNumber: string;
-    type: RoomType;
-    floor: number;
-    isSelfContained?: boolean;
-    cookingPolicy?: CookingPolicy;
-    images?: string[];
-    pricePerMonth?: number;
-    capacity?: number;
-    isAvailable?: boolean;
-    description?: string;
-    amenities?: string[];
-}
-export declare class UpdateRoomDto {
-    roomNumber?: string;
-    type?: RoomType;
-    floor?: number;
-    isSelfContained?: boolean;
-    cookingPolicy?: CookingPolicy;
-    images?: string[];
-    pricePerMonth?: number;
-    capacity?: number;
-    isAvailable?: boolean;
-    description?: string;
-    amenities?: string[];
+    totalRooms: number;
+    type: string;
+    isSelfContained: boolean;
+    floorLevel: number;
+    cooking: {
+        allowed: boolean;
+        method: string;
+    };
+    pricePerSemester: number;
 }
 //# sourceMappingURL=create-room.dto.d.ts.map

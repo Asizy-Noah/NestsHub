@@ -16,14 +16,25 @@ const passport_jwt_1 = require("passport-jwt");
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
     constructor() {
         super({
-            jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([
+                passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
+                (request) => {
+                    const cookieToken = request?.cookies?.accessToken;
+                    if (cookieToken)
+                        console.log('DEBUG: Found accessToken in Cookie');
+                    return cookieToken;
+                },
+            ]),
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
         });
+        this.logger = new common_1.Logger('JwtStrategy');
     }
     async validate(payload) {
-        if (!payload.sub) {
-            throw new common_1.UnauthorizedException();
+        this.logger.log(`Validating Payload: UserID: ${payload.sub}, Role: ${payload.role}`);
+        if (!payload.sub || !payload.role) {
+            this.logger.error('Validation Failed: Missing sub or role in token payload');
+            throw new common_1.UnauthorizedException('Token payload is incomplete');
         }
         return {
             userId: payload.sub,

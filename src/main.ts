@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import expressLayouts from 'express-ejs-layouts';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -15,6 +16,8 @@ async function bootstrap() {
 
   // 2. Initialize the layout middleware (CRITICAL)
   app.use(expressLayouts);
+
+  app.use(cookieParser());
   
   // 3. Set the default layout to 'layouts/main' 
   app.set('layout', 'layouts/main');

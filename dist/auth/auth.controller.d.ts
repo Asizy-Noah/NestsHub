@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -46,7 +47,7 @@ export declare class AuthController {
     setPassword(accountId: string, setPasswordDto: SetPasswordDto): Promise<{
         message: string;
     }>;
-    login(loginDto: LoginDto): Promise<{
+    login(loginDto: LoginDto, res: Response): Promise<{
         accessToken: string;
         user: {
             id: import("mongoose").Types.ObjectId;

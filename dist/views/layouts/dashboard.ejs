@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'NestHub - Real Estate Management' %></title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981', // Emerald Green (Growth)
+                        professional: '#1E293B', // Deep Slate Blue
+                        accent: '#F59E0B', // Amber (CTAs & Trackers)
+                        'light-bg': '#F8FAFC', // Slate-50
+                        'light-surface': '#FFFFFF', // White
+                        'light-text': '#0F172A', // Slate-900
+                        'dark-bg': '#020617', // Slate-950
+                        'dark-surface': '#0F172A', // Slate-900
+                        'dark-text': '#F1F5F9', // Slate-100
+                    },
+                    boxShadow: {
+                        'glass': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'glass-dark': '0 10px 40px -10px rgba(0,0,0,0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer components {
+            .btn-primary {
+                @apply px-6 py-3 bg-primary text-white rounded-xl hover:bg-emerald-600 active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg font-semibold flex items-center justify-center gap-2;
+            }
+            .btn-accent {
+                @apply px-6 py-3 bg-accent text-white rounded-xl hover:bg-amber-600 active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg font-semibold flex items-center justify-center gap-2;
+            }
+            .btn-outline {
+                @apply px-6 py-3 border-2 border-slate-200 dark:border-slate-700 text-light-text dark:text-dark-text rounded-xl hover:border-primary hover:text-primary transition-all duration-200 font-semibold;
+            }
+            .card {
+                @apply bg-light-surface dark:bg-dark-surface rounded-2xl shadow-glass dark:shadow-glass-dark p-8 border border-slate-200 dark:border-slate-800;
+            }
+            .input-group {
+                @apply relative flex flex-col gap-1.5;
+            }
+            .input-group label {
+                @apply text-sm font-semibold text-slate-700 dark:text-slate-300;
+            }
+            .input-field {
+                @apply w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-light-text dark:text-dark-text transition-all duration-200;
+            }
+            .input-icon {
+                @apply absolute left-4 top-[38px] text-slate-400 dark:text-slate-500 transition-colors;
+            }
+            .input-field:focus + .input-icon {
+                @apply text-primary;
+            }
+        }
+        @layer base {
+            [x-cloak] { display: none !important; }
+            body { @apply antialiased transition-colors duration-300; }
+        }
+    </style>
+</head>
+<body 
+    x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" 
+    :class="darkMode ? 'dark bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'" 
+    x-cloak
+>
+    <header class="w-full absolute top-0 left-0 p-6 flex justify-between items-center z-50">
+        <a href="/" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 bg-professional rounded-xl flex items-center justify-center shadow-md group-hover:bg-primary transition-colors">
+                <i class="fa-solid fa-building text-white"></i>
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-professional dark:text-white">Nest<span class="text-primary">Hub</span></span>
+        </a>
+        <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="w-10 h-10 rounded-full bg-light-surface dark:bg-dark-surface shadow-md flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+            <i class="fa-solid fa-moon" x-show="!darkMode"></i>
+            <i class="fa-solid fa-sun" x-show="darkMode"></i>
+        </button>
+    </header>
+
+    <main class="min-h-screen flex items-center justify-center pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <%- body %> 
+    </main>
+
+</body>
+</html>
