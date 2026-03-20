@@ -73,34 +73,51 @@ export class HostelsService {
   }
 
   async applyVerification(managerId: string) {
-    const hostel = await this.hostelModel.findOne({ managerId });
-    if (!hostel) throw new NotFoundException('Hostel profile not found');
-    
-    if (hostel.verificationStatus !== 'Draft') {
-      throw new BadRequestException('Application already submitted or verified.');
-    }
-
-    // Update status
-    hostel.verificationStatus = 'Pending';
-    await hostel.save();
-
-    // Fetch Manager Details for the email
-    const manager = await this.accountModel.findById(managerId);
-    
-    if (manager) {
-      // 1. Send Email to Manager & Hostel Email
-      const managerEmails = [manager.email];
-      if (hostel.email && hostel.email !== manager.email) managerEmails.push(hostel.email);
-      await this.emailService.sendVerificationApplicationManagerEmail(managerEmails, manager.firstName, hostel.name);
-
-      // 2. Send Email to System Admin
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@nestshub.com';
-      await this.emailService.sendVerificationApplicationAdminEmail(adminEmail, hostel.name, manager.phoneNumber);
-      
-      // 3. Create System Notification (Log for now, update if you have a Notification schema)
-      this.logger.log(`[SYSTEM NOTIFICATION] New Verification Request from ${hostel.name} (Manager: ${manager.firstName})`);
-    }
-
-    return { message: 'Verification application submitted successfully', status: 'Pending' };
+  const hostel = await this.hostelModel.findOne({ managerId });
+  if (!hostel) throw new NotFoundException('Hostel profile not found');
+  
+  if (hostel.verificationStatus !== 'Draft') {
+    throw new BadRequestException('Application already submitted or verified.');
   }
+
+  hostel.verificationStatus = 'Pending';
+  await hostel.save();
+
+  const manager = await this.accountModel.findById(managerId);
+  
+  if (manager) {
+    // 1. Collect all unique emails (Manager's email + any unique hostel emails)
+    const managerEmails = new Set<string>();
+    managerEmails.add(manager.email);
+    
+    // Add all emails from the hostel's email array if they exist
+    if (hostel.emails && hostel.emails.length > 0) {
+      hostel.emails.forEach(e => {
+        if (e && e.trim() !== '') managerEmails.add(e.toLowerCase());
+      });
+    }
+
+    // Convert Set back to Array for the email service
+    const emailList = Array.from(managerEmails);
+
+    // 2. Send Email to Manager & all associated Hostel Emails
+    await this.emailService.sendVerificationApplicationManagerEmail(
+      emailList, 
+      manager.firstName, 
+      hostel.name
+    );
+
+    // 3. Send Email to System Admin
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@nestshub.com';
+    await this.emailService.sendVerificationApplicationAdminEmail(
+      adminEmail, 
+      hostel.name, 
+      manager.phoneNumber
+    );
+    
+    this.logger.log(`[SYSTEM NOTIFICATION] New Verification Request from ${hostel.name}`);
+  }
+
+  return { message: 'Verification application submitted successfully', status: 'Pending' };
+}
 }

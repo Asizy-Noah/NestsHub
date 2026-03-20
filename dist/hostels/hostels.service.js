@@ -82,13 +82,19 @@ let HostelsService = HostelsService_1 = class HostelsService {
         await hostel.save();
         const manager = await this.accountModel.findById(managerId);
         if (manager) {
-            const managerEmails = [manager.email];
-            if (hostel.email && hostel.email !== manager.email)
-                managerEmails.push(hostel.email);
-            await this.emailService.sendVerificationApplicationManagerEmail(managerEmails, manager.firstName, hostel.name);
+            const managerEmails = new Set();
+            managerEmails.add(manager.email);
+            if (hostel.emails && hostel.emails.length > 0) {
+                hostel.emails.forEach(e => {
+                    if (e && e.trim() !== '')
+                        managerEmails.add(e.toLowerCase());
+                });
+            }
+            const emailList = Array.from(managerEmails);
+            await this.emailService.sendVerificationApplicationManagerEmail(emailList, manager.firstName, hostel.name);
             const adminEmail = process.env.ADMIN_EMAIL || 'admin@nestshub.com';
             await this.emailService.sendVerificationApplicationAdminEmail(adminEmail, hostel.name, manager.phoneNumber);
-            this.logger.log(`[SYSTEM NOTIFICATION] New Verification Request from ${hostel.name} (Manager: ${manager.firstName})`);
+            this.logger.log(`[SYSTEM NOTIFICATION] New Verification Request from ${hostel.name}`);
         }
         return { message: 'Verification application submitted successfully', status: 'Pending' };
     }

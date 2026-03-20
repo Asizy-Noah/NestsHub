@@ -2,19 +2,15 @@ import mongoose, { Document } from 'mongoose';
 export declare class Hostel extends Document {
     managerId: mongoose.Schema.Types.ObjectId;
     name: string;
-    tel: string;
-    email: string;
-    whatsapp: string;
-    coverImage: string;
-    utilityGallery: string[];
+    phones: string[];
+    whatsapps: string[];
+    emails: string[];
+    profilePhoto: string;
+    gallery: string[];
     locationType: string;
+    locationName: string;
     distance: number;
-    proximity: {
-        market: boolean;
-        hospital: boolean;
-        pharmacy: boolean;
-        clinic: boolean;
-    };
+    popularAreaName: string;
     amenities: {
         security: boolean;
         tvRoom: boolean;
@@ -22,10 +18,14 @@ export declare class Hostel extends Document {
         gym: boolean;
         swimmingPool: boolean;
         parking: boolean;
-    };
-    services: {
-        catering: string;
-        internet: string;
+        freeInternet: boolean;
+        paidInternet: boolean;
+        freeTransport: boolean;
+        lifts: boolean;
+        cookingSpaces: boolean;
+        restaurant: boolean;
+        prayerRoom: boolean;
+        superMarket: boolean;
     };
     isVerified: boolean;
     verificationStatus: string;

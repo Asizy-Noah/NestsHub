@@ -6,35 +6,32 @@ export class Hostel extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true })
   managerId!: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ required: true })
-  name!: string;
-
-  @Prop() tel!: string;
-  @Prop() email!: string;
-  @Prop() whatsapp!: string;
+  @Prop({ required: true }) name!: string;
   
-  @Prop() coverImage!: string;
-  @Prop([String]) utilityGallery!: string[];
+  // Multiple Contacts
+  @Prop({ type: [String], default: [] }) phones!: string[];
+  @Prop({ type: [String], default: [] }) whatsapps!: string[];
+  @Prop({ type: [String], default: [] }) emails!: string[];
+  
+  // Media
+  @Prop() profilePhoto!: string;
+  @Prop({ type: [String], default: [] }) gallery!: string[]; // Up to 5 photos
 
-  @Prop({ type: String, enum: ['University', 'Town'], default: 'University' })
-  locationType!: string;
+  // Location
+  @Prop({ type: String, enum: ['University', 'Town'], default: 'University' }) locationType!: string;
+  @Prop() locationName!: string; // Name of Univ or Town
+  @Prop() distance!: number;
+  @Prop() popularAreaName!: string; // e.g., "Kikoni"
 
-  @Prop() distance!: number; // e.g., 500 meters from campus
+  // Expanded Amenities (Booleans)
+  @Prop({ type: Object, default: {} })
+  amenities!: { 
+    security: boolean; tvRoom: boolean; readingRoom: boolean; gym: boolean; swimmingPool: boolean; parking: boolean;
+    freeInternet: boolean; paidInternet: boolean; freeTransport: boolean; lifts: boolean; cookingSpaces: boolean;
+    restaurant: boolean; prayerRoom: boolean; superMarket: boolean;
+  };
 
-  @Prop({ type: Object, default: { market: false, hospital: false, pharmacy: false, clinic: false } })
-  proximity!: { market: boolean; hospital: boolean; pharmacy: boolean; clinic: boolean };
-
-  @Prop({ type: Object, default: { security: false, tvRoom: false, readingRoom: false, gym: false, swimmingPool: false, parking: false } })
-  amenities!: { security: boolean; tvRoom: boolean; readingRoom: boolean; gym: boolean; swimmingPool: boolean; parking: boolean };
-
-  @Prop({ type: Object, default: { catering: 'None', internet: 'None' } })
-  services!: { catering: string; internet: string }; // e.g., 'Included', 'Additional Fee', 'Free', 'Paid'
-
-  @Prop({ default: false })
-  isVerified!: boolean;
-
-  @Prop({ default: 'Draft' })
-  verificationStatus!: string; // Draft, Pending, Verified
+  @Prop({ default: false }) isVerified!: boolean;
+  @Prop({ default: 'Draft' }) verificationStatus!: string;
 }
-
 export const HostelSchema = SchemaFactory.createForClass(Hostel);

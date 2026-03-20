@@ -57,45 +57,45 @@ __decorate([
     __metadata("design:type", String)
 ], Hostel.prototype, "name", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Hostel.prototype, "tel", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Hostel.prototype, "email", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Hostel.prototype, "whatsapp", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Hostel.prototype, "coverImage", void 0);
-__decorate([
-    (0, mongoose_1.Prop)([String]),
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
     __metadata("design:type", Array)
-], Hostel.prototype, "utilityGallery", void 0);
+], Hostel.prototype, "phones", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Hostel.prototype, "whatsapps", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Hostel.prototype, "emails", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Hostel.prototype, "profilePhoto", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Hostel.prototype, "gallery", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: String, enum: ['University', 'Town'], default: 'University' }),
     __metadata("design:type", String)
 ], Hostel.prototype, "locationType", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Hostel.prototype, "locationName", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], Hostel.prototype, "distance", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Object, default: { market: false, hospital: false, pharmacy: false, clinic: false } }),
-    __metadata("design:type", Object)
-], Hostel.prototype, "proximity", void 0);
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Hostel.prototype, "popularAreaName", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Object, default: { security: false, tvRoom: false, readingRoom: false, gym: false, swimmingPool: false, parking: false } }),
+    (0, mongoose_1.Prop)({ type: Object, default: {} }),
     __metadata("design:type", Object)
 ], Hostel.prototype, "amenities", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: Object, default: { catering: 'None', internet: 'None' } }),
-    __metadata("design:type", Object)
-], Hostel.prototype, "services", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: false }),
     __metadata("design:type", Boolean)

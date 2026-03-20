@@ -53,6 +53,10 @@ __decorate([
     __metadata("design:type", mongoose_2.default.Schema.Types.ObjectId)
 ], Room.prototype, "hostelId", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Room.prototype, "type", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ required: true, min: 1 }),
     __metadata("design:type", Number)
 ], Room.prototype, "totalRooms", void 0);
@@ -61,29 +65,49 @@ __decorate([
     __metadata("design:type", Number)
 ], Room.prototype, "availableRooms", void 0);
 __decorate([
-    (0, mongoose_1.Prop)([String]),
-    __metadata("design:type", Array)
-], Room.prototype, "photos", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: String, enum: ['Single', 'Double', 'Triple', 'Quad'], required: true }),
-    __metadata("design:type", String)
-], Room.prototype, "type", void 0);
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", Number)
+], Room.prototype, "floorLevel", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: false }),
     __metadata("design:type", Boolean)
 ], Room.prototype, "isSelfContained", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ default: false }),
+    __metadata("design:type", Boolean)
+], Room.prototype, "hasBalcony", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: false }),
+    __metadata("design:type", Boolean)
+], Room.prototype, "hasAC", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: false }),
+    __metadata("design:type", Boolean)
+], Room.prototype, "isAccessible", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Number)
-], Room.prototype, "floorLevel", void 0);
+], Room.prototype, "price", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Object, default: { allowed: false, method: 'None' } }),
-    __metadata("design:type", Object)
-], Room.prototype, "cooking", void 0);
+    (0, mongoose_1.Prop)({ type: String, enum: ['Per Month', 'Per Quarter', 'Per Semester', 'Half Year', 'Per Year'], default: 'Per Semester' }),
+    __metadata("design:type", String)
+], Room.prototype, "pricingPeriod", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Room.prototype, "pricePerSemester", void 0);
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Room.prototype, "cookingMethods", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Boolean, default: false }),
+    __metadata("design:type", Boolean)
+], Room.prototype, "isFurnished", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Room.prototype, "furniture", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Room.prototype, "photos", void 0);
 exports.Room = Room = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Room);

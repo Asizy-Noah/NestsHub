@@ -6,28 +6,28 @@ export class Room extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Hostel', required: true })
   hostelId!: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ required: true, min: 1 })
-  totalRooms!: number;
-
-  @Prop({ required: true, min: 0 })
-  availableRooms!: number; // THIS LINE FIXES THE ERROR
-
-  @Prop([String]) photos!: string[];
+  @Prop({ required: true }) type!: string;
+  @Prop({ required: true, min: 1 }) totalRooms!: number;
+  @Prop({ required: true, min: 0 }) availableRooms!: number;
+  @Prop({ required: true }) floorLevel!: number;
   
-  @Prop({ type: String, enum: ['Single', 'Double', 'Triple', 'Quad'], required: true })
-  type!: string;
+  // Base Amenities
+  @Prop({ default: false }) isSelfContained!: boolean;
+  @Prop({ default: false }) hasBalcony!: boolean;
+  @Prop({ default: false }) hasAC!: boolean;
+  @Prop({ default: false }) isAccessible!: boolean;
 
-  @Prop({ default: false })
-  isSelfContained!: boolean;
+  // Pricing Structure
+  @Prop({ required: true }) price!: number;
+  @Prop({ type: String, enum: ['Per Month', 'Per Quarter', 'Per Semester', 'Half Year', 'Per Year'], default: 'Per Semester' })
+  pricingPeriod!: string;
 
-  @Prop({ required: true })
-  floorLevel!: number;
+  // Arrays for Policies & Amenities
+  @Prop({ type: [String], default: [] }) cookingMethods!: string[]; // e.g. ['Gas', 'Electricity']
+  @Prop({ type: Boolean, default: false }) isFurnished!: boolean;
+  @Prop({ type: [String], default: [] }) furniture!: string[]; // e.g. ['Closet', 'Reading Table']
 
-  @Prop({ type: Object, default: { allowed: false, method: 'None' } })
-  cooking!: { allowed: boolean; method: string };
-
-  @Prop({ required: true })
-  pricePerSemester!: number;
+  // Photos
+  @Prop({ type: [String], default: [] }) photos!: string[];
 }
-
 export const RoomSchema = SchemaFactory.createForClass(Room);
