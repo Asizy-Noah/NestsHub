@@ -23,22 +23,22 @@ export enum VerificationStatus {
 @Schema({ timestamps: true })
 export class HotelAmenities extends Document {
   @Prop({ default: false })
-  gym: boolean;
+  gym!: boolean;
 
   @Prop({ default: false })
-  bar: boolean;
+  bar!: boolean;
 
   @Prop({ default: false })
-  restaurant: boolean;
+  restaurant!: boolean;
 
   @Prop({ default: false })
-  parkingSpace: boolean;
+  parkingSpace!: boolean;
 
   @Prop({ default: false })
-  storageBuilding: boolean;
+  storageBuilding!: boolean;
 
   @Prop({ default: false })
-  supermarketNearby: boolean;
+  supermarketNearby!: boolean;
 }
 
 const HotelAmenitiesSchema = SchemaFactory.createForClass(HotelAmenities);
@@ -46,64 +46,64 @@ const HotelAmenitiesSchema = SchemaFactory.createForClass(HotelAmenities);
 @Schema({ timestamps: true })
 export class Hotel extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Account', required: true })
-  managerId: Types.ObjectId;
+  managerId!: Types.ObjectId;
 
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @Prop()
-  description: string;
+  description!: string;
 
   @Prop()
-  telephone: string;
+  telephone!: string;
 
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
-  email: string;
+  email!: string;
 
   @Prop()
-  whatsapp: string;
+  whatsapp!: string;
 
   // Location details
   @Prop({ required: true })
-  district: string;
+  district!: string;
 
   @Prop({ required: true })
-  townOrCity: string;
+  townOrCity!: string;
 
   @Prop()
-  street: string;
+  street!: string;
 
   @Prop({ 
     type: String, 
     enum: ['on_the_road', 'less_500m', '500m_1km', '1km_5km', '5km_plus'],
     default: '1km_5km'
   })
-  distanceToMainRoad: string;
+  distanceToMainRoad!: string;
 
   // Media
   @Prop()
-  coverPhoto: string;
+  coverPhoto!: string;
 
   @Prop({ type: [String], default: [] })
-  gallery: string[];
+  gallery!: string[];
 
   // Amenities and Services
   @Prop({ type: HotelAmenitiesSchema })
-  amenities: HotelAmenities;
+  amenities!: HotelAmenities;
 
   @Prop({ 
     type: String, 
     enum: Object.values(ConnectivityType), 
     default: ConnectivityType.NONE 
   })
-  wifiStatus: ConnectivityType;
+  wifiStatus!: ConnectivityType;
 
   @Prop({ 
     type: [String], 
     enum: Object.values(PaymentMethod),
     default: [PaymentMethod.CASH]
   })
-  paymentMethods: PaymentMethod[];
+  paymentMethods!: PaymentMethod[];
 
   // Verification
   @Prop({ 
@@ -111,25 +111,25 @@ export class Hotel extends Document {
     enum: Object.values(VerificationStatus), 
     default: VerificationStatus.UNVERIFIED 
   })
-  verificationStatus: VerificationStatus;
+  verificationStatus!: VerificationStatus;
 
   @Prop()
-  verificationAppliedAt: Date;
+  verificationAppliedAt!: Date;
 
   @Prop()
-  verificationApprovedAt: Date;
+  verificationApprovedAt!: Date;
 
   @Prop()
-  verificationRejectionReason: string;
+  verificationRejectionReason!: string;
 
   @Prop({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 export const HotelSchema = SchemaFactory.createForClass(Hotel);

@@ -13,7 +13,7 @@ export class BlogsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'staff')
-  async create(@Body() createBlogDto: CreateBlogDto, @Request() req) {
+  async create(@Body() createBlogDto: CreateBlogDto, @Request() req: any) {
     return await this.blogsService.create(createBlogDto, req.user.userId, req.user.firstName);
   }
 
@@ -75,7 +75,7 @@ export class BlogsController {
   async update(
     @Param('id') id: string,
     @Body() updateBlogDto: CreateBlogDto,
-    @Request() req,
+    @Request() req: any,
   ) {
     return await this.blogsService.update(id, updateBlogDto, req.user.userId);
   }
@@ -84,7 +84,7 @@ export class BlogsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'staff')
-  async delete(@Param('id') id: string, @Request() req) {
+  async delete(@Param('id') id: string, @Request() req: any) {
     return await this.blogsService.delete(id, req.user.userId);
   }
 

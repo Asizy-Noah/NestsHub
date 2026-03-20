@@ -28,31 +28,31 @@ export enum VerificationStatus {
 @Schema({ timestamps: true })
 export class Amenities extends Document {
   @Prop({ default: false })
-  security: boolean;
+  security!: boolean;
 
   @Prop({ default: false })
-  tvRoom: boolean;
+  tvRoom!: boolean;
 
   @Prop({ default: false })
-  readingRoom: boolean;
+  readingRoom!: boolean;
 
   @Prop({ default: false })
-  gym: boolean;
+  gym!: boolean;
 
   @Prop({ default: false })
-  swimmingPool: boolean;
+  swimmingPool!: boolean;
 
   @Prop({ default: false })
-  parking: boolean;
+  parking!: boolean;
 
   @Prop({ default: false })
-  wifi: boolean;
+  wifi!: boolean;
 
   @Prop({ default: false })
-  laundry: boolean;
+  laundry!: boolean;
 
   @Prop({ default: false })
-  generator: boolean;
+  generator!: boolean;
 }
 
 const AmenitiesSchema = SchemaFactory.createForClass(Amenities);
@@ -60,22 +60,22 @@ const AmenitiesSchema = SchemaFactory.createForClass(Amenities);
 @Schema({ timestamps: true })
 export class Services extends Document {
   @Prop({ type: String, enum: Object.values(InternetType), default: InternetType.NONE })
-  internet: InternetType;
+  internet!: InternetType;
 
   @Prop({ type: String, enum: Object.values(CateringType), default: CateringType.NONE })
-  catering: CateringType;
+  catering!: CateringType;
 
   @Prop()
-  distanceToMarket: number; // in kilometers
+  distanceToMarket!: number; // in kilometers
 
   @Prop()
-  distanceToHospital: number;
+  distanceToHospital!: number;
 
   @Prop()
-  distanceToPharmacy: number;
+  distanceToPharmacy!: number;
 
   @Prop()
-  distanceToClinic: number;
+  distanceToClinic!: number;
 }
 
 const ServicesSchema = SchemaFactory.createForClass(Services);
@@ -83,70 +83,70 @@ const ServicesSchema = SchemaFactory.createForClass(Services);
 @Schema({ timestamps: true })
 export class Hostel extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Account', required: true })
-  managerId: Types.ObjectId;
+  managerId!: Types.ObjectId;
 
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @Prop()
-  description: string;
+  description!: string;
 
   @Prop()
-  telephone: string;
+  telephone!: string;
 
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
-  email: string;
+  email!: string;
 
   @Prop()
-  whatsapp: string;
+  whatsapp!: string;
 
   @Prop()
-  address: string;
+  address!: string;
 
   @Prop()
-  city: string;
+  city!: string;
 
   @Prop()
-  country: string;
+  country!: string;
 
   @Prop({ type: String, enum: Object.values(LocationType), required: true })
-  locationType: LocationType;
+  locationType!: LocationType;
 
   @Prop()
-  distance: number; // Distance from University/Town center in km
+  distance!: number; // Distance from University/Town center in km
 
   @Prop({ type: AmenitiesSchema })
-  amenities: Amenities;
+  amenities!: Amenities;
 
   @Prop({ type: ServicesSchema })
-  services: Services;
+  services!: Services;
 
   @Prop()
-  coverImage: string;
+  coverImage!: string;
 
   @Prop({ type: [String], default: [] })
-  utilityImages: string[];
+  utilityImages!: string[];
 
   @Prop({ type: String, enum: Object.values(VerificationStatus), default: VerificationStatus.UNVERIFIED })
-  verificationStatus: VerificationStatus;
+  verificationStatus!: VerificationStatus;
 
   @Prop()
-  verificationAppliedAt: Date;
+  verificationAppliedAt!: Date;
 
   @Prop()
-  verificationApprovedAt: Date;
+  verificationApprovedAt!: Date;
 
   @Prop()
-  verificationRejectionReason: string;
+  verificationRejectionReason!: string;
 
   @Prop({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 export const HostelSchema = SchemaFactory.createForClass(Hostel);

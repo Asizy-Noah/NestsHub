@@ -81,7 +81,7 @@ export class HotelsController {
     @Query('verified') verified?: string,
   ) {
     const isVerified = verified === 'true' ? true : verified === 'false' ? false : undefined;
-    return this.hotelsService.searchHotels(query, district, townOrCity, isVerified);
+    return this.hotelsService.searchHotels(query || '', district, townOrCity, isVerified);
   }
 
   @Get('verified/list')

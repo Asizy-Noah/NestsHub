@@ -67,7 +67,7 @@ export class ServicesDto {
 
 export class CreateHostelDto {
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -78,7 +78,7 @@ export class CreateHostelDto {
   telephone?: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsOptional()
   @IsString()
@@ -97,7 +97,7 @@ export class CreateHostelDto {
   country?: string;
 
   @IsEnum(LocationType)
-  locationType: LocationType;
+  locationType!: LocationType;
 
   @IsOptional()
   @IsNumber()

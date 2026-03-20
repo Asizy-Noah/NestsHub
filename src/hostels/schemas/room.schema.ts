@@ -18,46 +18,46 @@ export enum CookingPolicy {
 @Schema({ timestamps: true })
 export class Room extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Hostel', required: true })
-  hostelId: Types.ObjectId;
+  hostelId!: Types.ObjectId;
 
   @Prop({ type: String, enum: Object.values(RoomType), required: true })
-  type: RoomType;
+  type!: RoomType;
 
   @Prop({ required: true })
-  roomNumber: string;
+  roomNumber!: string;
 
   @Prop({ required: true })
-  floor: number;
+  floor!: number;
 
   @Prop({ default: false })
-  isSelfContained: boolean;
+  isSelfContained!: boolean;
 
   @Prop({ type: String, enum: Object.values(CookingPolicy), default: CookingPolicy.NOT_ALLOWED })
-  cookingPolicy: CookingPolicy;
+  cookingPolicy!: CookingPolicy;
 
   @Prop({ type: [String], default: [] })
-  images: string[];
+  images!: string[];
 
   @Prop()
-  pricePerMonth: number;
+  pricePerMonth!: number;
 
   @Prop({ default: 0 })
-  capacity: number; // Number of beds
+  capacity!: number; // Number of beds
 
   @Prop({ default: false })
-  isAvailable: boolean;
+  isAvailable!: boolean;
 
   @Prop()
-  description: string;
+  description!: string;
 
   @Prop({ type: [String], default: [] })
-  amenities: string[]; // e.g., ['fan', 'window', 'desk', 'bed']
+  amenities!: string[]; // e.g., ['fan', 'window', 'desk', 'bed']
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);

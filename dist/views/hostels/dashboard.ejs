@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hostel Dashboard - Real Estate Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="/js/utils.js"></script>
+  <style>
+    [x-cloak] { display: none; }
+    
+    .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .gradient-emerald { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .gradient-amber { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    
+    .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+    .card-shadow-lg { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+  <div x-data="hostelDashboard()" x-cloak class="min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-slate-800 card-shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 gradient-purple rounded-lg flex items-center justify-center text-white">
+              <i class="fas fa-building"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-slate-900 dark:text-white">Hostel Manager</h1>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Dashboard & Management</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button @click="toggleDarkMode()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
+              <i x-show="!isDarkMode" class="fas fa-moon text-slate-600"></i>
+              <i x-show="isDarkMode" class="fas fa-sun text-yellow-400"></i>
+            </button>
+            <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
+              <%= account.firstName[0] %><%= account.lastName[0] %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-slate-600 dark:text-slate-400 text-sm">Verification Status</p>
+              <p class="text-2xl font-bold text-slate-900 dark:text-white mt-2" x-text="verificationStatus"></p>
+            </div>
+            <div class="w-12 h-12 rounded-lg" :class="verificationStatusColor" style="opacity: 0.2;"></div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-slate-600 dark:text-slate-400 text-sm">Total Rooms</p>
+              <p class="text-2xl font-bold text-slate-900 dark:text-white mt-2" x-text="totalRooms"></p>
+            </div>
+            <div class="w-12 h-12 bg-blue-500 rounded-lg" style="opacity: 0.2;"></div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-slate-600 dark:text-slate-400 text-sm">Available Rooms</p>
+              <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2" x-text="availableRooms"></p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-500 rounded-lg" style="opacity: 0.2;"></div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-slate-600 dark:text-slate-400 text-sm">Amenities</p>
+              <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-2" x-text="amenitiesCount"></p>
+            </div>
+            <div class="w-12 h-12 bg-indigo-500 rounded-lg" style="opacity: 0.2;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex space-x-4 mb-8 border-b border-slate-200 dark:border-slate-700">
+        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'" class="px-4 py-3 font-medium transition">
+          <i class="fas fa-building mr-2"></i>Hostel Profile
+        </button>
+        <button @click="activeTab = 'rooms'" :class="activeTab === 'rooms' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'" class="px-4 py-3 font-medium transition">
+          <i class="fas fa-door-open mr-2"></i>Room Management
+        </button>
+        <button @click="activeTab = 'settings'" :class="activeTab === 'settings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'" class="px-4 py-3 font-medium transition">
+          <i class="fas fa-cog mr-2"></i>Settings
+        </button>
+      </div>
+
+      <!-- Profile Tab -->
+      <div x-show="activeTab === 'profile'" class="space-y-6">
+        <%- include('./partials/hostel-profile-form'); %>
+      </div>
+
+      <!-- Rooms Tab -->
+      <div x-show="activeTab === 'rooms'" class="space-y-6">
+        <%- include('./partials/room-management'); %>
+      </div>
+
+      <!-- Settings Tab -->
+      <div x-show="activeTab === 'settings'" class="space-y-6">
+        <%- include('./partials/hostel-settings'); %>
+      </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <%- include('../partials/toast-notification'); %>
+  </div>
+
+  <script>
+    function hostelDashboard() {
+      return {
+        activeTab: 'profile',
+        isDarkMode: localStorage.getItem('darkMode') === 'true',
+        verificationStatus: '<%= verificationStatus %>',
+        totalRooms: <%= totalRooms %>,
+        availableRooms: <%= availableRooms %>,
+        amenitiesCount: <%= amenitiesCount %>,
+        
+        get verificationStatusColor() {
+          switch(this.verificationStatus) {
+            case 'verified': return 'bg-emerald-500';
+            case 'pending': return 'bg-amber-500';
+            case 'unverified': return 'bg-slate-400';
+            default: return 'bg-slate-400';
+          }
+        },
+
+        toggleDarkMode() {
+          this.isDarkMode = !this.isDarkMode;
+          localStorage.setItem('darkMode', this.isDarkMode);
+          this.applyDarkMode();
+        },
+
+        applyDarkMode() {
+          if (this.isDarkMode) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        },
+
+        init() {
+          this.applyDarkMode();
+          loadHostelStats();
+        }
+      };
+    }
+
+    async function loadHostelStats() {
+      try {
+        const response = await fetch('/hostels/stats', {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        });
+        const data = await response.json();
+        // Update stats dynamically
+      } catch (error) {
+        console.error('Error loading hostel stats:', error);
+      }
+    }
+  </script>
+</body>
+</html>

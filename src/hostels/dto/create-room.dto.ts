@@ -3,13 +3,13 @@ import { RoomType, CookingPolicy } from '../schemas/room.schema';
 
 export class CreateRoomDto {
   @IsString()
-  roomNumber: string;
+  roomNumber!: string;
 
   @IsEnum(RoomType)
-  type: RoomType;
+  type!: RoomType;
 
   @IsNumber()
-  floor: number;
+  floor!: number;
 
   @IsOptional()
   @IsBoolean()

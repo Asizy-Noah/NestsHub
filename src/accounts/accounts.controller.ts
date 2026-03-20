@@ -11,7 +11,7 @@ export class AccountsController {
   @Get('dashboard')
   @UseGuards(JwtAuthGuard)
   @Render('accounts/dashboard')
-  getDashboard(@Request() req) {
+  getDashboard(@Request() req: any) {
     return {
       title: 'Dashboard - Real Estate',
       user: req.user,
@@ -21,7 +21,7 @@ export class AccountsController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @Render('accounts/profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req: any) {
     return {
       title: 'Profile - Real Estate',
       user: req.user,
@@ -31,7 +31,7 @@ export class AccountsController {
   @Get('settings')
   @UseGuards(JwtAuthGuard)
   @Render('accounts/settings')
-  getSettings(@Request() req) {
+  getSettings(@Request() req: any) {
     return {
       title: 'Settings - Real Estate',
       user: req.user,

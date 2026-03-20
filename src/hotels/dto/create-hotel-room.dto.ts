@@ -29,7 +29,7 @@ export class CreateHotelRoomDto {
   photo?: string;
 
   @IsEnum(RoomType)
-  roomType: RoomType;
+  roomType!: RoomType;
 
   @IsOptional()
   @IsBoolean()
@@ -38,17 +38,17 @@ export class CreateHotelRoomDto {
   @IsNumber()
   @Min(0)
   @Max(10)
-  floor: number;
+  floor!: number;
 
   @IsOptional()
   amenities?: CreateRoomAmenitiesDto;
 
   @IsEnum(BedSize)
-  bedSize: BedSize;
+  bedSize!: BedSize;
 
   @IsNumber()
   @Min(0)
-  costPerNight: number;
+  costPerNight!: number;
 
   @IsOptional()
   @IsBoolean()
@@ -56,7 +56,7 @@ export class CreateHotelRoomDto {
 
   @IsNumber()
   @Min(1)
-  totalRooms: number;
+  totalRooms!: number;
 
   @IsOptional()
   @IsNumber()
@@ -69,5 +69,5 @@ export class UpdateHotelRoomDto extends CreateHotelRoomDto {}
 export class UpdateRoomInventoryDto {
   @IsNumber()
   @Min(0)
-  bookedRooms: number;
+  bookedRooms!: number;
 }

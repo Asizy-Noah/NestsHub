@@ -66,7 +66,7 @@ export class RentalsService {
     return this.rentalPropertyModel.findByIdAndUpdate(rentalId, updateRentalDto, {
       new: true,
       runValidators: true,
-    });
+    })as any;
   }
 
   async deleteRental(rentalId: string, managerId: string): Promise<void> {
@@ -94,7 +94,7 @@ export class RentalsService {
       rentalId,
       { isActive },
       { new: true },
-    );
+    )as any;
   }
 
   async applyForVerification(rentalId: string, managerId: string): Promise<RentalProperty> {
@@ -119,7 +119,7 @@ export class RentalsService {
         verificationAppliedAt: new Date(),
       },
       { new: true },
-    );
+    )as any;
   }
 
   async uploadVerificationProof(
@@ -139,7 +139,7 @@ export class RentalsService {
         verificationProofUrl: proofUrl,
       },
       { new: true },
-    );
+    )as any;
   }
 
   async searchRentals(

@@ -16,19 +16,19 @@ export enum BedSize {
 @Schema({ timestamps: true })
 export class RoomAmenities extends Document {
   @Prop({ default: false })
-  hasBalcony: boolean;
+  hasBalcony!: boolean;
 
   @Prop({ default: false })
-  hasHotWater: boolean;
+  hasHotWater!: boolean;
 
   @Prop({ default: false })
-  hasTV: boolean;
+  hasTV!: boolean;
 
   @Prop({ default: false })
-  hasDSTV: boolean;
+  hasDSTV!: boolean;
 
   @Prop({ default: false })
-  hasTableChair: boolean;
+  hasTableChair!: boolean;
 }
 
 const RoomAmenitiesSchema = SchemaFactory.createForClass(RoomAmenities);
@@ -36,46 +36,46 @@ const RoomAmenitiesSchema = SchemaFactory.createForClass(RoomAmenities);
 @Schema({ timestamps: true })
 export class HotelRoom extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Hotel', required: true })
-  hotelId: Types.ObjectId;
+  hotelId!: Types.ObjectId;
 
   @Prop()
-  photo: string;
+  photo!: string;
 
   @Prop({ 
     type: String, 
     enum: Object.values(RoomType), 
     required: true 
   })
-  roomType: RoomType;
+  roomType!: RoomType;
 
   @Prop({ default: false })
-  isSelfContained: boolean;
+  isSelfContained!: boolean;
 
   @Prop({ min: 0, max: 10, default: 1 })
-  floor: number;
+  floor!: number;
 
   @Prop({ type: RoomAmenitiesSchema })
-  amenities: RoomAmenities;
+  amenities!: RoomAmenities;
 
   @Prop({ 
     type: String, 
     enum: Object.values(BedSize), 
     required: true 
   })
-  bedSize: BedSize;
+  bedSize!: BedSize;
 
   @Prop({ required: true })
-  costPerNight: number;
+  costPerNight!: number;
 
   @Prop({ default: false })
-  breakfastIncluded: boolean;
+  breakfastIncluded!: boolean;
 
   // Inventory Management
   @Prop({ required: true, min: 1 })
-  totalRooms: number;
+  totalRooms!: number;
 
   @Prop({ default: 0, min: 0 })
-  bookedRooms: number;
+  bookedRooms!: number;
 
   // Virtual field computed
   get availableRooms(): number {
@@ -83,13 +83,13 @@ export class HotelRoom extends Document {
   }
 
   @Prop({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 export const HotelRoomSchema = SchemaFactory.createForClass(HotelRoom);

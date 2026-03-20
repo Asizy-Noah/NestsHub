@@ -30,7 +30,7 @@ export class CreateHotelAmenitiesDto {
 export class CreateHotelDto {
   @IsString()
   @MinLength(3)
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -41,7 +41,7 @@ export class CreateHotelDto {
   telephone?: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsOptional()
   @IsString()
@@ -49,11 +49,11 @@ export class CreateHotelDto {
 
   @IsString()
   @MinLength(2)
-  district: string;
+  district!: string;
 
   @IsString()
   @MinLength(2)
-  townOrCity: string;
+  townOrCity!: string;
 
   @IsOptional()
   @IsString()

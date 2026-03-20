@@ -3,16 +3,16 @@ import { AccountRole } from '../../accounts/schemas/account.schema';
 
 export class RegisterDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(2)
-  firstName: string;
+  firstName!: string;
 
   @IsString()
   @MinLength(2)
-  lastName: string;
+  lastName!: string;
 
   @IsEnum(AccountRole)
-  role: AccountRole;
+  role!: AccountRole;
 }

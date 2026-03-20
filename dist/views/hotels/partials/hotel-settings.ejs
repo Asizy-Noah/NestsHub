@@ -1,0 +1,346 @@
+<div x-data="hotelSettings()" class="space-y-6">
+  <!-- Hotel Status Toggle -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Hotel Status</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Deactivate your hotel to hide it from bookings</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          x-model="isHotelActive"
+          @change="toggleHotelStatus()"
+          class="sr-only peer"
+        />
+        <div class="w-14 h-7 bg-slate-300 dark:bg-slate-600 peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Manager Profile -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-4">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Manager Profile</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">First Name</label>
+        <input
+          type="text"
+          x-model="managerProfile.firstName"
+          placeholder="John"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Last Name</label>
+        <input
+          type="text"
+          x-model="managerProfile.lastName"
+          placeholder="Doe"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+        <input
+          type="email"
+          x-model="managerProfile.email"
+          placeholder="manager@hotel.com"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone Number</label>
+        <input
+          type="tel"
+          x-model="managerProfile.phone"
+          placeholder="+256..."
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+    </div>
+
+    <button
+      @click="saveManagerProfile()"
+      class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+    >
+      Save Manager Details
+    </button>
+  </div>
+
+  <!-- Security Section -->
+  <div class="space-y-4">
+    <!-- Password Change -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-4">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Change Password</h3>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Password</label>
+        <input
+          type="password"
+          x-model="passwordForm.current"
+          placeholder="••••••••"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Password</label>
+        <input
+          type="password"
+          x-model="passwordForm.new"
+          @input="updatePasswordStrength()"
+          placeholder="••••••••"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+
+        <!-- Password Strength Indicator -->
+        <div class="mt-2 space-y-1">
+          <div class="flex gap-1">
+            <div
+              :class="passwordStrength >= 1 ? 'bg-red-500' : 'bg-slate-200 dark:bg-slate-700'"
+              class="h-1 flex-1 rounded transition-colors"
+            ></div>
+            <div
+              :class="passwordStrength >= 2 ? 'bg-amber-500' : 'bg-slate-200 dark:bg-slate-700'"
+              class="h-1 flex-1 rounded transition-colors"
+            ></div>
+            <div
+              :class="passwordStrength >= 3 ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'"
+              class="h-1 flex-1 rounded transition-colors"
+            ></div>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400" x-text="getPasswordStrengthText()"></p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Confirm Password</label>
+        <input
+          type="password"
+          x-model="passwordForm.confirm"
+          placeholder="••••••••"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <button
+        @click="changePassword()"
+        class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+      >
+        Update Password
+      </button>
+
+      <div x-show="passwordMessage" :class="passwordSuccess ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300' : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'" class="p-3 rounded-lg text-sm" x-text="passwordMessage"></div>
+    </div>
+
+    <!-- Two-Factor Authentication -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Two-Factor Authentication</h3>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Add an extra layer of security to your account</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            x-model="twoFAEnabled"
+            @change="toggleTwoFA()"
+            class="sr-only peer"
+          />
+          <div class="w-14 h-7 bg-slate-300 dark:bg-slate-600 peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+        </label>
+      </div>
+
+      <div x-show="twoFAEnabled" class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4 space-y-3">
+        <p class="text-sm text-indigo-900 dark:text-indigo-300">Scan this QR code with your authenticator app:</p>
+        <div class="bg-white p-4 rounded w-fit">
+          <svg width="200" height="200" class="w-48 h-48" viewBox="0 0 200 200">
+            <!-- Placeholder QR code -->
+            <rect width="200" height="200" fill="white"/>
+            <rect x="10" y="10" width="30" height="30" fill="black"/>
+            <rect x="160" y="10" width="30" height="30" fill="black"/>
+            <rect x="10" y="160" width="30" height="30" fill="black"/>
+          </svg>
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          Or enter this code manually:
+          <code class="font-mono text-sm font-bold text-slate-900 dark:text-white">JBSWY3DPEBLW64TMMQ</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-lg p-6 space-y-4">
+    <h3 class="text-lg font-semibold text-red-900 dark:text-red-300">Danger Zone</h3>
+
+    <div class="space-y-3">
+      <div>
+        <p class="text-sm text-red-800 dark:text-red-400 mb-3">
+          Deleting your account will permanently remove all your hotel data and cannot be recovered.
+        </p>
+        <button
+          @click="confirmDelete()"
+          class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div x-show="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900 mx-auto">
+        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M7.08 6.06A9 9 0 1 0 15.94 17.94M7.08 6.06A9 9 0 0 1 15.94 17.94"></path>
+        </svg>
+      </div>
+
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white text-center">Delete Account?</h3>
+      <p class="text-slate-600 dark:text-slate-400 text-center">
+        This action cannot be undone. All your hotel data will be permanently deleted.
+      </p>
+
+      <input
+        type="text"
+        x-model="deleteConfirmText"
+        placeholder="Type 'DELETE' to confirm"
+        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+      />
+
+      <div class="flex gap-3">
+        <button
+          @click="showDeleteConfirm = false"
+          class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          @click="deleteAccount()"
+          :disabled="deleteConfirmText !== 'DELETE'"
+          class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function hotelSettings() {
+  return {
+    isHotelActive: true,
+    managerProfile: {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@hotel.com',
+      phone: '+256701234567',
+    },
+    passwordForm: {
+      current: '',
+      new: '',
+      confirm: '',
+    },
+    passwordStrength: 0,
+    passwordMessage: '',
+    passwordSuccess: false,
+    twoFAEnabled: false,
+    showDeleteConfirm: false,
+    deleteConfirmText: '',
+
+    updatePasswordStrength() {
+      const pwd = this.passwordForm.new;
+      let strength = 0;
+
+      if (pwd.length >= 8) strength++;
+      if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
+      if (/[0-9]/.test(pwd) && /[!@#$%^&*]/.test(pwd)) strength++;
+
+      this.passwordStrength = strength;
+    },
+
+    getPasswordStrengthText() {
+      const texts = ['Weak', 'Fair', 'Good', 'Strong'];
+      return texts[this.passwordStrength] || 'Weak';
+    },
+
+    async toggleHotelStatus() {
+      try {
+        // API call to toggle status
+        console.log('Hotel status toggled to:', this.isHotelActive);
+      } catch (error) {
+        this.isHotelActive = !this.isHotelActive;
+      }
+    },
+
+    async saveManagerProfile() {
+      try {
+        // API call to save profile
+        this.passwordMessage = 'Manager profile updated successfully!';
+        this.passwordSuccess = true;
+        setTimeout(() => {
+          this.passwordMessage = '';
+        }, 3000);
+      } catch (error) {
+        this.passwordMessage = 'Failed to update manager profile';
+        this.passwordSuccess = false;
+      }
+    },
+
+    async changePassword() {
+      if (this.passwordForm.new !== this.passwordForm.confirm) {
+        this.passwordMessage = 'Passwords do not match';
+        this.passwordSuccess = false;
+        return;
+      }
+
+      if (this.passwordStrength < 2) {
+        this.passwordMessage = 'Password is too weak';
+        this.passwordSuccess = false;
+        return;
+      }
+
+      try {
+        // API call to change password
+        this.passwordMessage = 'Password changed successfully!';
+        this.passwordSuccess = true;
+        this.passwordForm = { current: '', new: '', confirm: '' };
+        this.passwordStrength = 0;
+        setTimeout(() => {
+          this.passwordMessage = '';
+        }, 3000);
+      } catch (error) {
+        this.passwordMessage = 'Failed to change password';
+        this.passwordSuccess = false;
+      }
+    },
+
+    toggleTwoFA() {
+      // 2FA toggle logic
+    },
+
+    confirmDelete() {
+      this.showDeleteConfirm = true;
+    },
+
+    async deleteAccount() {
+      if (this.deleteConfirmText !== 'DELETE') return;
+
+      try {
+        // API call to delete account
+        window.location.href = '/logout';
+      } catch (error) {
+        alert('Failed to delete account');
+      }
+    },
+  };
+}
+</script>

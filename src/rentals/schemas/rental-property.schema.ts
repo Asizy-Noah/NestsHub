@@ -35,63 +35,63 @@ export enum VerificationStatus {
 export class RentalProperty extends Document {
   // Manager Information
   @Prop({ type: Types.ObjectId, ref: 'Account', required: true })
-  managerId: Types.ObjectId;
+  managerId!: Types.ObjectId;
 
   // Basic Property Information
   @Prop({ required: true })
-  propertyName: string;
+  propertyName!: string;
 
   @Prop()
-  description: string;
+  description!: string;
 
   @Prop({
     type: String,
     enum: Object.values(HouseType),
     required: true,
   })
-  houseType: HouseType;
+  houseType!: HouseType;
 
   @Prop({
     type: String,
     enum: Object.values(BuildingStyle),
     required: true,
   })
-  buildingStyle: BuildingStyle;
+  buildingStyle!: BuildingStyle;
 
   @Prop({ required: true, min: 1 })
-  unitCount: number;
+  unitCount!: number;
 
   @Prop()
-  monthlyRent: number;
+  monthlyRent!: number;
 
   // Property Features
   @Prop({ default: false })
-  isSelfContained: boolean;
+  isSelfContained!: boolean;
 
   @Prop({ default: false })
-  isFenced: boolean;
+  isFenced!: boolean;
 
   @Prop({ default: false })
-  isCompoundPaved: boolean;
+  isCompoundPaved!: boolean;
 
   @Prop({ default: false })
-  hasAmpleParking: boolean;
+  hasAmpleParking!: boolean;
 
   @Prop({ default: false })
-  hasOutsideWashrooms: boolean;
+  hasOutsideWashrooms!: boolean;
 
   @Prop({ default: false })
-  hasSecurity: boolean;
+  hasSecurity!: boolean;
 
   @Prop({ default: false })
-  hasWater: boolean;
+  hasWater!: boolean;
 
   // Furnishing Details
   @Prop({ default: false })
-  isFurnished: boolean;
+  isFurnished!: boolean;
 
   @Prop({ type: [String], default: [] })
-  furnitureList: string[];
+  furnitureList!: string[];
 
   // Billing Logic
   @Prop({
@@ -99,74 +99,74 @@ export class RentalProperty extends Document {
     enum: Object.values(BillingPayer),
     default: BillingPayer.TENANT,
   })
-  waterBillPaidBy: BillingPayer;
+  waterBillPaidBy!: BillingPayer;
 
   @Prop({
     type: String,
     enum: Object.values(BillingPayer),
     default: BillingPayer.TENANT,
   })
-  electricityBillPaidBy: BillingPayer;
+  electricityBillPaidBy!: BillingPayer;
 
   @Prop({
     type: String,
     enum: Object.values(BillingPayer),
     default: BillingPayer.LANDLORD,
   })
-  securityFeePaidBy: BillingPayer;
+  securityFeePaidBy!: BillingPayer;
 
   // Location & Access
   @Prop({ required: true })
-  nearestTown: string;
+  nearestTown!: string;
 
   @Prop({ required: true })
-  nearestCity: string;
+  nearestCity!: string;
 
   @Prop()
-  nearestRoad: string;
+  nearestRoad!: string;
 
   @Prop({
     type: String,
     enum: Object.values(AccessRoadType),
     required: true,
   })
-  accessRoadType: AccessRoadType;
+  accessRoadType!: AccessRoadType;
 
   @Prop()
-  distanceToTarmac: number;
+  distanceToTarmac!: number;
 
   // Proximity to Points of Interest
   @Prop()
-  distanceToGym: string;
+  distanceToGym!: string;
 
   @Prop()
-  distanceToSupermarket: string;
+  distanceToSupermarket!: string;
 
   @Prop()
-  distanceToGroceries: string;
+  distanceToGroceries!: string;
 
   @Prop()
-  shoppingCenterName: string;
+  shoppingCenterName!: string;
 
   // Media
   @Prop()
-  coverPhoto: string;
+  coverPhoto!: string;
 
   @Prop({ type: [String], default: [] })
-  gallery: string[];
+  gallery!: string[];
 
   // Contact Information
   @Prop()
-  contactPerson: string;
+  contactPerson!: string;
 
   @Prop()
-  telephone: string;
+  telephone!: string;
 
   @Prop()
-  whatsapp: string;
+  whatsapp!: string;
 
   @Prop()
-  email: string;
+  email!: string;
 
   // Verification
   @Prop({
@@ -174,28 +174,28 @@ export class RentalProperty extends Document {
     enum: Object.values(VerificationStatus),
     default: VerificationStatus.UNVERIFIED,
   })
-  verificationStatus: VerificationStatus;
+  verificationStatus!: VerificationStatus;
 
   @Prop()
-  verificationAppliedAt: Date;
+  verificationAppliedAt!: Date;
 
   @Prop()
-  verificationApprovedAt: Date;
+  verificationApprovedAt!: Date;
 
   @Prop()
-  verificationRejectionReason: string;
+  verificationRejectionReason!: string;
 
   @Prop()
-  verificationProofUrl: string;
+  verificationProofUrl!: string;
 
   @Prop({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 export const RentalPropertySchema = SchemaFactory.createForClass(RentalProperty);

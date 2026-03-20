@@ -1,0 +1,123 @@
+<%- include('../../partials/admin-sidebar') %>
+
+<div class="admin-layout">
+  <!-- Top Navigation -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+      <div class="flex items-center space-x-4">
+        <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:inline"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Total Accounts Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Total Accounts</p>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white mt-2"><%= stats.totalAccounts || 0 %></p>
+          </div>
+          <div class="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+            <i class="fas fa-users text-indigo-600 dark:text-indigo-300 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Properties Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Active Properties</p>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white mt-2"><%= stats.activeProperties || 0 %></p>
+          </div>
+          <div class="p-3 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
+            <i class="fas fa-home text-emerald-600 dark:text-emerald-300 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Verification Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Pending Verification</p>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white mt-2"><%= stats.pendingVerification || 0 %></p>
+          </div>
+          <div class="p-3 bg-amber-100 dark:bg-amber-900 rounded-lg">
+            <i class="fas fa-clock text-amber-600 dark:text-amber-300 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Members Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Staff Members</p>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white mt-2"><%= stats.staffMembers || 0 %></p>
+          </div>
+          <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+            <i class="fas fa-id-card text-blue-600 dark:text-blue-300 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-8">
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="/dashboard/admin/staff" class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-lg hover:border-indigo-500 transition text-center">
+          <i class="fas fa-plus text-indigo-600 text-2xl mb-2"></i>
+          <p class="text-sm font-medium text-slate-900 dark:text-white">Add Staff</p>
+        </a>
+        <a href="/dashboard/admin/hostels" class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-lg hover:border-indigo-500 transition text-center">
+          <i class="fas fa-list text-indigo-600 text-2xl mb-2"></i>
+          <p class="text-sm font-medium text-slate-900 dark:text-white">View Hostels</p>
+        </a>
+        <a href="/dashboard/admin/hotels" class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-lg hover:border-indigo-500 transition text-center">
+          <i class="fas fa-list text-indigo-600 text-2xl mb-2"></i>
+          <p class="text-sm font-medium text-slate-900 dark:text-white">View Hotels</p>
+        </a>
+        <a href="/dashboard/admin/blogs" class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-lg hover:border-indigo-500 transition text-center">
+          <i class="fas fa-pen text-indigo-600 text-2xl mb-2"></i>
+          <p class="text-sm font-medium text-slate-900 dark:text-white">Manage Blogs</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Recent Activity</h2>
+      <div class="space-y-4">
+        <% if (recentActivity && recentActivity.length > 0) { %>
+          <% recentActivity.forEach(activity => { %>
+            <div class="flex items-center space-x-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-b-0">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                <i class="<%= activity.icon %> text-indigo-600 dark:text-indigo-300"></i>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-slate-900 dark:text-white"><%= activity.title %></p>
+                <p class="text-xs text-slate-500 dark:text-slate-400"><%= activity.description %></p>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400"><%= activity.time %></p>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p class="text-slate-500 dark:text-slate-400 text-center py-8">No recent activity</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Include Toast Notifications -->
+<%- include('../../partials/toast-notification') %>

@@ -4,40 +4,40 @@ import { Document, Schema as MongoSchema } from 'mongoose';
 @Schema({ timestamps: true })
 export class Blog extends Document {
   @Prop({ required: true, unique: true, trim: true, lowercase: true })
-  slug: string;
+  slug!: string;
 
   @Prop({ required: true, trim: true })
-  title: string;
+  title!: string;
 
   @Prop({ required: true })
-  content: string;
+  content!: string;
 
   @Prop()
-  coverImage: string;
+  coverImage!: string;
 
   @Prop({ type: MongoSchema.Types.ObjectId, ref: 'Account', required: true })
-  authorId: MongoSchema.Types.ObjectId;
+  authorId!: MongoSchema.Types.ObjectId;
 
   @Prop()
-  authorName: string;
+  authorName!: string;
 
   @Prop({ default: 'draft' })
-  status: string; // draft, published
+  status!: string; // draft, published
 
   @Prop({ default: 0 })
-  views: number;
+  views!: number;
 
   @Prop({ type: [String], default: [] })
-  tags: string[];
+  tags!: string[];
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Prop()
-  publishedAt: Date;
+  publishedAt!: Date;
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

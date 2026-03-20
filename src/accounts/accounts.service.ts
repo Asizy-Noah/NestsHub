@@ -49,7 +49,7 @@ export class AccountsService {
   }
 
   async getAllAccounts(role?: string) {
-    const query = { deleted: false };
+    const query: any = { deleted: false };
     if (role) {
       query['role'] = role;
     }

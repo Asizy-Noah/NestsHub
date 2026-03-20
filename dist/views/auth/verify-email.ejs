@@ -1,0 +1,72 @@
+<%- include('../layout', { title, body: `
+<div class="max-w-md mx-auto px-4 py-12" x-data="verifyEmailForm('${token}')" x-cloak>
+    <div class="card text-center">
+        <div class="text-5xl mb-4">✉️</div>
+        <h1 class="text-3xl font-bold mb-4">Verify Your Email</h1>
+
+        <!-- Loading State -->
+        <div x-show="loading" class="text-center py-12">
+            <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4">Verifying your email address...</p>
+        </div>
+
+        <!-- Success State -->
+        <div x-show="success && !loading" class="space-y-6">
+            <div class="alert-success">Email verified successfully!</div>
+            <p class="text-gray-600 dark-mode:text-gray-400">
+                Your email has been verified. Now let's set up your password.
+            </p>
+            <a href="/auth/set-password" class="btn-primary w-full block">
+                Set Password
+            </a>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error && !loading" class="space-y-6">
+            <div class="alert-error">Verification Failed</div>
+            <p class="text-gray-600 dark-mode:text-gray-400" x-text="error"></p>
+            <a href="/auth/register" class="btn-primary w-full block">
+                Back to Registration
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function verifyEmailForm(token) {
+    return {
+        loading: true,
+        success: false,
+        error: '',
+
+        async init() {
+            try {
+                const response = await fetch('/auth/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Verification failed');
+                }
+
+                this.success = true;
+            } catch (err) {
+                this.error = err.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        init() {
+            this.init();
+        },
+    };
+}
+</script>
+`) %>

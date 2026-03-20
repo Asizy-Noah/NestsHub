@@ -66,7 +66,7 @@ export class AuthService {
 
     account.emailVerified = true;
     account.emailVerificationToken = null;
-    account.emailVerificationExpiry = null;
+    account.passwordResetToken = null as any;
     account.status = AccountStatus.PENDING_PASSWORD_SET;
     await account.save();
 
@@ -197,8 +197,8 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(password, salt);
 
     account.passwordHash = passwordHash;
-    account.passwordResetToken = null;
-    account.passwordResetExpiry = null;
+    account.passwordResetToken = null as any;
+    account.passwordResetExpiry = null as any;
     await account.save();
 
     return {

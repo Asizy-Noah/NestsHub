@@ -1,0 +1,351 @@
+<div x-data="hostelSettings()" class="space-y-6">
+  <!-- Danger Zone -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6 border-2 border-red-200 dark:border-red-900">
+    <div class="flex items-start justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-2">Danger Zone</h3>
+        <p class="text-slate-600 dark:text-slate-400">Irreversible actions that affect your hostel</p>
+      </div>
+      <i class="fas fa-exclamation-triangle text-2xl text-red-500"></i>
+    </div>
+  </div>
+
+  <!-- Deactivate Hostel -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Deactivate Hostel</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Your hostel won't be visible in search results</p>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="text-sm" :class="hostelActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'" x-text="hostelActive ? 'Active' : 'Inactive'"></span>
+        <button @click="toggleHostelStatus" :class="hostelActive ? 'bg-emerald-500' : 'bg-red-500'" class="relative inline-flex h-8 w-14 items-center rounded-full transition cursor-pointer">
+          <span :class="hostelActive ? 'translate-x-7' : 'translate-x-1'" class="inline-block h-6 w-6 transform rounded-full bg-white transition"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Manager Profile -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Account Manager Profile</h3>
+    
+    <form @submit="updateManagerProfile" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">First Name</label>
+          <input type="text" x-model="managerProfile.firstName" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Last Name</label>
+          <input type="text" x-model="managerProfile.lastName" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+          <input type="email" x-model="managerProfile.email" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone Number</label>
+          <input type="tel" x-model="managerProfile.phoneNumber" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center space-x-2">
+          <i class="fas fa-save"></i>
+          <span>Save Profile Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Security Settings -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Security Settings</h3>
+    
+    <form @submit="updatePassword" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Password</label>
+        <div class="relative">
+          <input :type="showCurrentPassword ? 'text' : 'password'" x-model="passwordForm.currentPassword" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+          <button type="button" @click="showCurrentPassword = !showCurrentPassword" class="absolute right-3 top-3 text-slate-600 dark:text-slate-400">
+            <i :class="showCurrentPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Password</label>
+        <div class="relative">
+          <input :type="showNewPassword ? 'text' : 'password'" x-model="passwordForm.newPassword" @input="updatePasswordStrength" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+          <button type="button" @click="showNewPassword = !showNewPassword" class="absolute right-3 top-3 text-slate-600 dark:text-slate-400">
+            <i :class="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        
+        <!-- Password Strength Indicator -->
+        <div class="mt-2">
+          <div class="flex items-center space-x-2 mb-2">
+            <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-full transition-all" :style="{width: passwordStrength + '%'}" :class="getPasswordStrengthColor"></div>
+            </div>
+            <span class="text-sm font-medium" :class="getPasswordStrengthColor" x-text="passwordStrengthText"></span>
+          </div>
+          <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <li :class="passwordForm.newPassword.length >= 8 ? 'text-emerald-600 dark:text-emerald-400' : ''">
+              <i :class="passwordForm.newPassword.length >= 8 ? 'fas fa-check' : 'fas fa-times'" class="mr-2"></i>At least 8 characters
+            </li>
+            <li :class="hasUpperCase ? 'text-emerald-600 dark:text-emerald-400' : ''">
+              <i :class="hasUpperCase ? 'fas fa-check' : 'fas fa-times'" class="mr-2"></i>One uppercase letter
+            </li>
+            <li :class="hasLowerCase ? 'text-emerald-600 dark:text-emerald-400' : ''">
+              <i :class="hasLowerCase ? 'fas fa-check' : 'fas fa-times'" class="mr-2"></i>One lowercase letter
+            </li>
+            <li :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : ''">
+              <i :class="hasNumber ? 'fas fa-check' : 'fas fa-times'" class="mr-2"></i>One number
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Confirm New Password</label>
+        <div class="relative">
+          <input :type="showConfirmPassword ? 'text' : 'password'" x-model="passwordForm.confirmPassword" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 dark:bg-slate-700 dark:text-white">
+          <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute right-3 top-3 text-slate-600 dark:text-slate-400">
+            <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center space-x-2">
+          <i class="fas fa-lock"></i>
+          <span>Update Password</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Two Factor Authentication -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Two-Factor Authentication</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Add an extra layer of security to your account</p>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="text-sm" :class="twoFactorEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'" x-text="twoFactorEnabled ? 'Enabled' : 'Disabled'"></span>
+        <button @click="toggleTwoFactor" :class="twoFactorEnabled ? 'bg-emerald-500' : 'bg-slate-400'" class="relative inline-flex h-8 w-14 items-center rounded-full transition cursor-pointer">
+          <span :class="twoFactorEnabled ? 'translate-x-7' : 'translate-x-1'" class="inline-block h-6 w-6 transform rounded-full bg-white transition"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data & Privacy -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg card-shadow p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Data & Privacy</h3>
+    
+    <div class="space-y-4">
+      <button class="w-full p-4 border border-slate-300 dark:border-slate-600 rounded-lg text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Download Your Data</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Get a copy of your hostel and account information</p>
+          </div>
+          <i class="fas fa-download text-indigo-600"></i>
+        </div>
+      </button>
+
+      <button @click="deleteAccount" class="w-full p-4 border-2 border-red-200 dark:border-red-900 rounded-lg text-left hover:bg-red-50 dark:hover:bg-red-950 transition">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-medium text-red-700 dark:text-red-400">Delete Account</p>
+            <p class="text-sm text-red-600 dark:text-red-300">Permanently delete your account and all data</p>
+          </div>
+          <i class="fas fa-trash-alt text-red-600"></i>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function hostelSettings() {
+    return {
+      hostelActive: <%= hostel?.isActive || true %>,
+      showCurrentPassword: false,
+      showNewPassword: false,
+      showConfirmPassword: false,
+      passwordStrength: 0,
+      twoFactorEnabled: <%= account?.twoFactorEnabled || false %>,
+
+      managerProfile: {
+        firstName: '<%= account?.firstName %>',
+        lastName: '<%= account?.lastName %>',
+        email: '<%= account?.email %>',
+        phoneNumber: '<%= account?.phoneNumber %>',
+      },
+
+      passwordForm: {
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      },
+
+      get hasUpperCase() {
+        return /[A-Z]/.test(this.passwordForm.newPassword);
+      },
+
+      get hasLowerCase() {
+        return /[a-z]/.test(this.passwordForm.newPassword);
+      },
+
+      get hasNumber() {
+        return /[0-9]/.test(this.passwordForm.newPassword);
+      },
+
+      get passwordStrengthText() {
+        if (this.passwordStrength < 25) return 'Weak';
+        if (this.passwordStrength < 50) return 'Fair';
+        if (this.passwordStrength < 75) return 'Good';
+        return 'Strong';
+      },
+
+      get getPasswordStrengthColor() {
+        if (this.passwordStrength < 25) return 'bg-red-500';
+        if (this.passwordStrength < 50) return 'bg-amber-500';
+        if (this.passwordStrength < 75) return 'bg-yellow-500';
+        return 'bg-emerald-500';
+      },
+
+      updatePasswordStrength() {
+        let strength = 0;
+        if (this.passwordForm.newPassword.length >= 8) strength += 25;
+        if (this.hasUpperCase) strength += 25;
+        if (this.hasLowerCase) strength += 25;
+        if (this.hasNumber) strength += 25;
+        this.passwordStrength = strength;
+      },
+
+      async toggleHostelStatus() {
+        this.hostelActive = !this.hostelActive;
+        try {
+          const response = await fetch('/hostels/<%= hostel._id %>', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify({ isActive: this.hostelActive }),
+          });
+
+          if (response.ok) {
+            showToast('Hostel status updated!', 'success');
+          }
+        } catch (error) {
+          showToast('Error updating hostel status', 'error');
+        }
+      },
+
+      async updateManagerProfile(e) {
+        e.preventDefault();
+        try {
+          const response = await fetch('/accounts/me', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify(this.managerProfile),
+          });
+
+          if (response.ok) {
+            showToast('Profile updated successfully!', 'success');
+          }
+        } catch (error) {
+          showToast('Error updating profile', 'error');
+        }
+      },
+
+      async updatePassword(e) {
+        e.preventDefault();
+        if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
+          showToast('Passwords do not match', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/accounts/change-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify({
+              currentPassword: this.passwordForm.currentPassword,
+              newPassword: this.passwordForm.newPassword,
+            }),
+          });
+
+          if (response.ok) {
+            showToast('Password updated successfully!', 'success');
+            this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
+            this.passwordStrength = 0;
+          } else {
+            showToast('Current password is incorrect', 'error');
+          }
+        } catch (error) {
+          showToast('Error updating password', 'error');
+        }
+      },
+
+      async toggleTwoFactor() {
+        this.twoFactorEnabled = !this.twoFactorEnabled;
+        try {
+          const response = await fetch('/accounts/toggle-2fa', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify({ enabled: this.twoFactorEnabled }),
+          });
+
+          if (response.ok) {
+            showToast('Two-factor authentication ' + (this.twoFactorEnabled ? 'enabled' : 'disabled'), 'success');
+          }
+        } catch (error) {
+          showToast('Error updating two-factor authentication', 'error');
+        }
+      },
+
+      async deleteAccount() {
+        if (!confirm('Are you sure? This action cannot be undone. All your data will be permanently deleted.')) {
+          return;
+        }
+
+        if (!confirm('Confirm: Do you really want to delete your account and all associated data?')) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/accounts/me', {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+          });
+
+          if (response.ok) {
+            showToast('Account deleted successfully', 'success');
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000);
+          }
+        } catch (error) {
+          showToast('Error deleting account', 'error');
+        }
+      }
+    };
+  }
+</script>

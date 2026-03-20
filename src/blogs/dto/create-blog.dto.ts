@@ -3,25 +3,25 @@ import { IsString, IsNotEmpty, IsOptional, IsArray } from 'class-validator';
 export class CreateBlogDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  content: string;
+  content!: string;
 
   @IsString()
   @IsOptional()
-  coverImage: string;
+  coverImage!: string;
 
   @IsString()
   @IsOptional()
-  slug: string;
+  slug!: string;
 
   @IsArray()
   @IsOptional()
-  tags: string[];
+  tags!: string[];
 
   @IsString()
   @IsOptional()
-  status: string; // 'draft' or 'published'
+  status!: string; // 'draft' or 'published'
 }

@@ -21,108 +21,107 @@ export enum AccountStatus {
 @Schema({ timestamps: true, discriminatorKey: 'role' })
 export class Account extends Document {
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
-  email: string;
+  email!: string;
 
   @Prop({ required: true })
-  firstName: string;
+  firstName!: string;
 
   @Prop({ required: true })
-  lastName: string;
+  lastName!: string;
 
   @Prop({ type: String, enum: Object.values(AccountRole), required: true })
-  role: AccountRole;
+  role!: AccountRole;
 
   @Prop({ type: String, enum: Object.values(AccountStatus), default: AccountStatus.PENDING_EMAIL_VERIFICATION })
-  status: AccountStatus;
+  status!: AccountStatus;
 
   @Prop()
-  passwordHash: string;
+  passwordHash!: string;
+
+  @Prop({ type: String, default: null }) 
+emailVerificationToken!: string | null;
 
   @Prop()
-  emailVerificationToken: string;
-
-  @Prop()
-  emailVerificationExpiry: Date;
+  emailVerificationExpiry!: Date;
 
   @Prop({ default: false })
-  emailVerified: boolean;
+  emailVerified!: boolean;
 
   @Prop()
-  passwordResetToken: string;
+  passwordResetToken!: string;
 
   @Prop()
-  passwordResetExpiry: Date;
+  passwordResetExpiry!: Date;
 
   @Prop({ default: false })
-  twoFactorEnabled: boolean;
+  twoFactorEnabled!: boolean;
 
   @Prop()
-  twoFactorSecret: string;
+  twoFactorSecret!: string;
 
   @Prop()
-  phoneNumber: string;
+  phoneNumber!: string;
 
   @Prop()
-  profilePicture: string;
+  profilePicture!: string;
 
   @Prop({ default: false })
-  deleted: boolean;
+  deleted!: boolean;
 
   @Prop()
-  deletedAt: Date;
+  deletedAt!: Date;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   // Hostel-specific fields
   @Prop()
-  hostelName: string;
+  hostelName!: string;
 
   @Prop()
-  hostelAddress: string;
+  hostelAddress!: string;
 
   @Prop()
-  hostelCity: string;
+  hostelCity!: string;
 
   @Prop()
-  hostelCountry: string;
+  hostelCountry!: string;
 
   @Prop()
-  hostelPhoneNumber: string;
+  hostelPhoneNumber!: string;
 
   @Prop()
-  hostelRegistrationNumber: string;
+  hostelRegistrationNumber!: string;
 
   // Hotel-specific fields
   @Prop()
-  hotelName: string;
+  hotelName!: string;
 
   @Prop()
-  hotelAddress: string;
+  hotelAddress!: string;
 
   @Prop()
-  hotelCity: string;
+  hotelCity!: string;
 
   @Prop()
-  hotelCountry: string;
+  hotelCountry!: string;
 
   @Prop()
-  hotelPhoneNumber: string;
+  hotelPhoneNumber!: string;
 
   @Prop()
-  hotelRegistrationNumber: string;
+  hotelRegistrationNumber!: string;
 
   @Prop()
-  hotelStarRating: number;
+  hotelStarRating!: number;
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account);
 
 // Indexes for better query performance
-AccountSchema.index({ email: 1 });
 AccountSchema.index({ role: 1 });
 AccountSchema.index({ status: 1 });
 AccountSchema.index({ createdAt: -1 });

@@ -9,7 +9,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-
+ 
   // Frontend Routes
   @Get('register')
   @Render('auth/register')
@@ -17,13 +17,17 @@ export class AuthController {
     return {
       title: 'Register - Real Estate',
       roles: ['individual', 'hostel_owner', 'hotel_owner', 'property_manager'],
+      layout: 'layouts/auth',
     };
   }
 
   @Get('login')
   @Render('auth/login')
   getLogin() {
-    return { title: 'Login - Real Estate' };
+    return { 
+      title: 'Login - Real Estate',
+    layout: 'layouts/auth',
+   };
   }
 
   @Get('verify-email')
@@ -83,7 +87,7 @@ export class AuthController {
         'property_manager': '/dashboard/properties',
         'individual': '/dashboard',
       };
-      result.redirect = roleRedirectMap[result.user.role] || '/dashboard';
+      (result as any).redirect = roleRedirectMap[result.user.role] || '/dashboard';
     }
     
     return result;
@@ -104,13 +108,13 @@ export class AuthController {
 
   @Get('validate-token')
   @UseGuards(JwtAuthGuard)
-  async validateToken(@Request() req) {
+  async validateToken(@Request() req: any) {
     return { valid: true, user: req.user };
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async getCurrentUser(@Request() req) {
+  async getCurrentUser(@Request() req: any) {
     const user = await this.authService.getAccountById(req.user.userId);
     return user;
   }

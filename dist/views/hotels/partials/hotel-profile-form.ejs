@@ -1,0 +1,349 @@
+<div x-data="hotelProfileForm()" class="space-y-6">
+  <!-- Progress Tracker -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4" x-data="{ steps: ['Basic Info', 'Location', 'Amenities', 'Services'] }">
+        <template x-for="(step, index) in steps" :key="step">
+          <div class="flex items-center">
+            <div
+              :class="index <= currentStep ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600'"
+              class="w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors"
+              x-text="index + 1"
+            ></div>
+            <div x-show="index < steps.length - 1" class="w-12 h-1 bg-slate-200 dark:bg-slate-700 ml-4"></div>
+          </div>
+        </template>
+      </div>
+      <span class="text-sm text-slate-600 dark:text-slate-400" x-text="`Step ${currentStep + 1} of 4`"></span>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <form @submit.prevent="submitForm()" class="space-y-8">
+    <!-- Step 1: Basic Information -->
+    <div x-show="currentStep === 0" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Basic Hotel Information</h3>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Hotel Name *</label>
+        <input
+          type="text"
+          x-model="form.name"
+          placeholder="Enter hotel name"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Description</label>
+        <textarea
+          x-model="form.description"
+          placeholder="Describe your hotel..."
+          rows="4"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        ></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email *</label>
+          <input
+            type="email"
+            x-model="form.email"
+            placeholder="hotel@example.com"
+            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Telephone</label>
+          <input
+            type="tel"
+            x-model="form.telephone"
+            placeholder="+256..."
+            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">WhatsApp</label>
+        <input
+          type="tel"
+          x-model="form.whatsapp"
+          placeholder="+256..."
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+    </div>
+
+    <!-- Step 2: Location Information -->
+    <div x-show="currentStep === 1" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Location Details</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">District *</label>
+          <select
+            x-model="form.district"
+            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+          >
+            <option value="">Select District</option>
+            <option value="kampala">Kampala</option>
+            <option value="wakiso">Wakiso</option>
+            <option value="mukono">Mukono</option>
+            <option value="entebbe">Entebbe</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Town/City *</label>
+          <select
+            x-model="form.townOrCity"
+            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+          >
+            <option value="">Select Town</option>
+            <option value="kampala_city">Kampala City</option>
+            <option value="bugolobi">Bugolobi</option>
+            <option value="lugogo">Lugogo</option>
+            <option value="nateete">Nateete</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Street Address</label>
+        <input
+          type="text"
+          x-model="form.street"
+          placeholder="e.g., Plot 45, Acacia Avenue"
+          class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Distance to Main Road</label>
+        <div class="space-y-2">
+          <template x-for="option in [
+            { value: 'on_the_road', label: 'On the road' },
+            { value: 'less_500m', label: '< 500m' },
+            { value: '500m_1km', label: '500m - 1km' },
+            { value: '1km_5km', label: '1km - 5km' },
+            { value: '5km_plus', label: '5km+' }
+          ]" :key="option.value">
+            <label class="flex items-center">
+              <input
+                type="radio"
+                :value="option.value"
+                x-model="form.distanceToMainRoad"
+                class="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-600 cursor-pointer"
+              />
+              <span class="ml-3 text-slate-700 dark:text-slate-300" x-text="option.label"></span>
+            </label>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Amenities -->
+    <div x-show="currentStep === 2" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Hotel Amenities</h3>
+      <p class="text-slate-600 dark:text-slate-400 text-sm">Select all amenities available at your hotel</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <template x-for="amenity in [
+          { key: 'gym', label: 'Gym', icon: 'fa-dumbbell' },
+          { key: 'bar', label: 'Bar', icon: 'fa-wine-glass-alt' },
+          { key: 'restaurant', label: 'Restaurant', icon: 'fa-utensils' },
+          { key: 'parkingSpace', label: 'Parking', icon: 'fa-parking' },
+          { key: 'storageBuilding', label: 'Storage', icon: 'fa-warehouse' },
+          { key: 'supermarketNearby', label: 'Supermarket Nearby', icon: 'fa-shopping-cart' }
+        ]" :key="amenity.key">
+          <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all"
+            :class="form.amenities[amenity.key]
+              ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'
+              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'">
+            <input
+              type="checkbox"
+              :value="amenity.key"
+              @change="form.amenities[amenity.key] = $el.checked"
+              :checked="form.amenities[amenity.key]"
+              class="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
+            />
+            <div class="ml-3">
+              <i :class="`fas ${amenity.icon}`" class="text-indigo-600 mr-2"></i>
+              <span class="text-slate-700 dark:text-slate-300 font-medium" x-text="amenity.label"></span>
+            </div>
+          </label>
+        </template>
+      </div>
+    </div>
+
+    <!-- Step 4: Services & Payment -->
+    <div x-show="currentStep === 3" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 space-y-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Connectivity & Payment</h3>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">WiFi Status</label>
+        <div class="space-y-2">
+          <template x-for="option in [
+            { value: 'free', label: 'Free WiFi' },
+            { value: 'extra_charge', label: 'WiFi with Extra Charge' },
+            { value: 'none', label: 'No WiFi' }
+          ]" :key="option.value">
+            <label class="flex items-center">
+              <input
+                type="radio"
+                :value="option.value"
+                x-model="form.wifiStatus"
+                class="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-600 cursor-pointer"
+              />
+              <span class="ml-3 text-slate-700 dark:text-slate-300" x-text="option.label"></span>
+            </label>
+          </template>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Payment Methods Accepted</label>
+        <div class="space-y-2">
+          <template x-for="method in [
+            { value: 'cash', label: 'Cash' },
+            { value: 'mobile_money', label: 'Mobile Money' },
+            { value: 'visa', label: 'Visa/Card' }
+          ]" :key="method.value">
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                :value="method.value"
+                @change="togglePaymentMethod($el.value, $el.checked)"
+                :checked="form.paymentMethods.includes(method.value)"
+                class="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
+              />
+              <span class="ml-3 text-slate-700 dark:text-slate-300" x-text="method.label"></span>
+            </label>
+          </template>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cover Photo</label>
+        <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <svg class="w-12 h-12 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <p class="text-slate-600 dark:text-slate-400">Click to upload cover photo</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex gap-4 justify-between">
+      <button
+        type="button"
+        @click="previousStep()"
+        x-show="currentStep > 0"
+        class="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        Previous
+      </button>
+
+      <div class="flex gap-4">
+        <button
+          type="button"
+          @click="nextStep()"
+          x-show="currentStep < 3"
+          class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          Next
+        </button>
+
+        <button
+          type="submit"
+          x-show="currentStep === 3"
+          :disabled="isSubmitting"
+          class="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+        >
+          <span x-show="!isSubmitting">Save Hotel Profile</span>
+          <span x-show="isSubmitting">Saving...</span>
+        </button>
+      </div>
+    </div>
+
+    <div x-show="successMessage" class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-800 dark:text-emerald-300" x-text="successMessage"></div>
+    <div x-show="errorMessage" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300" x-text="errorMessage"></div>
+  </form>
+</div>
+
+<script>
+function hotelProfileForm() {
+  return {
+    currentStep: 0,
+    isSubmitting: false,
+    successMessage: '',
+    errorMessage: '',
+    form: {
+      name: '',
+      description: '',
+      email: '',
+      telephone: '',
+      whatsapp: '',
+      district: '',
+      townOrCity: '',
+      street: '',
+      distanceToMainRoad: '1km_5km',
+      amenities: {
+        gym: false,
+        bar: false,
+        restaurant: false,
+        parkingSpace: false,
+        storageBuilding: false,
+        supermarketNearby: false,
+      },
+      wifiStatus: 'none',
+      paymentMethods: ['cash'],
+      coverPhoto: '',
+    },
+
+    nextStep() {
+      if (this.currentStep < 3) {
+        this.currentStep++;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+
+    previousStep() {
+      if (this.currentStep > 0) {
+        this.currentStep--;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+
+    togglePaymentMethod(method, checked) {
+      if (checked) {
+        if (!this.form.paymentMethods.includes(method)) {
+          this.form.paymentMethods.push(method);
+        }
+      } else {
+        this.form.paymentMethods = this.form.paymentMethods.filter(m => m !== method);
+      }
+    },
+
+    async submitForm() {
+      this.isSubmitting = true;
+      this.successMessage = '';
+      this.errorMessage = '';
+
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.successMessage = 'Hotel profile saved successfully!';
+        this.currentStep = 0;
+      } catch (error) {
+        this.errorMessage = 'Failed to save hotel profile. Please try again.';
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+  };
+}
+</script>

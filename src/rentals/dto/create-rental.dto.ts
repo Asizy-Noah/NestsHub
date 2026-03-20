@@ -17,127 +17,127 @@ import {
 
 export class CreateRentalDto {
   @IsString()
-  propertyName: string;
+  propertyName!: string;
 
   @IsOptional()
   @IsString()
-  description: string;
+  description!: string;
 
   @IsEnum(HouseType)
-  houseType: HouseType;
+  houseType!: HouseType;
 
   @IsEnum(BuildingStyle)
-  buildingStyle: BuildingStyle;
+  buildingStyle!: BuildingStyle;
 
   @IsNumber()
   @Min(1)
-  unitCount: number;
+  unitCount!: number;
 
   @IsOptional()
   @IsNumber()
-  monthlyRent: number;
+  monthlyRent!: number;
 
   // Property Features
   @IsBoolean()
-  isSelfContained: boolean;
+  isSelfContained!: boolean;
 
   @IsBoolean()
-  isFenced: boolean;
+  isFenced!: boolean;
 
   @IsBoolean()
-  isCompoundPaved: boolean;
+  isCompoundPaved!: boolean;
 
   @IsBoolean()
-  hasAmpleParking: boolean;
+  hasAmpleParking!: boolean;
 
   @IsBoolean()
-  hasOutsideWashrooms: boolean;
+  hasOutsideWashrooms!: boolean;
 
   @IsBoolean()
-  hasSecurity: boolean;
+  hasSecurity!: boolean;
 
   @IsBoolean()
-  hasWater: boolean;
+  hasWater!: boolean;
 
   // Furnishing
   @IsBoolean()
-  isFurnished: boolean;
+  isFurnished!: boolean;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  furnitureList: string[];
+  furnitureList!: string[];
 
   // Billing
   @IsEnum(BillingPayer)
-  waterBillPaidBy: BillingPayer;
+  waterBillPaidBy!: BillingPayer;
 
   @IsEnum(BillingPayer)
-  electricityBillPaidBy: BillingPayer;
+  electricityBillPaidBy!: BillingPayer;
 
   @IsEnum(BillingPayer)
-  securityFeePaidBy: BillingPayer;
+  securityFeePaidBy!: BillingPayer;
 
   // Location
   @IsString()
-  nearestTown: string;
+  nearestTown!: string;
 
   @IsString()
-  nearestCity: string;
+  nearestCity!: string;
 
   @IsOptional()
   @IsString()
-  nearestRoad: string;
+  nearestRoad!: string;
 
   @IsEnum(AccessRoadType)
-  accessRoadType: AccessRoadType;
+  accessRoadType!: AccessRoadType;
 
   @IsOptional()
   @IsNumber()
-  distanceToTarmac: number;
+  distanceToTarmac!: number;
 
   // Proximity
   @IsOptional()
   @IsString()
-  distanceToGym: string;
+  distanceToGym!: string;
 
   @IsOptional()
   @IsString()
-  distanceToSupermarket: string;
+  distanceToSupermarket!: string;
 
   @IsOptional()
   @IsString()
-  distanceToGroceries: string;
+  distanceToGroceries!: string;
 
   @IsOptional()
   @IsString()
-  shoppingCenterName: string;
+  shoppingCenterName!: string;
 
   // Contact
   @IsOptional()
   @IsString()
-  contactPerson: string;
+  contactPerson!: string;
 
   @IsOptional()
   @IsString()
-  telephone: string;
+  telephone!: string;
 
   @IsOptional()
   @IsString()
-  whatsapp: string;
+  whatsapp!: string;
 
   @IsOptional()
   @IsEmail()
-  email: string;
+  email!: string;
 }
 
 export class UpdateRentalDto extends CreateRentalDto {
   @IsOptional()
   @IsString()
-  coverPhoto: string;
+  coverPhoto!: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  gallery: string[];
+  gallery!: string[];
 }

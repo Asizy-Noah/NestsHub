@@ -68,7 +68,7 @@ export class HotelsService {
     return this.hotelModel.findByIdAndUpdate(hotelId, updateHotelDto, {
       new: true,
       runValidators: true,
-    });
+    })as any;
   }
 
   async updateHotelAmenities(
@@ -86,7 +86,7 @@ export class HotelsService {
       hotelId,
       { amenities },
       { new: true },
-    );
+    )as any;
   }
 
   async applyForVerification(hotelId: string, managerId: string): Promise<Hotel> {
@@ -111,7 +111,7 @@ export class HotelsService {
         verificationAppliedAt: new Date(),
       },
       { new: true },
-    );
+    )as any;
   }
 
   async toggleHotelActive(
@@ -125,7 +125,7 @@ export class HotelsService {
       throw new ForbiddenException('You can only toggle your own hotel');
     }
 
-    return this.hotelModel.findByIdAndUpdate(hotelId, { isActive }, { new: true });
+    return this.hotelModel.findByIdAndUpdate(hotelId, { isActive }, { new: true })as any;
   }
 
   async searchHotels(
@@ -252,7 +252,7 @@ export class HotelsService {
     return this.roomModel.findByIdAndUpdate(roomId, updateRoomDto, {
       new: true,
       runValidators: true,
-    });
+    })as any;
   }
 
   async updateRoomInventory(
@@ -276,7 +276,7 @@ export class HotelsService {
       roomId,
       { bookedRooms: inventoryDto.bookedRooms },
       { new: true },
-    );
+    )as any;
   }
 
   async deleteRoom(roomId: string, hotelId: string, managerId: string): Promise<void> {
@@ -307,6 +307,6 @@ export class HotelsService {
       roomId,
       { isActive },
       { new: true },
-    );
+    )as any;
   }
 }
