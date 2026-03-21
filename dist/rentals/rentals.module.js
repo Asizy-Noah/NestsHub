@@ -12,6 +12,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const rentals_controller_1 = require("./rentals.controller");
 const rentals_service_1 = require("./rentals.service");
 const rental_property_schema_1 = require("./schemas/rental-property.schema");
+const rental_profile_schema_1 = require("./schemas/rental-profile.schema");
 let RentalsModule = class RentalsModule {
 };
 exports.RentalsModule = RentalsModule;
@@ -20,11 +21,11 @@ exports.RentalsModule = RentalsModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([
                 { name: rental_property_schema_1.RentalProperty.name, schema: rental_property_schema_1.RentalPropertySchema },
+                { name: rental_profile_schema_1.RentalProfile.name, schema: rental_profile_schema_1.RentalProfileSchema },
             ]),
         ],
         controllers: [rentals_controller_1.RentalsController],
         providers: [rentals_service_1.RentalsService],
-        exports: [rentals_service_1.RentalsService],
     })
 ], RentalsModule);
 //# sourceMappingURL=rentals.module.js.map

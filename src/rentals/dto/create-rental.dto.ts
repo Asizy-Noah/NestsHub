@@ -1,143 +1,62 @@
-import {
-  IsString,
-  IsNumber,
-  IsBoolean,
-  IsEnum,
-  IsArray,
-  IsOptional,
-  IsEmail,
-  Min,
+import { 
+  IsString, 
+  IsNumber, 
+  IsBoolean, 
+  IsOptional, 
+  IsArray, 
+  IsObject 
 } from 'class-validator';
-import {
-  HouseType,
-  BuildingStyle,
-  AccessRoadType,
-  BillingPayer,
-} from '../schemas/rental-property.schema';
 
 export class CreateRentalDto {
-  @IsString()
-  propertyName!: string;
+  // 1. Unit Attributes
+  @IsString() category!: string;
+  @IsNumber() floorLevel!: number;
+  @IsNumber() totalRooms!: number;
+  @IsNumber() price!: number;
+  @IsString() rateType!: string;
 
-  @IsOptional()
-  @IsString()
-  description!: string;
+  @IsBoolean() isSelfContained!: boolean;
+  @IsBoolean() accessiblePWD!: boolean;
+  @IsBoolean() hasVeranda!: boolean;
+  @IsBoolean() hasBalcony!: boolean;
+  @IsBoolean() hasAC!: boolean;
+  @IsBoolean() hotWater!: boolean;
+  @IsBoolean() paidWater!: boolean;
+  @IsBoolean() paidElectricity!: boolean;
+  @IsBoolean() paidInternet!: boolean;
 
-  @IsEnum(HouseType)
-  houseType!: HouseType;
+  @IsBoolean() isFurnished!: boolean;
+  @IsArray() @IsString({ each: true }) furnishing!: string[];
+  @IsArray() @IsString({ each: true }) cookingMethods!: string[];
+  @IsArray() @IsString({ each: true }) unitPhotos!: string[];
 
-  @IsEnum(BuildingStyle)
-  buildingStyle!: BuildingStyle;
+  // 2. Property Attributes
+  @IsString() propertyType!: string;
+  @IsBoolean() fenced!: boolean;
+  @IsBoolean() parking!: boolean;
+  @IsBoolean() backyard!: boolean;
+  @IsBoolean() largeCompound!: boolean;
+  @IsBoolean() greenery!: boolean;
+  @IsBoolean() cctvs!: boolean;
+  @IsBoolean() security!: boolean;
+  @IsBoolean() tarmackedAccess!: boolean;
+  @IsArray() @IsString({ each: true }) propertyPhotos!: string[];
 
-  @IsNumber()
-  @Min(1)
-  unitCount!: number;
+  // 3. Nearby Services
+  @IsBoolean() nearbyPharmacy!: boolean;
+  @IsBoolean() nearbyGym!: boolean;
+  @IsBoolean() nearbyGrocery!: boolean;
+  @IsBoolean() nearbyBodaboda!: boolean;
+  @IsString() @IsOptional() hospitalName?: string;
+  @IsString() @IsOptional() marketName?: string;
+  @IsArray() @IsString({ each: true }) @IsOptional() restaurantLevels?: string[];
 
-  @IsOptional()
-  @IsNumber()
-  monthlyRent!: number;
-
-  // Property Features
-  @IsBoolean()
-  isSelfContained!: boolean;
-
-  @IsBoolean()
-  isFenced!: boolean;
-
-  @IsBoolean()
-  isCompoundPaved!: boolean;
-
-  @IsBoolean()
-  hasAmpleParking!: boolean;
-
-  @IsBoolean()
-  hasOutsideWashrooms!: boolean;
-
-  @IsBoolean()
-  hasSecurity!: boolean;
-
-  @IsBoolean()
-  hasWater!: boolean;
-
-  // Furnishing
-  @IsBoolean()
-  isFurnished!: boolean;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  furnitureList!: string[];
-
-  // Billing
-  @IsEnum(BillingPayer)
-  waterBillPaidBy!: BillingPayer;
-
-  @IsEnum(BillingPayer)
-  electricityBillPaidBy!: BillingPayer;
-
-  @IsEnum(BillingPayer)
-  securityFeePaidBy!: BillingPayer;
-
-  // Location
-  @IsString()
-  nearestTown!: string;
-
-  @IsString()
-  nearestCity!: string;
-
-  @IsOptional()
-  @IsString()
-  nearestRoad!: string;
-
-  @IsEnum(AccessRoadType)
-  accessRoadType!: AccessRoadType;
-
-  @IsOptional()
-  @IsNumber()
-  distanceToTarmac!: number;
-
-  // Proximity
-  @IsOptional()
-  @IsString()
-  distanceToGym!: string;
-
-  @IsOptional()
-  @IsString()
-  distanceToSupermarket!: string;
-
-  @IsOptional()
-  @IsString()
-  distanceToGroceries!: string;
-
-  @IsOptional()
-  @IsString()
-  shoppingCenterName!: string;
-
-  // Contact
-  @IsOptional()
-  @IsString()
-  contactPerson!: string;
-
-  @IsOptional()
-  @IsString()
-  telephone!: string;
-
-  @IsOptional()
-  @IsString()
-  whatsapp!: string;
-
-  @IsOptional()
-  @IsEmail()
-  email!: string;
-}
-
-export class UpdateRentalDto extends CreateRentalDto {
-  @IsOptional()
-  @IsString()
-  coverPhoto!: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  gallery!: string[];
+  // 4. Location Details
+  @IsString() district!: string;
+  @IsString() division!: string;
+  @IsString() nearestTown!: string;
+  @IsNumber() distanceToTown!: number;
+  @IsString() popularAreaName!: string;
+  @IsString() streetName!: string;
+  @IsNumber() distanceToTarmac!: number;
 }

@@ -1,0 +1,364 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="rentalDashboard(<%= typeof rentalData !== 'undefined' ? rentalData : '{}' %>)" x-cloak>
+    
+    <div class="mb-8">
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-professional dark:text-white truncate">Rental Portfolio</h1>
+        <p class="text-xs sm:text-sm text-slate-500">Manage your properties and client inquiries.</p>
+    </div>
+
+    <div class="flex space-x-1 sm:space-x-2 bg-slate-200/50 dark:bg-slate-800/50 p-1 sm:p-1.5 rounded-2xl mb-8 shadow-inner w-full">
+        <template x-for="tab in [{id:'Rental Management', icon:'fa-house-user'}, {id:'Messages', icon:'fa-envelope'}]">
+            <button @click="currentTab = tab.id" 
+                    class="flex-1 py-3 px-2 sm:px-6 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                    :class="currentTab === tab.id ? 'bg-white dark:bg-slate-900 text-primary shadow-sm ring-1 ring-slate-200 dark:ring-slate-700' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'">
+                <i class="fa-solid" :class="tab.icon"></i>
+                <span x-text="tab.id"></span>
+            </button>
+        </template>
+    </div>
+
+    <div x-show="currentTab === 'Rental Management'" x-transition:enter="transition ease-out duration-300">
+        
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-lg shadow-inner">
+                <button @click="viewMode = 'grid'" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all" :class="viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"><i class="fa-solid fa-grip"></i></button>
+                <button @click="viewMode = 'list'" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all" :class="viewMode === 'list' ? 'bg-white shadow-sm text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"><i class="fa-solid fa-list"></i></button>
+            </div>
+            <button @click="showRentalModal = true" class="btn-primary text-xs"><i class="fa-solid fa-plus"></i> Add Rental Unit</button>
+        </div>
+
+        <div x-show="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="rental in rentals" :key="rental._id">
+                <div class="card p-0 overflow-hidden border-t-4 transition-shadow hover:shadow-lg" :class="rental.availableUnits > 0 ? 'border-primary' : 'border-red-500'">
+                    <div class="h-40 bg-slate-200 dark:bg-slate-800 relative bg-cover bg-center flex items-center justify-center text-slate-400" :style="rental.unitPhotos && rental.unitPhotos.length ? `background-image: url(${rental.unitPhotos[0]})` : ''">
+                        <template x-if="!rental.unitPhotos || !rental.unitPhotos.length"><i class="fa-solid fa-house text-4xl opacity-50"></i></template>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-3 left-4 right-4">
+                            <h4 class="text-2xl font-extrabold text-white shadow-sm" x-text="rental.category"></h4>
+                            <p class="text-xs text-slate-300 font-semibold truncate" x-text="rental.district + ', ' + rental.nearestTown"></p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div>
+                                <span class="text-xl font-black text-primary">UGX <span x-text="(rental.price/1000).toFixed(0)"></span>K</span>
+                                <p class="text-[10px] text-slate-400 uppercase font-bold" x-text="rental.rateType"></p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="editRental(rental)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button @click="deleteRental(rental._id)" class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 mt-auto">
+                        <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700">
+                            <div class="flex flex-col px-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Available Units</span>
+                                <span class="text-base font-extrabold text-primary"><span x-text="rental.availableUnits"></span> <span class="text-slate-400 font-medium text-sm">/ <span x-text="rental.totalUnits"></span></span></span>
+                            </div>
+                            <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg shadow-sm">
+                                <button @click="updateUnitCount(rental, -1)" class="w-10 h-10 rounded-md text-slate-500 hover:text-red-500 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors" :disabled="rental.availableUnits <= 0"><i class="fa-solid fa-minus"></i></button>
+                                <div class="w-8 text-center font-extrabold text-professional dark:text-white" x-text="rental.availableUnits"></div>
+                                <button @click="updateUnitCount(rental, 1)" class="w-10 h-10 rounded-md text-slate-500 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors" :disabled="rental.availableUnits >= rental.totalUnits"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="viewMode === 'list'" class="space-y-4">
+            <template x-for="rental in rentals" :key="rental._id">
+                <div class="card p-4 border-l-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all hover:shadow-lg" :class="rental.availableUnits > 0 ? 'border-primary' : 'border-red-500'">
+                    
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="w-16 h-16 rounded-xl bg-slate-200 dark:bg-slate-800 bg-cover bg-center flex-shrink-0 flex items-center justify-center text-slate-400" :style="rental.unitPhotos && rental.unitPhotos.length ? `background-image: url(${rental.unitPhotos[0]})` : ''">
+                            <template x-if="!rental.unitPhotos || !rental.unitPhotos.length"><i class="fa-solid fa-house"></i></template>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h5 class="font-bold text-lg text-professional dark:text-white truncate" x-text="rental.category"></h5>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium truncate" x-text="rental.district + ', ' + rental.nearestTown"></p>
+                            <p class="text-xs text-primary font-black mt-1">UGX <span x-text="(rental.price/1000).toFixed(0)"></span>K <span class="text-slate-400 font-bold ml-1 uppercase" x-text="rental.rateType"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full md:w-auto gap-6 md:gap-8 border-t border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:border-t-0">
+                        <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <button @click="updateUnitCount(rental, -1)" class="w-8 h-8 rounded-lg text-slate-500 hover:text-red-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 shadow-sm transition-colors" :disabled="rental.availableUnits <= 0"><i class="fa-solid fa-minus"></i></button>
+                            <div class="w-12 text-center font-black text-professional dark:text-white flex flex-col leading-none">
+                                <span x-text="rental.availableUnits" class="text-sm"></span>
+                                <span class="text-[8px] text-slate-400 uppercase mt-0.5">Avail</span>
+                            </div>
+                            <button @click="updateUnitCount(rental, 1)" class="w-8 h-8 rounded-lg text-slate-500 hover:text-primary hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 shadow-sm transition-colors" :disabled="rental.availableUnits >= rental.totalUnits"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button @click="editRental(rental)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button @click="deleteRental(rental._id)" class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+            </template>
+        </div>
+
+        <div x-show="showRentalModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
+            <div @click.outside="showRentalModal = false" class="card w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border-0 p-0 bg-white dark:bg-dark-surface">
+                
+                <div class="sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center z-10">
+                    <h2 class="text-2xl font-bold text-professional dark:text-white" x-text="newRental._id ? 'Edit Rental Unit' : 'Add Rental Unit'"></h2>
+                    <button @click="showRentalModal = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-400 flex items-center justify-center transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <div class="p-6 space-y-10">
+                    
+                    <section class="space-y-6">
+                        <h3 class="text-lg font-black text-primary uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2"><i class="fa-solid fa-door-open"></i> 1. Unit Attributes</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="input-group">
+                                <label>Category</label>
+                                <select x-model="newRental.category" class="input-field font-bold">
+                                    <option>Single Room</option><option>Double Room</option><option>1 Bedroom</option><option>2 Bedroom</option><option>3 Bedroom</option><option>Commercial Space</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Floor Level</label>
+                                <input type="number" x-model="newRental.floorLevel" class="input-field" placeholder="e.g. 1">
+                            </div>
+                            <div class="input-group flex flex-row gap-2">
+                                <div class="flex-1"><label>Total Units</label><input type="number" x-model="newRental.totalUnits" class="input-field text-primary font-bold"></div>
+                                <div class="flex-1"><label>Price</label><input type="number" x-model="newRental.price" class="input-field font-bold" placeholder="UGX"></div>
+                            </div>
+                            <div class="input-group md:col-span-3">
+                                <label>Rate Type</label>
+                                <div class="flex flex-wrap gap-2 mt-1">
+                                    <template x-for="rate in ['Per Month', 'Per Semester', 'Per Quarter', 'Half Year', 'Per Year']">
+                                        <button @click="newRental.rateType = rate" class="px-4 py-2 rounded-xl text-xs font-bold border transition-colors" 
+                                                :class="newRental.rateType === rate ? 'bg-primary text-white border-primary shadow-sm' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                                            <span x-text="rate"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <template x-for="feat in [{k:'isSelfContained', l:'Self Contained'},{k:'accessiblePWD', l:'PWD Accessible'},{k:'hasVeranda', l:'Veranda'},{k:'hasBalcony', l:'Balcony'},{k:'hasAC', l:'Air Conditioning'},{k:'hotWater', l:'Hot Water'},{k:'paidWater', l:'Paid Water'},{k:'paidElectricity', l:'Paid Power'},{k:'paidInternet', l:'Paid Internet'}]">
+                                <label class="flex items-center gap-3 p-2 cursor-pointer hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                    <input type="checkbox" x-model="newRental[feat.k]" class="w-4 h-4 accent-primary">
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300" x-text="feat.l"></span>
+                                </label>
+                            </template>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <div class="flex justify-between items-center"><label class="font-bold text-sm text-slate-700 dark:text-slate-300">Is Furnished?</label>
+                                <input type="checkbox" x-model="newRental.isFurnished" class="w-5 h-5 accent-primary rounded"></div>
+                                <div x-show="newRental.isFurnished" class="flex flex-col gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                    <template x-for="item in ['Closets', 'Kitchen Cabinets', 'Beds', 'Living Room Furniture', 'Shelves']">
+                                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" :value="item" x-model="newRental.furnishing" class="accent-primary"><span x-text="item"></span></label>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="space-y-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="font-bold text-sm text-slate-700 dark:text-slate-300 block">Permitted Cooking Methods</label>
+                                <div class="flex flex-col gap-2">
+                                    <template x-for="method in ['Electricity', 'Gas', 'Charcoal', 'Firewood']">
+                                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" :value="method" x-model="newRental.cookingMethods" class="accent-primary"><span x-text="method"></span></label>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-sm flex justify-between text-slate-700 dark:text-slate-300">Unit Photos (Max 5) <span class="text-slate-500" x-text="`${newRental.unitPhotos.length}/5`"></span></label>
+                            <div class="flex gap-3 overflow-x-auto pt-2">
+                                <template x-for="(p, i) in newRental.unitPhotos"><div class="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"><img :src="p" class="w-full h-full object-cover"><button @click="newRental.unitPhotos.splice(i,1)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-[10px]"><i class="fa-solid fa-xmark"></i></button></div></template>
+                                <label x-show="newRental.unitPhotos.length < 5" class="w-24 h-24 flex-shrink-0 rounded-xl border-2 border-dashed border-primary flex flex-col items-center justify-center text-primary cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors"><i class="fa-solid fa-plus"></i><input type="file" class="hidden" accept="image/*" @change="e => handlePhotoUpload(e, 'unitPhotos', 5)"></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                        <h3 class="text-lg font-black text-primary uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2"><i class="fa-solid fa-building"></i> 2. Property Overview</h3>
+                        <div class="input-group">
+                            <label>Property Type</label>
+                            <select x-model="newRental.propertyType" class="input-field font-bold">
+                                <option>Flats</option><option>Arcade</option><option>Bungalow</option><option>Apartment Complex</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <template x-for="pFeat in [{k:'fenced', l:'Fenced'},{k:'parking', l:'Parking'},{k:'backyard', l:'Backyard'},{k:'largeCompound', l:'Large Compound'},{k:'greenery', l:'Greenery'},{k:'cctvs', l:'CCTVs'},{k:'security', l:'Security'},{k:'tarmackedAccess', l:'Tarmac Access'}]">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 p-1.5 rounded-lg transition-colors"><input type="checkbox" x-model="newRental[pFeat.k]" class="accent-primary"><span x-text="pFeat.l"></span></label>
+                            </template>
+                        </div>
+                        <div>
+                            <label class="font-bold text-sm flex justify-between text-slate-700 dark:text-slate-300">Property Exterior Photos (Max 3) <span class="text-slate-500" x-text="`${newRental.propertyPhotos.length}/3`"></span></label>
+                            <div class="flex gap-3 overflow-x-auto pt-2">
+                                <template x-for="(p, i) in newRental.propertyPhotos"><div class="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"><img :src="p" class="w-full h-full object-cover"><button @click="newRental.propertyPhotos.splice(i,1)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-[10px]"><i class="fa-solid fa-xmark"></i></button></div></template>
+                                <label x-show="newRental.propertyPhotos.length < 3" class="w-24 h-24 flex-shrink-0 rounded-xl border-2 border-dashed border-primary flex flex-col items-center justify-center text-primary cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors"><i class="fa-solid fa-plus"></i><input type="file" class="hidden" accept="image/*" @change="e => handlePhotoUpload(e, 'propertyPhotos', 3)"></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                        <h3 class="text-lg font-black text-primary uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2"><i class="fa-solid fa-map-location"></i> 3. Services & Location</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <label class="flex items-center gap-3 font-bold text-sm text-slate-700 dark:text-slate-300 cursor-pointer"><input type="checkbox" x-model="newRental.nearbyPharmacy" class="accent-primary w-5 h-5"> Pharmacy Nearby</label>
+                            <label class="flex items-center gap-3 font-bold text-sm text-slate-700 dark:text-slate-300 cursor-pointer"><input type="checkbox" x-model="newRental.nearbyGym" class="accent-primary w-5 h-5"> Gym Nearby</label>
+                            <label class="flex items-center gap-3 font-bold text-sm text-slate-700 dark:text-slate-300 cursor-pointer"><input type="checkbox" x-model="newRental.nearbyGrocery" class="accent-primary w-5 h-5"> Grocery Store</label>
+                            <label class="flex items-center gap-3 font-bold text-sm text-slate-700 dark:text-slate-300 cursor-pointer"><input type="checkbox" x-model="newRental.nearbyBodaboda" class="accent-primary w-5 h-5"> Bodaboda Stage</label>
+                            
+                            <div class="input-group"><label>Hospital Name (If nearby)</label><input type="text" x-model="newRental.hospitalName" class="input-field py-2" placeholder="e.g. Mulago Hospital"></div>
+                            <div class="input-group"><label>Market Name (If nearby)</label><input type="text" x-model="newRental.marketName" class="input-field py-2" placeholder="e.g. Nakasero Market"></div>
+                            
+                            <div class="input-group md:col-span-2">
+                                <label>Nearby Restaurant Levels</label>
+                                <div class="flex flex-wrap gap-4 mt-2">
+                                    <template x-for="lvl in ['High-end', 'Middle-class', 'Local / Low-end']">
+                                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:text-primary transition-colors">
+                                            <input type="checkbox" :value="lvl" x-model="newRental.restaurantLevels" class="accent-primary w-4 h-4">
+                                            <span x-text="lvl"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="input-group"><label>District / City</label><input type="text" x-model="newRental.district" class="input-field" placeholder="e.g. Wakiso"></div>
+                            <div class="input-group"><label>Division / Municipality</label><input type="text" x-model="newRental.division" class="input-field"></div>
+                            <div class="input-group"><label>Nearest Town / TC</label><input type="text" x-model="newRental.nearestTown" class="input-field"></div>
+                            <div class="input-group"><label>Distance to Nearest Town (Km)</label><input type="number" step="0.1" x-model="newRental.distanceToTown" class="input-field"></div>
+                            <div class="input-group"><label>Most Known Area Name</label><input type="text" x-model="newRental.popularAreaName" class="input-field" placeholder="e.g. Kikoni"></div>
+                            <div class="input-group"><label>Street Name</label><input type="text" x-model="newRental.streetName" class="input-field"></div>
+                            <div class="input-group md:col-span-2"><label>Distance to Tarmac (Meters)</label><input type="number" x-model="newRental.distanceToTarmac" class="input-field" placeholder="e.g. 50"></div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <div class="sticky bottom-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-6 border-t border-slate-200 dark:border-slate-800 flex gap-4 z-10">
+                    <button @click="showRentalModal = false" class="btn-outline flex-1 bg-white dark:bg-slate-800" :disabled="saving">Cancel</button>
+                    <button @click="saveRental" class="btn-primary flex-1 shadow-lg" :disabled="saving">
+                        <span x-show="!saving" x-text="newRental._id ? 'Save Changes' : 'Save Rental Unit'"></span>
+                        <span x-show="saving"><i class="fa-solid fa-spinner fa-spin"></i> Processing...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="currentTab === 'Messages'" style="display: none;" class="h-[70vh]">
+        <div class="card p-0 h-full flex overflow-hidden border-0 shadow-2xl rounded-3xl">
+            <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold bg-slate-50 dark:bg-slate-900">
+                <div class="text-center space-y-4">
+                    <i class="fa-brands fa-whatsapp text-6xl text-emerald-400 opacity-80"></i>
+                    <p>No active client inquiries yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function rentalDashboard(initialData) {
+    const defaultRental = {
+        category: 'Single Room', totalUnits: 1, availableUnits: 1, price: '', rateType: 'Per Month', floorLevel: 1,
+        isSelfContained: false, accessiblePWD: false, hasVeranda: false, hasBalcony: false, hasAC: false, hotWater: false, paidWater: false, paidElectricity: false, paidInternet: false,
+        isFurnished: false, furnishing: [], cookingMethods: [], unitPhotos: [], propertyPhotos: [],
+        propertyType: 'Flats', fenced: false, parking: false, backyard: false, largeCompound: false, greenery: false, cctvs: false, security: false, tarmackedAccess: false,
+        nearbyPharmacy: false, nearbyGym: false, nearbyGrocery: false, nearbyBodaboda: false, hospitalName: '', marketName: '', 
+        restaurantLevels: [], // FIXED: Array initialization
+        district: '', division: '', nearestTown: '', distanceToTown: '', popularAreaName: '', streetName: '', distanceToTarmac: ''
+    };
+
+    return {
+        currentTab: 'Rental Management', viewMode: 'grid',
+        showRentalModal: false, saving: false, loadingRoom: null,
+        rentals: initialData.rentals || [],
+        newRental: JSON.parse(JSON.stringify(defaultRental)),
+
+        getHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}` };
+        },
+
+        handlePhotoUpload(e, arrayName, maxLimit) {
+            const file = e.target.files[0];
+            if(!file || this.newRental[arrayName].length >= maxLimit) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => this.newRental[arrayName].push(ev.target.result);
+            reader.readAsDataURL(file);
+        },
+
+        editRental(rental) {
+            this.newRental = JSON.parse(JSON.stringify(rental));
+            // Safety arrays
+            if(!this.newRental.unitPhotos) this.newRental.unitPhotos = [];
+            if(!this.newRental.propertyPhotos) this.newRental.propertyPhotos = [];
+            if(!this.newRental.furnishing) this.newRental.furnishing = [];
+            if(!this.newRental.cookingMethods) this.newRental.cookingMethods = [];
+            if(!this.newRental.restaurantLevels) this.newRental.restaurantLevels = []; // Ensure array exists
+            this.showRentalModal = true;
+        },
+
+        async saveRental() {
+            if(!this.newRental.price) return alert("Price is required.");
+            this.saving = true;
+            try {
+                const isEditing = !!this.newRental._id;
+                const url = isEditing ? `/dashboard/rentals/items/${this.newRental._id}` : '/dashboard/rentals/items';
+                const method = isEditing ? 'PATCH' : 'POST';
+
+                let payload = { ...this.newRental };
+                if (!isEditing) payload.availableUnits = payload.totalUnits;
+
+                const res = await fetch(url, { method, headers: this.getHeaders(), body: JSON.stringify(payload) });
+                if (!res.ok) throw new Error();
+                
+                const saved = await res.json();
+                
+                if(isEditing) {
+                    const idx = this.rentals.findIndex(r => r._id === saved._id);
+                    if(idx !== -1) this.rentals[idx] = saved;
+                } else {
+                    this.rentals.push(saved);
+                }
+                
+                this.showRentalModal = false;
+                this.newRental = JSON.parse(JSON.stringify(defaultRental));
+            } catch (e) { 
+                alert("Failed to save rental unit."); 
+            } finally { 
+                this.saving = false; 
+            }
+        },
+
+        async updateUnitCount(rental, change) {
+            this.loadingRoom = rental._id;
+            try {
+                const res = await fetch(`/dashboard/rentals/items/${rental._id}/quantity`, {
+                    method: 'PATCH', headers: this.getHeaders(), body: JSON.stringify({ change })
+                });
+                if (!res.ok) throw new Error();
+                rental.availableUnits += change;
+            } catch(e) {
+                alert('Update failed');
+            } finally {
+                this.loadingRoom = null;
+            }
+        },
+
+        async deleteRental(id) {
+            if(!confirm("Delete this rental group permanently?")) return;
+            try {
+                const res = await fetch(`/dashboard/rentals/items/${id}`, { method: 'DELETE', headers: this.getHeaders() });
+                if (!res.ok) throw new Error();
+                this.rentals = this.rentals.filter(r => r._id !== id);
+            } catch(e) { alert("Failed to delete."); }
+        }
+    }
+}
+</script>

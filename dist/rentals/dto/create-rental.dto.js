@@ -9,39 +9,31 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateRentalDto = exports.CreateRentalDto = void 0;
+exports.CreateRentalDto = void 0;
 const class_validator_1 = require("class-validator");
-const rental_property_schema_1 = require("../schemas/rental-property.schema");
 class CreateRentalDto {
 }
 exports.CreateRentalDto = CreateRentalDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateRentalDto.prototype, "propertyName", void 0);
+], CreateRentalDto.prototype, "category", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateRentalDto.prototype, "floorLevel", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateRentalDto.prototype, "totalRooms", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateRentalDto.prototype, "price", void 0);
+__decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateRentalDto.prototype, "description", void 0);
-__decorate([
-    (0, class_validator_1.IsEnum)(rental_property_schema_1.HouseType),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "houseType", void 0);
-__decorate([
-    (0, class_validator_1.IsEnum)(rental_property_schema_1.BuildingStyle),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "buildingStyle", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(1),
-    __metadata("design:type", Number)
-], CreateRentalDto.prototype, "unitCount", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], CreateRentalDto.prototype, "monthlyRent", void 0);
+], CreateRentalDto.prototype, "rateType", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
@@ -49,123 +41,153 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateRentalDto.prototype, "isFenced", void 0);
+], CreateRentalDto.prototype, "accessiblePWD", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateRentalDto.prototype, "isCompoundPaved", void 0);
+], CreateRentalDto.prototype, "hasVeranda", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateRentalDto.prototype, "hasAmpleParking", void 0);
+], CreateRentalDto.prototype, "hasBalcony", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateRentalDto.prototype, "hasOutsideWashrooms", void 0);
+], CreateRentalDto.prototype, "hasAC", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateRentalDto.prototype, "hasSecurity", void 0);
+], CreateRentalDto.prototype, "hotWater", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateRentalDto.prototype, "hasWater", void 0);
+], CreateRentalDto.prototype, "paidWater", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "paidElectricity", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "paidInternet", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateRentalDto.prototype, "isFurnished", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
-], CreateRentalDto.prototype, "furnitureList", void 0);
+], CreateRentalDto.prototype, "furnishing", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(rental_property_schema_1.BillingPayer),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "waterBillPaidBy", void 0);
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateRentalDto.prototype, "cookingMethods", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(rental_property_schema_1.BillingPayer),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "electricityBillPaidBy", void 0);
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateRentalDto.prototype, "unitPhotos", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(rental_property_schema_1.BillingPayer),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateRentalDto.prototype, "securityFeePaidBy", void 0);
+], CreateRentalDto.prototype, "propertyType", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "fenced", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "parking", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "backyard", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "largeCompound", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "greenery", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "cctvs", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "security", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "tarmackedAccess", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateRentalDto.prototype, "propertyPhotos", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "nearbyPharmacy", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "nearbyGym", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "nearbyGrocery", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateRentalDto.prototype, "nearbyBodaboda", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateRentalDto.prototype, "hospitalName", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateRentalDto.prototype, "marketName", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], CreateRentalDto.prototype, "restaurantLevels", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateRentalDto.prototype, "district", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateRentalDto.prototype, "division", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateRentalDto.prototype, "nearestTown", void 0);
 __decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateRentalDto.prototype, "distanceToTown", void 0);
+__decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateRentalDto.prototype, "nearestCity", void 0);
+], CreateRentalDto.prototype, "popularAreaName", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateRentalDto.prototype, "nearestRoad", void 0);
+], CreateRentalDto.prototype, "streetName", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(rental_property_schema_1.AccessRoadType),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "accessRoadType", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], CreateRentalDto.prototype, "distanceToTarmac", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "distanceToGym", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "distanceToSupermarket", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "distanceToGroceries", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "shoppingCenterName", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "contactPerson", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "telephone", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "whatsapp", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEmail)(),
-    __metadata("design:type", String)
-], CreateRentalDto.prototype, "email", void 0);
-class UpdateRentalDto extends CreateRentalDto {
-}
-exports.UpdateRentalDto = UpdateRentalDto;
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], UpdateRentalDto.prototype, "coverPhoto", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    __metadata("design:type", Array)
-], UpdateRentalDto.prototype, "gallery", void 0);
 //# sourceMappingURL=create-rental.dto.js.map

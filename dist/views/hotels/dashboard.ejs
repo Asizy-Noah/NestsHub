@@ -102,6 +102,22 @@
                             <p class="text-xs text-slate-400 font-bold">UGX <span x-text="room.price.toLocaleString()"></span> <span x-text="room.pricingPeriod"></span></p>
                         </div>
                     </div>
+                    <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700">
+                            <div class="flex flex-col px-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Available</span>
+                                <span class="text-base font-extrabold" :class="room.availableRooms === 0 ? 'text-red-500' : 'text-primary'"><span x-text="room.availableRooms"></span> <span class="text-slate-400 font-medium text-sm">/ <span x-text="room.totalRooms"></span></span></span>
+                            </div>
+                            <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg shadow-sm">
+                                <button @click="updateRoomCount(room, -1)" class="w-10 h-10 rounded-md flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" :disabled="room.availableRooms <= 0 || loadingRoom === room._id">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <div class="w-8 text-center font-extrabold text-professional dark:text-white" x-show="loadingRoom !== room._id" x-text="room.availableRooms"></div>
+                                <div class="w-8 text-center text-primary" x-show="loadingRoom === room._id"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                                <button @click="updateRoomCount(room, 1)" class="w-10 h-10 rounded-md flex items-center justify-center text-slate-500 hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" :disabled="room.availableRooms >= room.totalRooms || loadingRoom === room._id">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                     <div class="flex items-center gap-3">
                         <button @click="editRoom(room)" class="w-8 h-8 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button @click="deleteRoom(room._id)" class="w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"><i class="fa-solid fa-trash"></i></button>

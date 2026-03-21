@@ -116,7 +116,7 @@ async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Respons
       [AccountRole.STAFF]: '/dashboard/staff',
       [AccountRole.HOSTEL_MANAGER]: '/dashboard/hostel',
       [AccountRole.HOTEL_MANAGER]: '/dashboard/hotel',
-      [AccountRole.PROPERTY_MANAGER]: '/dashboard/properties',
+      [AccountRole.PROPERTY_MANAGER]: '/dashboard/rentals',
       [AccountRole.INDIVIDUAL]: '/',
     };
 

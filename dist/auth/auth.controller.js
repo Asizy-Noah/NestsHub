@@ -92,7 +92,7 @@ let AuthController = class AuthController {
                 [account_schema_1.AccountRole.STAFF]: '/dashboard/staff',
                 [account_schema_1.AccountRole.HOSTEL_MANAGER]: '/dashboard/hostel',
                 [account_schema_1.AccountRole.HOTEL_MANAGER]: '/dashboard/hotel',
-                [account_schema_1.AccountRole.PROPERTY_MANAGER]: '/dashboard/properties',
+                [account_schema_1.AccountRole.PROPERTY_MANAGER]: '/dashboard/rentals',
                 [account_schema_1.AccountRole.INDIVIDUAL]: '/',
             };
             const targetPath = roleRedirectMap[result.user.role] || '/dashboard';

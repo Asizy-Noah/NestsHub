@@ -1,79 +1,56 @@
-import { Document, Types } from 'mongoose';
-export declare enum HouseType {
-    STUDIO = "studio",
-    ONE_BEDROOM = "1-bedroom",
-    TWO_BEDROOM = "2-bedroom",
-    THREE_BEDROOM = "3-bedroom",
-    FOUR_BEDROOM = "4-bedroom"
-}
-export declare enum BuildingStyle {
-    FLAT_STOREY = "flat_storey",
-    SINGLE_LEVEL = "single_level"
-}
-export declare enum AccessRoadType {
-    TARMAC = "tarmac",
-    MURRAM_GRAVEL = "murram_gravel"
-}
-export declare enum BillingPayer {
-    TENANT = "tenant",
-    LANDLORD = "landlord"
-}
-export declare enum VerificationStatus {
-    UNVERIFIED = "unverified",
-    PENDING = "pending",
-    VERIFIED = "verified",
-    REJECTED = "rejected"
-}
+import mongoose, { Document } from 'mongoose';
 export declare class RentalProperty extends Document {
-    managerId: Types.ObjectId;
-    propertyName: string;
-    description: string;
-    houseType: HouseType;
-    buildingStyle: BuildingStyle;
-    unitCount: number;
-    monthlyRent: number;
+    managerId: mongoose.Schema.Types.ObjectId;
+    category: string;
+    floorLevel: number;
+    totalUnits: number;
+    availableUnits: number;
+    price: number;
+    rateType: string;
     isSelfContained: boolean;
-    isFenced: boolean;
-    isCompoundPaved: boolean;
-    hasAmpleParking: boolean;
-    hasOutsideWashrooms: boolean;
-    hasSecurity: boolean;
-    hasWater: boolean;
+    accessiblePWD: boolean;
+    hasVeranda: boolean;
+    hasBalcony: boolean;
+    hasAC: boolean;
+    hotWater: boolean;
+    paidWater: boolean;
+    paidElectricity: boolean;
+    paidInternet: boolean;
     isFurnished: boolean;
-    furnitureList: string[];
-    waterBillPaidBy: BillingPayer;
-    electricityBillPaidBy: BillingPayer;
-    securityFeePaidBy: BillingPayer;
+    furnishing: string[];
+    cookingMethods: string[];
+    unitPhotos: string[];
+    propertyType: string;
+    fenced: boolean;
+    parking: boolean;
+    backyard: boolean;
+    largeCompound: boolean;
+    greenery: boolean;
+    cctvs: boolean;
+    security: boolean;
+    tarmackedAccess: boolean;
+    propertyPhotos: string[];
+    nearbyPharmacy: boolean;
+    nearbyGym: boolean;
+    nearbyGrocery: boolean;
+    nearbyBodaboda: boolean;
+    hospitalName: string;
+    marketName: string;
+    restaurantLevels: string[];
+    district: string;
+    division: string;
     nearestTown: string;
-    nearestCity: string;
-    nearestRoad: string;
-    accessRoadType: AccessRoadType;
+    distanceToTown: number;
+    popularAreaName: string;
+    streetName: string;
     distanceToTarmac: number;
-    distanceToGym: string;
-    distanceToSupermarket: string;
-    distanceToGroceries: string;
-    shoppingCenterName: string;
-    coverPhoto: string;
-    gallery: string[];
-    contactPerson: string;
-    telephone: string;
-    whatsapp: string;
-    email: string;
-    verificationStatus: VerificationStatus;
-    verificationAppliedAt: Date;
-    verificationApprovedAt: Date;
-    verificationRejectionReason: string;
-    verificationProofUrl: string;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
 }
-export declare const RentalPropertySchema: import("mongoose").Schema<RentalProperty, import("mongoose").Model<RentalProperty, any, any, any, Document<unknown, any, RentalProperty, any, {}> & RentalProperty & Required<{
-    _id: Types.ObjectId;
+export declare const RentalPropertySchema: mongoose.Schema<RentalProperty, mongoose.Model<RentalProperty, any, any, any, mongoose.Document<unknown, any, RentalProperty, any, {}> & RentalProperty & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, RentalProperty, Document<unknown, {}, import("mongoose").FlatRecord<RentalProperty>, {}, import("mongoose").DefaultSchemaOptions> & import("mongoose").FlatRecord<RentalProperty> & Required<{
-    _id: Types.ObjectId;
+}, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, RentalProperty, mongoose.Document<unknown, {}, mongoose.FlatRecord<RentalProperty>, {}, mongoose.DefaultSchemaOptions> & mongoose.FlatRecord<RentalProperty> & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
 }>;

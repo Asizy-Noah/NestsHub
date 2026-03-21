@@ -14,171 +14,113 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RentalsController = void 0;
 const common_1 = require("@nestjs/common");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const rentals_service_1 = require("./rentals.service");
-const create_rental_dto_1 = require("./dto/create-rental.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const account_schema_1 = require("../accounts/schemas/account.schema");
 let RentalsController = class RentalsController {
     constructor(rentalsService) {
         this.rentalsService = rentalsService;
     }
-    async createRental(req, createRentalDto) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Only property owners and brokers can create rentals');
-        }
-        return this.rentalsService.createRental(req.user.id, createRentalDto);
+    async getDashboard(req) {
+        const data = await this.rentalsService.getDashboardData(req.user.userId);
+        return { title: 'Rental Dashboard', layout: 'layouts/rental', manager: req.user, rentalData: JSON.stringify(data) };
     }
-    async getMyRentals(req, limit = 10, offset = 0) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        return this.rentalsService.getRentalsByManager(req.user.id, limit, offset);
+    async getProfileView(req) {
+        const profile = await this.rentalsService.getProfile(req.user.userId);
+        return { title: 'Manager Profile', layout: 'layouts/rental', manager: req.user, user: profile };
     }
-    async getDashboardStats(req) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        return this.rentalsService.getDashboardStats(req.user.id);
+    getReviewsView(req) {
+        return { title: 'Public Reviews', layout: 'layouts/rental', manager: req.user };
     }
-    async searchRentals(query, houseType, city, town, verified, limit = 20, offset = 0) {
-        return this.rentalsService.searchRentals(query, houseType, city, town, verified, limit, offset);
+    async updateProfile(req, data) {
+        return await this.rentalsService.updateProfile(req.user.userId, data);
     }
-    async getVerifiedRentals(limit = 20, offset = 0) {
-        return this.rentalsService.getVerifiedRentals(limit, offset);
+    async addRental(req, data) {
+        return await this.rentalsService.addRental(req.user.userId, data);
     }
-    async getRentalById(id) {
-        return this.rentalsService.getRentalById(id);
+    async updateRental(req, id, data) {
+        return await this.rentalsService.updateRental(id, req.user.userId, data);
     }
-    async updateRental(id, req, updateRentalDto) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        return this.rentalsService.updateRental(id, req.user.id, updateRentalDto);
+    async deleteRental(req, id) {
+        return await this.rentalsService.deleteRental(id, req.user.userId);
     }
-    async deleteRental(id, req) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        await this.rentalsService.deleteRental(id, req.user.id);
-        return { message: 'Rental property deleted successfully' };
-    }
-    async toggleRentalActive(id, req, body) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        return this.rentalsService.toggleRentalActive(id, req.user.id, body.isActive);
-    }
-    async applyForVerification(id, req) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        return this.rentalsService.applyForVerification(id, req.user.id);
-    }
-    async uploadVerificationProof(id, req, body) {
-        if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-            throw new common_1.BadRequestException('Access denied');
-        }
-        return this.rentalsService.uploadVerificationProof(id, req.user.id, body.proofUrl);
+    async updateQuantity(req, id, change) {
+        return await this.rentalsService.updateUnitQuantity(id, req.user.userId, change);
     }
 };
 exports.RentalsController = RentalsController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_rental_dto_1.CreateRentalDto]),
-    __metadata("design:returntype", Promise)
-], RentalsController.prototype, "createRental", null);
-__decorate([
-    (0, common_1.Get)('my-properties'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('offset')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number, Number]),
-    __metadata("design:returntype", Promise)
-], RentalsController.prototype, "getMyRentals", null);
-__decorate([
-    (0, common_1.Get)('dashboard/stats'),
+    (0, common_1.Get)(),
+    (0, common_1.Render)('rentals/dashboard'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], RentalsController.prototype, "getDashboardStats", null);
+], RentalsController.prototype, "getDashboard", null);
 __decorate([
-    (0, common_1.Get)('search'),
-    __param(0, (0, common_1.Query)('q')),
-    __param(1, (0, common_1.Query)('type')),
-    __param(2, (0, common_1.Query)('city')),
-    __param(3, (0, common_1.Query)('town')),
-    __param(4, (0, common_1.Query)('verified')),
-    __param(5, (0, common_1.Query)('limit')),
-    __param(6, (0, common_1.Query)('offset')),
+    (0, common_1.Get)('profile'),
+    (0, common_1.Render)('rentals/profile'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, Boolean, Number, Number]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], RentalsController.prototype, "searchRentals", null);
+], RentalsController.prototype, "getProfileView", null);
 __decorate([
-    (0, common_1.Get)('verified'),
-    __param(0, (0, common_1.Query)('limit')),
-    __param(1, (0, common_1.Query)('offset')),
+    (0, common_1.Get)('reviews'),
+    (0, common_1.Render)('rentals/reviews'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
-    __metadata("design:returntype", Promise)
-], RentalsController.prototype, "getVerifiedRentals", null);
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], RentalsController.prototype, "getReviewsView", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Patch)('profile/update'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], RentalsController.prototype, "getRentalById", null);
+], RentalsController.prototype, "updateProfile", null);
 __decorate([
-    (0, common_1.Put)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
+    (0, common_1.Post)('items'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], RentalsController.prototype, "addRental", null);
+__decorate([
+    (0, common_1.Patch)('items/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_rental_dto_1.UpdateRentalDto]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], RentalsController.prototype, "updateRental", null);
 __decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
+    (0, common_1.Delete)('items/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], RentalsController.prototype, "deleteRental", null);
 __decorate([
-    (0, common_1.Put)(':id/active'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.Body)()),
+    (0, common_1.Patch)('items/:id/quantity'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)('change')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [Object, String, Number]),
     __metadata("design:returntype", Promise)
-], RentalsController.prototype, "toggleRentalActive", null);
-__decorate([
-    (0, common_1.Post)(':id/apply-verification'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], RentalsController.prototype, "applyForVerification", null);
-__decorate([
-    (0, common_1.Post)(':id/upload-proof'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", Promise)
-], RentalsController.prototype, "uploadVerificationProof", null);
+], RentalsController.prototype, "updateQuantity", null);
 exports.RentalsController = RentalsController = __decorate([
-    (0, common_1.Controller)('api/rentals'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Controller)('dashboard/rentals'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.PROPERTY_MANAGER),
     __metadata("design:paramtypes", [rentals_service_1.RentalsService])
 ], RentalsController);
 //# sourceMappingURL=rentals.controller.js.map

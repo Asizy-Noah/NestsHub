@@ -1,146 +1,61 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  Request,
-  BadRequestException,
-} from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Render, Request, UseGuards } from '@nestjs/common';
 import { RentalsService } from './rentals.service';
-import { CreateRentalDto, UpdateRentalDto } from './dto/create-rental.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AccountRole } from '../accounts/schemas/account.schema';
 
-@Controller('api/rentals')
-@UseGuards(JwtAuthGuard)
+@Controller('dashboard/rentals')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(AccountRole.PROPERTY_MANAGER) // Adjust this role to match your property manager role
 export class RentalsController {
-  constructor(private rentalsService: RentalsService) {}
+  constructor(private readonly rentalsService: RentalsService) {}
 
-  @Post()
-  async createRental(@Request() req: any, @Body() createRentalDto: CreateRentalDto) {
-    // Allow PROPERTY_OWNER and PROPERTY_BROKER roles
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Only property owners and brokers can create rentals');
-    }
-
-    return this.rentalsService.createRental(req.user.id, createRentalDto);
+  // --- VIEWS ---
+  @Get()
+  @Render('rentals/dashboard')
+  async getDashboard(@Request() req: any) {
+    const data = await this.rentalsService.getDashboardData(req.user.userId);
+    return { title: 'Rental Dashboard', layout: 'layouts/rental', manager: req.user, rentalData: JSON.stringify(data) };
   }
 
-  @Get('my-properties')
-  async getMyRentals(
-    @Request() req: any,
-    @Query('limit') limit: number = 10,
-    @Query('offset') offset: number = 0,
-  ) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.rentalsService.getRentalsByManager(req.user.id, limit, offset);
+  @Get('profile')
+  @Render('rentals/profile')
+  async getProfileView(@Request() req: any) {
+    const profile = await this.rentalsService.getProfile(req.user.userId);
+    return { title: 'Manager Profile', layout: 'layouts/rental', manager: req.user, user: profile };
   }
 
-  @Get('dashboard/stats')
-  async getDashboardStats(@Request() req: any) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.rentalsService.getDashboardStats(req.user.id);
+  @Get('reviews')
+  @Render('rentals/reviews')
+  getReviewsView(@Request() req: any) {
+    return { title: 'Public Reviews', layout: 'layouts/rental', manager: req.user };
   }
 
-  @Get('search')
-  async searchRentals(
-    @Query('q') query?: string,
-    @Query('type') houseType?: string,
-    @Query('city') city?: string,
-    @Query('town') town?: string,
-    @Query('verified') verified?: boolean,
-    @Query('limit') limit: number = 20,
-    @Query('offset') offset: number = 0,
-  ) {
-    return this.rentalsService.searchRentals(
-      query,
-      houseType,
-      city,
-      town,
-      verified,
-      limit,
-      offset,
-    );
+  // --- PROFILE API ---
+  @Patch('profile/update')
+  async updateProfile(@Request() req: any, @Body() data: any) {
+    return await this.rentalsService.updateProfile(req.user.userId, data);
   }
 
-  @Get('verified')
-  async getVerifiedRentals(
-    @Query('limit') limit: number = 20,
-    @Query('offset') offset: number = 0,
-  ) {
-    return this.rentalsService.getVerifiedRentals(limit, offset);
+  // --- RENTALS API ---
+  @Post('items')
+  async addRental(@Request() req: any, @Body() data: any) {
+    return await this.rentalsService.addRental(req.user.userId, data);
   }
 
-  @Get(':id')
-  async getRentalById(@Param('id') id: string) {
-    return this.rentalsService.getRentalById(id);
+  @Patch('items/:id')
+  async updateRental(@Request() req: any, @Param('id') id: string, @Body() data: any) {
+    return await this.rentalsService.updateRental(id, req.user.userId, data);
   }
 
-  @Put(':id')
-  async updateRental(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() updateRentalDto: UpdateRentalDto,
-  ) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.rentalsService.updateRental(id, req.user.id, updateRentalDto);
+  @Delete('items/:id')
+  async deleteRental(@Request() req: any, @Param('id') id: string) {
+    return await this.rentalsService.deleteRental(id, req.user.userId);
   }
 
-  @Delete(':id')
-  async deleteRental(@Param('id') id: string, @Request() req: any) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    await this.rentalsService.deleteRental(id, req.user.id);
-    return { message: 'Rental property deleted successfully' };
-  }
-
-  @Put(':id/active')
-  async toggleRentalActive(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() body: { isActive: boolean },
-  ) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.rentalsService.toggleRentalActive(id, req.user.id, body.isActive);
-  }
-
-  @Post(':id/apply-verification')
-  async applyForVerification(@Param('id') id: string, @Request() req: any) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.rentalsService.applyForVerification(id, req.user.id);
-  }
-
-  @Post(':id/upload-proof')
-  async uploadVerificationProof(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() body: { proofUrl: string },
-  ) {
-    if (!['PROPERTY_OWNER', 'PROPERTY_BROKER'].includes(req.user.role)) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.rentalsService.uploadVerificationProof(id, req.user.id, body.proofUrl);
+  @Patch('items/:id/quantity')
+  async updateQuantity(@Request() req: any, @Param('id') id: string, @Body('change') change: number) {
+    return await this.rentalsService.updateUnitQuantity(id, req.user.userId, change);
   }
 }

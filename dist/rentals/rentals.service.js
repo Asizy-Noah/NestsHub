@@ -17,167 +17,63 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const rental_property_schema_1 = require("./schemas/rental-property.schema");
+const rental_profile_schema_1 = require("./schemas/rental-profile.schema");
 let RentalsService = class RentalsService {
-    constructor(rentalPropertyModel) {
-        this.rentalPropertyModel = rentalPropertyModel;
+    constructor(rentalModel, profileModel) {
+        this.rentalModel = rentalModel;
+        this.profileModel = profileModel;
     }
-    async createRental(managerId, createRentalDto) {
-        const rental = new this.rentalPropertyModel({
-            ...createRentalDto,
-            managerId,
-            verificationStatus: rental_property_schema_1.VerificationStatus.UNVERIFIED,
-        });
-        return rental.save();
+    async getDashboardData(managerId) {
+        const rentals = await this.rentalModel.find({ managerId });
+        return { rentals };
     }
-    async getRentalById(id) {
-        const rental = await this.rentalPropertyModel.findById(id).populate('managerId');
-        if (!rental) {
-            throw new common_1.NotFoundException('Rental property not found');
+    async getProfile(managerId) {
+        let profile = await this.profileModel.findOne({ managerId });
+        if (!profile) {
+            profile = await this.profileModel.create({ managerId });
         }
-        return rental;
+        return profile;
     }
-    async getRentalsByManager(managerId, limit = 10, offset = 0) {
-        const total = await this.rentalPropertyModel.countDocuments({ managerId });
-        const rentals = await this.rentalPropertyModel
-            .find({ managerId })
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .skip(offset);
-        return { rentals, total };
+    async updateProfile(managerId, data) {
+        return await this.profileModel.findOneAndUpdate({ managerId }, { $set: data }, { new: true, upsert: true });
     }
-    async updateRental(rentalId, managerId, updateRentalDto) {
-        const rental = await this.getRentalById(rentalId);
-        if (rental.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only update your own rental properties');
+    async addRental(managerId, data) {
+        const newRental = new this.rentalModel({ ...data, managerId, availableUnits: data.totalUnits });
+        return await newRental.save();
+    }
+    async updateRental(rentalId, managerId, data) {
+        const { _id, managerId: mid, ...updateData } = data;
+        if (updateData.totalUnits < updateData.availableUnits) {
+            updateData.availableUnits = updateData.totalUnits;
         }
-        return this.rentalPropertyModel.findByIdAndUpdate(rentalId, updateRentalDto, {
-            new: true,
-            runValidators: true,
-        });
+        const updated = await this.rentalModel.findOneAndUpdate({ _id: rentalId, managerId }, { $set: updateData }, { new: true });
+        if (!updated)
+            throw new common_1.NotFoundException('Rental not found');
+        return updated;
     }
     async deleteRental(rentalId, managerId) {
-        const rental = await this.getRentalById(rentalId);
-        if (rental.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only delete your own rental properties');
-        }
-        await this.rentalPropertyModel.findByIdAndDelete(rentalId);
+        const result = await this.rentalModel.findOneAndDelete({ _id: rentalId, managerId });
+        if (!result)
+            throw new common_1.NotFoundException('Rental not found');
+        return { success: true };
     }
-    async toggleRentalActive(rentalId, managerId, isActive) {
-        const rental = await this.getRentalById(rentalId);
-        if (rental.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only toggle your own rental properties');
-        }
-        return this.rentalPropertyModel.findByIdAndUpdate(rentalId, { isActive }, { new: true });
-    }
-    async applyForVerification(rentalId, managerId) {
-        const rental = await this.getRentalById(rentalId);
-        if (rental.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only apply for your own properties');
-        }
-        if (rental.verificationStatus === rental_property_schema_1.VerificationStatus.PENDING) {
-            throw new common_1.BadRequestException('Verification application already pending');
-        }
-        if (rental.verificationStatus === rental_property_schema_1.VerificationStatus.VERIFIED) {
-            throw new common_1.BadRequestException('Property is already verified');
-        }
-        return this.rentalPropertyModel.findByIdAndUpdate(rentalId, {
-            verificationStatus: rental_property_schema_1.VerificationStatus.PENDING,
-            verificationAppliedAt: new Date(),
-        }, { new: true });
-    }
-    async uploadVerificationProof(rentalId, managerId, proofUrl) {
-        const rental = await this.getRentalById(rentalId);
-        if (rental.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only upload proof for your own properties');
-        }
-        return this.rentalPropertyModel.findByIdAndUpdate(rentalId, {
-            verificationProofUrl: proofUrl,
-        }, { new: true });
-    }
-    async searchRentals(query, houseType, city, town, verified, limit = 20, offset = 0) {
-        const filters = { isActive: true };
-        if (query) {
-            filters.$or = [
-                { propertyName: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } },
-                { nearestRoad: { $regex: query, $options: 'i' } },
-            ];
-        }
-        if (houseType)
-            filters.houseType = houseType;
-        if (city)
-            filters.nearestCity = { $regex: city, $options: 'i' };
-        if (town)
-            filters.nearestTown = { $regex: town, $options: 'i' };
-        if (verified !== undefined) {
-            filters.verificationStatus = verified
-                ? rental_property_schema_1.VerificationStatus.VERIFIED
-                : { $ne: rental_property_schema_1.VerificationStatus.VERIFIED };
-        }
-        const total = await this.rentalPropertyModel.countDocuments(filters);
-        const rentals = await this.rentalPropertyModel
-            .find(filters)
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .skip(offset)
-            .populate('managerId', 'firstName lastName email telephone');
-        return { rentals, total };
-    }
-    async getVerifiedRentals(limit = 20, offset = 0) {
-        const total = await this.rentalPropertyModel.countDocuments({
-            verificationStatus: rental_property_schema_1.VerificationStatus.VERIFIED,
-            isActive: true,
-        });
-        const rentals = await this.rentalPropertyModel
-            .find({
-            verificationStatus: rental_property_schema_1.VerificationStatus.VERIFIED,
-            isActive: true,
-        })
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .skip(offset)
-            .populate('managerId', 'firstName lastName email telephone');
-        return { rentals, total };
-    }
-    async getDashboardStats(managerId) {
-        const totalProperties = await this.rentalPropertyModel.countDocuments({ managerId });
-        const verifiedCount = await this.rentalPropertyModel.countDocuments({
-            managerId,
-            verificationStatus: rental_property_schema_1.VerificationStatus.VERIFIED,
-        });
-        const pendingVerificationCount = await this.rentalPropertyModel.countDocuments({
-            managerId,
-            verificationStatus: rental_property_schema_1.VerificationStatus.PENDING,
-        });
-        const activeCount = await this.rentalPropertyModel.countDocuments({
-            managerId,
-            isActive: true,
-        });
-        const propertyTypes = await this.rentalPropertyModel.aggregate([
-            { $match: { managerId: new mongoose_2.Types.ObjectId(managerId) } },
-            { $group: { _id: '$houseType', count: { $sum: 1 } } },
-            { $sort: { count: -1 } },
-        ]);
-        const recentProperties = await this.rentalPropertyModel
-            .find({ managerId })
-            .sort({ createdAt: -1 })
-            .limit(5);
-        return {
-            overview: {
-                totalProperties,
-                verifiedCount,
-                pendingVerificationCount,
-                activeCount,
-            },
-            propertyTypes,
-            recentProperties,
-        };
+    async updateUnitQuantity(rentalId, managerId, change) {
+        const rental = await this.rentalModel.findOne({ _id: rentalId, managerId });
+        if (!rental)
+            throw new common_1.NotFoundException('Rental not found');
+        const newAvail = rental.availableUnits + change;
+        if (newAvail < 0 || newAvail > rental.totalUnits)
+            throw new common_1.BadRequestException('Invalid quantity');
+        rental.availableUnits = newAvail;
+        return await rental.save();
     }
 };
 exports.RentalsService = RentalsService;
 exports.RentalsService = RentalsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(rental_property_schema_1.RentalProperty.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)(rental_profile_schema_1.RentalProfile.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model])
 ], RentalsService);
 //# sourceMappingURL=rentals.service.js.map
