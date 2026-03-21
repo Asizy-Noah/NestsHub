@@ -1,28 +1,52 @@
 import { Model } from 'mongoose';
 import { Hotel } from './schemas/hotel.schema';
 import { HotelRoom } from './schemas/hotel-room.schema';
-import { CreateHotelDto, UpdateHotelDto } from './dto/create-hotel.dto';
-import { CreateHotelRoomDto, UpdateHotelRoomDto, UpdateRoomInventoryDto } from './dto/create-hotel-room.dto';
+import { Account } from '../accounts/schemas/account.schema';
+import { EmailService } from '../auth/email.service';
 export declare class HotelsService {
     private hotelModel;
     private roomModel;
-    constructor(hotelModel: Model<Hotel>, roomModel: Model<HotelRoom>);
-    createHotel(managerId: string, createHotelDto: CreateHotelDto): Promise<Hotel>;
-    getHotelByManager(managerId: string): Promise<Hotel>;
-    getHotelById(id: string): Promise<Hotel>;
-    updateHotel(hotelId: string, managerId: string, updateHotelDto: UpdateHotelDto): Promise<Hotel>;
-    updateHotelAmenities(hotelId: string, managerId: string, amenities: any): Promise<Hotel>;
-    applyForVerification(hotelId: string, managerId: string): Promise<Hotel>;
-    toggleHotelActive(hotelId: string, managerId: string, isActive: boolean): Promise<Hotel>;
-    searchHotels(query: string, district?: string, townOrCity?: string, verified?: boolean): Promise<Hotel[]>;
-    getVerifiedHotels(): Promise<Hotel[]>;
-    getDashboardStats(managerId: string): Promise<any>;
-    createRoom(hotelId: string, managerId: string, createRoomDto: CreateHotelRoomDto): Promise<HotelRoom>;
-    getRoomById(id: string): Promise<HotelRoom>;
-    getRoomsByHotel(hotelId: string): Promise<HotelRoom[]>;
-    updateRoom(roomId: string, hotelId: string, managerId: string, updateRoomDto: UpdateHotelRoomDto): Promise<HotelRoom>;
-    updateRoomInventory(roomId: string, hotelId: string, managerId: string, inventoryDto: UpdateRoomInventoryDto): Promise<HotelRoom>;
-    deleteRoom(roomId: string, hotelId: string, managerId: string): Promise<void>;
-    toggleRoomActive(roomId: string, hotelId: string, managerId: string, isActive: boolean): Promise<HotelRoom>;
+    private accountModel;
+    private emailService;
+    private readonly logger;
+    constructor(hotelModel: Model<Hotel>, roomModel: Model<HotelRoom>, accountModel: Model<Account>, emailService: EmailService);
+    getHotelDataByManager(managerId: string): Promise<{
+        hotel: import("mongoose").Document<unknown, {}, Hotel, {}, {}> & Hotel & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        };
+        rooms: (import("mongoose").Document<unknown, {}, HotelRoom, {}, {}> & HotelRoom & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        })[];
+    }>;
+    updateHotel(managerId: string, data: any): Promise<import("mongoose").Document<unknown, {}, Hotel, {}, {}> & Hotel & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    addRoom(managerId: string, roomData: any): Promise<import("mongoose").Document<unknown, {}, HotelRoom, {}, {}> & HotelRoom & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    updateRoom(roomId: string, managerId: string, roomData: any): Promise<import("mongoose").Document<unknown, {}, HotelRoom, {}, {}> & HotelRoom & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    deleteRoom(roomId: string, managerId: string): Promise<{
+        success: boolean;
+    }>;
+    updateRoomQuantity(roomId: string, managerId: string, change: number): Promise<import("mongoose").Document<unknown, {}, HotelRoom, {}, {}> & HotelRoom & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    applyVerification(managerId: string): Promise<{
+        status: string;
+    }>;
 }
 //# sourceMappingURL=hotels.service.d.ts.map

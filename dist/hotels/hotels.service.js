@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var HotelsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HotelsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -18,216 +19,95 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const hotel_schema_1 = require("./schemas/hotel.schema");
 const hotel_room_schema_1 = require("./schemas/hotel-room.schema");
-let HotelsService = class HotelsService {
-    constructor(hotelModel, roomModel) {
+const account_schema_1 = require("../accounts/schemas/account.schema");
+const email_service_1 = require("../auth/email.service");
+let HotelsService = HotelsService_1 = class HotelsService {
+    constructor(hotelModel, roomModel, accountModel, emailService) {
         this.hotelModel = hotelModel;
         this.roomModel = roomModel;
+        this.accountModel = accountModel;
+        this.emailService = emailService;
+        this.logger = new common_1.Logger(HotelsService_1.name);
     }
-    async createHotel(managerId, createHotelDto) {
-        const existingHotel = await this.hotelModel.findOne({ managerId });
-        if (existingHotel) {
-            throw new common_1.BadRequestException('Hotel manager can only create one hotel');
-        }
-        const hotel = new this.hotelModel({
-            ...createHotelDto,
-            managerId,
-            amenities: {
-                gym: false,
-                bar: false,
-                restaurant: false,
-                parkingSpace: false,
-                storageBuilding: false,
-                supermarketNearby: false,
-            },
-        });
-        return hotel.save();
-    }
-    async getHotelByManager(managerId) {
-        const hotel = await this.hotelModel.findOne({ managerId });
+    async getHotelDataByManager(managerId) {
+        let hotel = await this.hotelModel.findOne({ managerId });
         if (!hotel) {
-            throw new common_1.NotFoundException('Hotel not found for this manager');
+            hotel = await this.hotelModel.create({
+                managerId, name: 'My New Hotel', verificationStatus: 'Draft', isVerified: false,
+            });
         }
-        return hotel;
+        const rooms = await this.roomModel.find({ hotelId: hotel._id });
+        return { hotel, rooms };
     }
-    async getHotelById(id) {
-        const hotel = await this.hotelModel.findById(id);
-        if (!hotel) {
+    async updateHotel(managerId, data) {
+        const hotel = await this.hotelModel.findOneAndUpdate({ managerId }, { $set: data }, { new: true });
+        if (!hotel)
             throw new common_1.NotFoundException('Hotel not found');
-        }
         return hotel;
     }
-    async updateHotel(hotelId, managerId, updateHotelDto) {
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only update your own hotel');
-        }
-        return this.hotelModel.findByIdAndUpdate(hotelId, updateHotelDto, {
-            new: true,
-            runValidators: true,
+    async addRoom(managerId, roomData) {
+        const hotel = await this.hotelModel.findOne({ managerId });
+        if (!hotel)
+            throw new common_1.NotFoundException('Hotel not found');
+        const newRoom = new this.roomModel({
+            ...roomData, hotelId: hotel._id, availableRooms: roomData.totalRooms
         });
+        return await newRoom.save();
     }
-    async updateHotelAmenities(hotelId, managerId, amenities) {
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only update your own hotel');
+    async updateRoom(roomId, managerId, roomData) {
+        const hotel = await this.hotelModel.findOne({ managerId });
+        if (!hotel)
+            throw new common_1.NotFoundException('Hotel not found');
+        const { _id, hotelId, ...updateData } = roomData;
+        if (updateData.totalRooms < updateData.availableRooms) {
+            updateData.availableRooms = updateData.totalRooms;
         }
-        return this.hotelModel.findByIdAndUpdate(hotelId, { amenities }, { new: true });
-    }
-    async applyForVerification(hotelId, managerId) {
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only apply for your own hotel');
-        }
-        if (hotel.verificationStatus === hotel_schema_1.VerificationStatus.PENDING) {
-            throw new common_1.BadRequestException('Verification application already pending');
-        }
-        if (hotel.verificationStatus === hotel_schema_1.VerificationStatus.VERIFIED) {
-            throw new common_1.BadRequestException('Hotel is already verified');
-        }
-        return this.hotelModel.findByIdAndUpdate(hotelId, {
-            verificationStatus: hotel_schema_1.VerificationStatus.PENDING,
-            verificationAppliedAt: new Date(),
-        }, { new: true });
-    }
-    async toggleHotelActive(hotelId, managerId, isActive) {
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only toggle your own hotel');
-        }
-        return this.hotelModel.findByIdAndUpdate(hotelId, { isActive }, { new: true });
-    }
-    async searchHotels(query, district, townOrCity, verified) {
-        const filters = { isActive: true };
-        if (query) {
-            filters.$or = [
-                { name: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } },
-            ];
-        }
-        if (district)
-            filters.district = { $regex: district, $options: 'i' };
-        if (townOrCity)
-            filters.townOrCity = { $regex: townOrCity, $options: 'i' };
-        if (verified !== undefined) {
-            filters.verificationStatus = verified
-                ? hotel_schema_1.VerificationStatus.VERIFIED
-                : { $ne: hotel_schema_1.VerificationStatus.VERIFIED };
-        }
-        return this.hotelModel.find(filters).sort({ createdAt: -1 }).exec();
-    }
-    async getVerifiedHotels() {
-        return this.hotelModel
-            .find({
-            verificationStatus: hotel_schema_1.VerificationStatus.VERIFIED,
-            isActive: true,
-        })
-            .sort({ createdAt: -1 });
-    }
-    async getDashboardStats(managerId) {
-        const hotel = await this.getHotelByManager(managerId);
-        const totalRooms = await this.roomModel.aggregate([
-            { $match: { hotelId: new mongoose_2.Types.ObjectId(hotel._id) } },
-            { $group: { _id: null, total: { $sum: '$totalRooms' } } },
-        ]);
-        const bookedRooms = await this.roomModel.aggregate([
-            { $match: { hotelId: new mongoose_2.Types.ObjectId(hotel._id) } },
-            { $group: { _id: null, total: { $sum: '$bookedRooms' } } },
-        ]);
-        const roomsByType = await this.roomModel
-            .find({ hotelId: hotel._id })
-            .select('roomType totalRooms bookedRooms')
-            .sort({ createdAt: -1 });
-        const totalCount = totalRooms[0]?.total || 0;
-        const bookedCount = bookedRooms[0]?.total || 0;
-        const occupancyRate = totalCount > 0 ? Math.round((bookedCount / totalCount) * 100) : 0;
-        return {
-            hotel: {
-                name: hotel.name,
-                isVerified: hotel.verificationStatus === hotel_schema_1.VerificationStatus.VERIFIED,
-                verificationStatus: hotel.verificationStatus,
-            },
-            inventory: {
-                totalRooms: totalCount,
-                bookedRooms: bookedCount,
-                availableRooms: totalCount - bookedCount,
-                occupancyRate,
-            },
-            roomsByType,
-        };
-    }
-    async createRoom(hotelId, managerId, createRoomDto) {
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only add rooms to your own hotel');
-        }
-        const room = new this.roomModel({
-            ...createRoomDto,
-            hotelId,
-            amenities: {
-                hasBalcony: false,
-                hasHotWater: false,
-                hasTV: false,
-                hasDSTV: false,
-                hasTableChair: false,
-            },
-        });
-        return room.save();
-    }
-    async getRoomById(id) {
-        const room = await this.roomModel.findById(id);
-        if (!room) {
+        const updatedRoom = await this.roomModel.findOneAndUpdate({ _id: roomId, hotelId: hotel._id }, { $set: updateData }, { new: true });
+        if (!updatedRoom)
             throw new common_1.NotFoundException('Room not found');
-        }
-        return room;
+        return updatedRoom;
     }
-    async getRoomsByHotel(hotelId) {
-        return this.roomModel.find({ hotelId }).sort({ createdAt: -1 });
+    async deleteRoom(roomId, managerId) {
+        const hotel = await this.hotelModel.findOne({ managerId });
+        if (!hotel)
+            throw new common_1.NotFoundException('Hotel not found');
+        const result = await this.roomModel.findOneAndDelete({ _id: roomId, hotelId: hotel._id });
+        if (!result)
+            throw new common_1.NotFoundException('Room not found');
+        return { success: true };
     }
-    async updateRoom(roomId, hotelId, managerId, updateRoomDto) {
-        const room = await this.getRoomById(roomId);
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only update rooms in your own hotel');
+    async updateRoomQuantity(roomId, managerId, change) {
+        const hotel = await this.hotelModel.findOne({ managerId });
+        const room = await this.roomModel.findOne({ _id: roomId, hotelId: hotel?._id });
+        if (!room)
+            throw new common_1.NotFoundException('Room not found');
+        const newAvailable = room.availableRooms + change;
+        if (newAvailable < 0 || newAvailable > room.totalRooms) {
+            throw new common_1.BadRequestException('Invalid room quantity update');
         }
-        return this.roomModel.findByIdAndUpdate(roomId, updateRoomDto, {
-            new: true,
-            runValidators: true,
-        });
+        room.availableRooms = newAvailable;
+        return await room.save();
     }
-    async updateRoomInventory(roomId, hotelId, managerId, inventoryDto) {
-        const room = await this.getRoomById(roomId);
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only update inventory in your own hotel');
-        }
-        if (inventoryDto.bookedRooms > room.totalRooms) {
-            throw new common_1.BadRequestException('Booked rooms cannot exceed total rooms');
-        }
-        return this.roomModel.findByIdAndUpdate(roomId, { bookedRooms: inventoryDto.bookedRooms }, { new: true });
-    }
-    async deleteRoom(roomId, hotelId, managerId) {
-        const room = await this.getRoomById(roomId);
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only delete rooms from your own hotel');
-        }
-        await this.roomModel.findByIdAndDelete(roomId);
-    }
-    async toggleRoomActive(roomId, hotelId, managerId, isActive) {
-        const room = await this.getRoomById(roomId);
-        const hotel = await this.getHotelById(hotelId);
-        if (hotel.managerId.toString() !== managerId) {
-            throw new common_1.ForbiddenException('You can only toggle rooms in your own hotel');
-        }
-        return this.roomModel.findByIdAndUpdate(roomId, { isActive }, { new: true });
+    async applyVerification(managerId) {
+        const hotel = await this.hotelModel.findOne({ managerId });
+        if (!hotel)
+            throw new common_1.NotFoundException('Hotel not found');
+        if (hotel.verificationStatus !== 'Draft')
+            throw new common_1.BadRequestException('Already submitted');
+        hotel.verificationStatus = 'Pending';
+        await hotel.save();
+        return { status: 'Pending' };
     }
 };
 exports.HotelsService = HotelsService;
-exports.HotelsService = HotelsService = __decorate([
+exports.HotelsService = HotelsService = HotelsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(hotel_schema_1.Hotel.name)),
     __param(1, (0, mongoose_1.InjectModel)(hotel_room_schema_1.HotelRoom.name)),
+    __param(2, (0, mongoose_1.InjectModel)(account_schema_1.Account.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        mongoose_2.Model])
+        mongoose_2.Model,
+        mongoose_2.Model,
+        email_service_1.EmailService])
 ], HotelsService);
 //# sourceMappingURL=hotels.service.js.map

@@ -1,171 +1,62 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  Request,
-  Query,
-} from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Render, Request, UseGuards } from '@nestjs/common';
 import { HotelsService } from './hotels.service';
-import { CreateHotelDto, UpdateHotelDto } from './dto/create-hotel.dto';
-import { CreateHotelRoomDto, UpdateHotelRoomDto, UpdateRoomInventoryDto } from './dto/create-hotel-room.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AccountRole } from '../accounts/schemas/account.schema';
 
-@Controller('api/hotels')
+@Controller('dashboard/hotel')
 export class HotelsController {
   constructor(private readonly hotelsService: HotelsService) {}
 
-  // Hotel Management Endpoints
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  async createHotel(@Request() req: any, @Body() createHotelDto: CreateHotelDto) {
-    return this.hotelsService.createHotel(req.user.sub, createHotelDto);
-  }
-
-  @Get('my-hotel')
-  @UseGuards(JwtAuthGuard)
-  async getMyHotel(@Request() req: any) {
-    return this.hotelsService.getHotelByManager(req.user.sub);
-  }
-
-  @Get(':id')
-  async getHotelById(@Param('id') id: string) {
-    return this.hotelsService.getHotelById(id);
-  }
-
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  async updateHotel(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() updateHotelDto: UpdateHotelDto,
-  ) {
-    return this.hotelsService.updateHotel(id, req.user.sub, updateHotelDto);
-  }
-
-  @Put(':id/amenities')
-  @UseGuards(JwtAuthGuard)
-  async updateAmenities(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() amenities: any,
-  ) {
-    return this.hotelsService.updateHotelAmenities(id, req.user.sub, amenities);
-  }
-
-  @Post(':id/apply-verification')
-  @UseGuards(JwtAuthGuard)
-  async applyForVerification(@Param('id') id: string, @Request() req: any) {
-    return this.hotelsService.applyForVerification(id, req.user.sub);
-  }
-
-  @Put(':id/toggle-active')
-  @UseGuards(JwtAuthGuard)
-  async toggleActive(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() body: { isActive: boolean },
-  ) {
-    return this.hotelsService.toggleHotelActive(id, req.user.sub, body.isActive);
-  }
-
   @Get()
-  async searchHotels(
-    @Query('q') query?: string,
-    @Query('district') district?: string,
-    @Query('town') townOrCity?: string,
-    @Query('verified') verified?: string,
-  ) {
-    const isVerified = verified === 'true' ? true : verified === 'false' ? false : undefined;
-    return this.hotelsService.searchHotels(query || '', district, townOrCity, isVerified);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Render('hotels/dashboard')
+  async getDashboard(@Request() req: any) {
+    const hotelData = await this.hotelsService.getHotelDataByManager(req.user.userId);
+    return { title: 'Hotel Dashboard', layout: 'layouts/hotel', manager: req.user, hotelData: JSON.stringify(hotelData) };
   }
 
-  @Get('verified/list')
-  async getVerifiedHotels() {
-    return this.hotelsService.getVerifiedHotels();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Patch('update')
+  async updateHotel(@Request() req: any, @Body() data: any) {
+    return await this.hotelsService.updateHotel(req.user.userId, data);
   }
 
-  @Get('dashboard/stats')
-  @UseGuards(JwtAuthGuard)
-  async getDashboardStats(@Request() req: any) {
-    return this.hotelsService.getDashboardStats(req.user.sub);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Patch('verify')
+  async applyForVerification(@Request() req: any) {
+    return await this.hotelsService.applyVerification(req.user.userId);
   }
 
-  // Room Management Endpoints
-  @Post(':hotelId/rooms')
-  @UseGuards(JwtAuthGuard)
-  async createRoom(
-    @Param('hotelId') hotelId: string,
-    @Request() req: any,
-    @Body() createRoomDto: CreateHotelRoomDto,
-  ) {
-    return this.hotelsService.createRoom(hotelId, req.user.sub, createRoomDto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Post('rooms')
+  async addRoom(@Request() req: any, @Body() roomData: any) {
+    return await this.hotelsService.addRoom(req.user.userId, roomData);
   }
 
-  @Get(':hotelId/rooms')
-  async getRoomsByHotel(@Param('hotelId') hotelId: string) {
-    return this.hotelsService.getRoomsByHotel(hotelId);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Patch('rooms/:roomId')
+  async updateRoom(@Request() req: any, @Param('roomId') roomId: string, @Body() roomData: any) {
+    return await this.hotelsService.updateRoom(roomId, req.user.userId, roomData);
   }
 
-  @Get('rooms/:roomId')
-  async getRoomById(@Param('roomId') roomId: string) {
-    return this.hotelsService.getRoomById(roomId);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Delete('rooms/:roomId')
+  async deleteRoom(@Request() req: any, @Param('roomId') roomId: string) {
+    return await this.hotelsService.deleteRoom(roomId, req.user.userId);
   }
-
-  @Put(':hotelId/rooms/:roomId')
-  @UseGuards(JwtAuthGuard)
-  async updateRoom(
-    @Param('hotelId') hotelId: string,
-    @Param('roomId') roomId: string,
-    @Request() req: any,
-    @Body() updateRoomDto: UpdateHotelRoomDto,
-  ) {
-    return this.hotelsService.updateRoom(roomId, hotelId, req.user.sub, updateRoomDto);
-  }
-
-  @Put(':hotelId/rooms/:roomId/inventory')
-  @UseGuards(JwtAuthGuard)
-  async updateRoomInventory(
-    @Param('hotelId') hotelId: string,
-    @Param('roomId') roomId: string,
-    @Request() req: any,
-    @Body() inventoryDto: UpdateRoomInventoryDto,
-  ) {
-    return this.hotelsService.updateRoomInventory(
-      roomId,
-      hotelId,
-      req.user.sub,
-      inventoryDto,
-    );
-  }
-
-  @Delete(':hotelId/rooms/:roomId')
-  @UseGuards(JwtAuthGuard)
-  async deleteRoom(
-    @Param('hotelId') hotelId: string,
-    @Param('roomId') roomId: string,
-    @Request() req: any,
-  ) {
-    return this.hotelsService.deleteRoom(roomId, hotelId, req.user.sub);
-  }
-
-  @Put(':hotelId/rooms/:roomId/toggle-active')
-  @UseGuards(JwtAuthGuard)
-  async toggleRoomActive(
-    @Param('hotelId') hotelId: string,
-    @Param('roomId') roomId: string,
-    @Request() req: any,
-    @Body() body: { isActive: boolean },
-  ) {
-    return this.hotelsService.toggleRoomActive(
-      roomId,
-      hotelId,
-      req.user.sub,
-      body.isActive,
-    );
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Patch('rooms/:roomId/quantity')
+  async updateRoomQuantity(@Request() req: any, @Param('roomId') roomId: string, @Body('change') change: number) {
+    return await this.hotelsService.updateRoomQuantity(roomId, req.user.userId, change);
   }
 }

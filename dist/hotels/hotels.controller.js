@@ -14,224 +14,112 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HotelsController = void 0;
 const common_1 = require("@nestjs/common");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const hotels_service_1 = require("./hotels.service");
-const create_hotel_dto_1 = require("./dto/create-hotel.dto");
-const create_hotel_room_dto_1 = require("./dto/create-hotel-room.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const account_schema_1 = require("../accounts/schemas/account.schema");
 let HotelsController = class HotelsController {
     constructor(hotelsService) {
         this.hotelsService = hotelsService;
     }
-    async createHotel(req, createHotelDto) {
-        return this.hotelsService.createHotel(req.user.sub, createHotelDto);
+    async getDashboard(req) {
+        const hotelData = await this.hotelsService.getHotelDataByManager(req.user.userId);
+        return { title: 'Hotel Dashboard', layout: 'layouts/hotel', manager: req.user, hotelData: JSON.stringify(hotelData) };
     }
-    async getMyHotel(req) {
-        return this.hotelsService.getHotelByManager(req.user.sub);
+    async updateHotel(req, data) {
+        return await this.hotelsService.updateHotel(req.user.userId, data);
     }
-    async getHotelById(id) {
-        return this.hotelsService.getHotelById(id);
+    async applyForVerification(req) {
+        return await this.hotelsService.applyVerification(req.user.userId);
     }
-    async updateHotel(id, req, updateHotelDto) {
-        return this.hotelsService.updateHotel(id, req.user.sub, updateHotelDto);
+    async addRoom(req, roomData) {
+        return await this.hotelsService.addRoom(req.user.userId, roomData);
     }
-    async updateAmenities(id, req, amenities) {
-        return this.hotelsService.updateHotelAmenities(id, req.user.sub, amenities);
+    async updateRoom(req, roomId, roomData) {
+        return await this.hotelsService.updateRoom(roomId, req.user.userId, roomData);
     }
-    async applyForVerification(id, req) {
-        return this.hotelsService.applyForVerification(id, req.user.sub);
+    async deleteRoom(req, roomId) {
+        return await this.hotelsService.deleteRoom(roomId, req.user.userId);
     }
-    async toggleActive(id, req, body) {
-        return this.hotelsService.toggleHotelActive(id, req.user.sub, body.isActive);
-    }
-    async searchHotels(query, district, townOrCity, verified) {
-        const isVerified = verified === 'true' ? true : verified === 'false' ? false : undefined;
-        return this.hotelsService.searchHotels(query || '', district, townOrCity, isVerified);
-    }
-    async getVerifiedHotels() {
-        return this.hotelsService.getVerifiedHotels();
-    }
-    async getDashboardStats(req) {
-        return this.hotelsService.getDashboardStats(req.user.sub);
-    }
-    async createRoom(hotelId, req, createRoomDto) {
-        return this.hotelsService.createRoom(hotelId, req.user.sub, createRoomDto);
-    }
-    async getRoomsByHotel(hotelId) {
-        return this.hotelsService.getRoomsByHotel(hotelId);
-    }
-    async getRoomById(roomId) {
-        return this.hotelsService.getRoomById(roomId);
-    }
-    async updateRoom(hotelId, roomId, req, updateRoomDto) {
-        return this.hotelsService.updateRoom(roomId, hotelId, req.user.sub, updateRoomDto);
-    }
-    async updateRoomInventory(hotelId, roomId, req, inventoryDto) {
-        return this.hotelsService.updateRoomInventory(roomId, hotelId, req.user.sub, inventoryDto);
-    }
-    async deleteRoom(hotelId, roomId, req) {
-        return this.hotelsService.deleteRoom(roomId, hotelId, req.user.sub);
-    }
-    async toggleRoomActive(hotelId, roomId, req, body) {
-        return this.hotelsService.toggleRoomActive(roomId, hotelId, req.user.sub, body.isActive);
+    async updateRoomQuantity(req, roomId, change) {
+        return await this.hotelsService.updateRoomQuantity(roomId, req.user.userId, change);
     }
 };
 exports.HotelsController = HotelsController;
 __decorate([
-    (0, common_1.Post)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Render)('hotels/dashboard'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], HotelsController.prototype, "getDashboard", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Patch)('update'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_hotel_dto_1.CreateHotelDto]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "createHotel", null);
-__decorate([
-    (0, common_1.Get)('my-hotel'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "getMyHotel", null);
-__decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "getHotelById", null);
-__decorate([
-    (0, common_1.Put)(':id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_hotel_dto_1.UpdateHotelDto]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], HotelsController.prototype, "updateHotel", null);
 __decorate([
-    (0, common_1.Put)(':id/amenities'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "updateAmenities", null);
-__decorate([
-    (0, common_1.Post)(':id/apply-verification'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "applyForVerification", null);
-__decorate([
-    (0, common_1.Put)(':id/toggle-active'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "toggleActive", null);
-__decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('q')),
-    __param(1, (0, common_1.Query)('district')),
-    __param(2, (0, common_1.Query)('town')),
-    __param(3, (0, common_1.Query)('verified')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "searchHotels", null);
-__decorate([
-    (0, common_1.Get)('verified/list'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "getVerifiedHotels", null);
-__decorate([
-    (0, common_1.Get)('dashboard/stats'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Patch)('verify'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], HotelsController.prototype, "getDashboardStats", null);
+], HotelsController.prototype, "applyForVerification", null);
 __decorate([
-    (0, common_1.Post)(':hotelId/rooms'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hotelId')),
-    __param(1, (0, common_1.Request)()),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Post)('rooms'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], HotelsController.prototype, "addRoom", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Patch)('rooms/:roomId'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('roomId')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_hotel_room_dto_1.CreateHotelRoomDto]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "createRoom", null);
-__decorate([
-    (0, common_1.Get)(':hotelId/rooms'),
-    __param(0, (0, common_1.Param)('hotelId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "getRoomsByHotel", null);
-__decorate([
-    (0, common_1.Get)('rooms/:roomId'),
-    __param(0, (0, common_1.Param)('roomId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "getRoomById", null);
-__decorate([
-    (0, common_1.Put)(':hotelId/rooms/:roomId'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hotelId')),
-    __param(1, (0, common_1.Param)('roomId')),
-    __param(2, (0, common_1.Request)()),
-    __param(3, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object, create_hotel_room_dto_1.UpdateHotelRoomDto]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], HotelsController.prototype, "updateRoom", null);
 __decorate([
-    (0, common_1.Put)(':hotelId/rooms/:roomId/inventory'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hotelId')),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Delete)('rooms/:roomId'),
+    __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('roomId')),
-    __param(2, (0, common_1.Request)()),
-    __param(3, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object, create_hotel_room_dto_1.UpdateRoomInventoryDto]),
-    __metadata("design:returntype", Promise)
-], HotelsController.prototype, "updateRoomInventory", null);
-__decorate([
-    (0, common_1.Delete)(':hotelId/rooms/:roomId'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hotelId')),
-    __param(1, (0, common_1.Param)('roomId')),
-    __param(2, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], HotelsController.prototype, "deleteRoom", null);
 __decorate([
-    (0, common_1.Put)(':hotelId/rooms/:roomId/toggle-active'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('hotelId')),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Patch)('rooms/:roomId/quantity'),
+    __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('roomId')),
-    __param(2, (0, common_1.Request)()),
-    __param(3, (0, common_1.Body)()),
+    __param(2, (0, common_1.Body)('change')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object, Object]),
+    __metadata("design:paramtypes", [Object, String, Number]),
     __metadata("design:returntype", Promise)
-], HotelsController.prototype, "toggleRoomActive", null);
+], HotelsController.prototype, "updateRoomQuantity", null);
 exports.HotelsController = HotelsController = __decorate([
-    (0, common_1.Controller)('api/hotels'),
+    (0, common_1.Controller)('dashboard/hotel'),
     __metadata("design:paramtypes", [hotels_service_1.HotelsService])
 ], HotelsController);
 //# sourceMappingURL=hotels.controller.js.map

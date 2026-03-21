@@ -1,44 +1,29 @@
-import { Document, Types } from 'mongoose';
-export declare enum RoomType {
-    SINGLE = "single",
-    DOUBLE = "double",
-    SUITE = "suite"
-}
-export declare enum BedSize {
-    THREE_BY_SIX = "3x6",
-    FOUR_BY_SIX = "4x6",
-    SIX_BY_SIX = "6x6"
-}
-export declare class RoomAmenities extends Document {
-    hasBalcony: boolean;
-    hasHotWater: boolean;
-    hasTV: boolean;
-    hasDSTV: boolean;
-    hasTableChair: boolean;
-}
+import mongoose, { Document } from 'mongoose';
 export declare class HotelRoom extends Document {
-    hotelId: Types.ObjectId;
-    photo: string;
-    roomType: RoomType;
-    isSelfContained: boolean;
-    floor: number;
-    amenities: RoomAmenities;
-    bedSize: BedSize;
-    costPerNight: number;
-    breakfastIncluded: boolean;
+    hotelId: mongoose.Schema.Types.ObjectId;
+    type: string;
     totalRooms: number;
-    bookedRooms: number;
-    get availableRooms(): number;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    availableRooms: number;
+    floorLevel: number;
+    isSelfContained: boolean;
+    hasBalcony: boolean;
+    hasAC: boolean;
+    isAccessible: boolean;
+    bedAndBreakfast: boolean;
+    workingTable: boolean;
+    hotWater: boolean;
+    hasTV: boolean;
+    price: number;
+    pricingPeriod: string;
+    bedSize: string;
+    photos: string[];
 }
-export declare const HotelRoomSchema: import("mongoose").Schema<HotelRoom, import("mongoose").Model<HotelRoom, any, any, any, Document<unknown, any, HotelRoom, any, {}> & HotelRoom & Required<{
-    _id: Types.ObjectId;
+export declare const HotelRoomSchema: mongoose.Schema<HotelRoom, mongoose.Model<HotelRoom, any, any, any, mongoose.Document<unknown, any, HotelRoom, any, {}> & HotelRoom & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, HotelRoom, Document<unknown, {}, import("mongoose").FlatRecord<HotelRoom>, {}, import("mongoose").DefaultSchemaOptions> & import("mongoose").FlatRecord<HotelRoom> & Required<{
-    _id: Types.ObjectId;
+}, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, HotelRoom, mongoose.Document<unknown, {}, mongoose.FlatRecord<HotelRoom>, {}, mongoose.DefaultSchemaOptions> & mongoose.FlatRecord<HotelRoom> & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
 }>;

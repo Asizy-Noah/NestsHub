@@ -1,141 +1,624 @@
-<%- include('../layout') %>
-
-<div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Page Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Hotel Manager Dashboard</h1>
-      <p class="text-slate-600 dark:text-slate-400 mt-2">Manage your hotel, rooms, and reservations</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="hotelDashboard(<%= hotelData %>)" x-cloak>
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="max-w-full">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-professional dark:text-white truncate" x-text="hotel.name || 'My Hotel'"></h1>
+            <p class="text-xs sm:text-sm text-slate-500">Manage property, rooms, and guest inquiries.</p>
+        </div>
+        
+        <button @click="showVerifyModal = true" 
+                :disabled="hotel.verificationStatus !== 'Draft'"
+                class="w-full md:w-auto px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 border text-xs md:text-sm"
+                :class="hotel.isVerified ? 'bg-emerald-50 text-primary border-primary/20 cursor-not-allowed' : (hotel.verificationStatus === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-200 cursor-not-allowed' : 'bg-primary text-white hover:bg-emerald-600')">
+            <i class="fa-solid" :class="hotel.isVerified ? 'fa-shield-check' : 'fa-paper-plane'"></i>
+            <span x-text="hotel.isVerified ? 'Verified' : (hotel.verificationStatus === 'Pending' ? 'Pending' : 'Apply for Verification')"></span>
+        </button>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div x-data="{ activeTab: 'overview' }" class="mb-8">
-      <div class="flex border-b border-slate-200 dark:border-slate-700">
-        <button
-          @click="activeTab = 'overview'"
-          :class="activeTab === 'overview' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'"
-          class="px-6 py-3 font-medium transition-colors"
-        >
-          Overview
-        </button>
-        <button
-          @click="activeTab = 'profile'"
-          :class="activeTab === 'profile' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'"
-          class="px-6 py-3 font-medium transition-colors"
-        >
-          Hotel Profile
-        </button>
-        <button
-          @click="activeTab = 'rooms'"
-          :class="activeTab === 'rooms' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'"
-          class="px-6 py-3 font-medium transition-colors"
-        >
-          Room Management
-        </button>
-        <button
-          @click="activeTab = 'settings'"
-          :class="activeTab === 'settings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-600 dark:text-slate-400'"
-          class="px-6 py-3 font-medium transition-colors"
-        >
-          Settings
-        </button>
-      </div>
-
-      <!-- Overview Tab -->
-      <div x-show="activeTab === 'overview'" class="mt-8 space-y-6">
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Total Rooms</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-2">48</p>
-              </div>
-              <div class="bg-indigo-100 dark:bg-indigo-900 rounded-lg p-3">
-                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Available</p>
-                <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">32</p>
-              </div>
-              <div class="bg-emerald-100 dark:bg-emerald-900 rounded-lg p-3">
-                <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Booked</p>
-                <p class="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">16</p>
-              </div>
-              <div class="bg-red-100 dark:bg-red-900 rounded-lg p-3">
-                <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Occupancy Rate</p>
-                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">33%</p>
-              </div>
-              <div class="bg-blue-100 dark:bg-blue-900 rounded-lg p-3">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Verification Card -->
-        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Hotel Verification Status</h3>
-              <div class="flex items-center gap-2 mt-3">
-                <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
-                <span class="text-amber-600 dark:text-amber-400 font-medium">Pending Verification</span>
-              </div>
-              <p class="text-slate-600 dark:text-slate-400 text-sm mt-2">Your hotel is being reviewed by our team</p>
-            </div>
-            <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              Apply Now
+    <div class="flex space-x-1 sm:space-x-2 bg-slate-200/50 dark:bg-slate-800/50 p-1 sm:p-1.5 rounded-2xl mb-8 shadow-inner">
+        <template x-for="tab in [{id:'Room Management', icon:'fa-bed'}, {id:'Hotel Profile', icon:'fa-hotel'}, {id:'Messages', icon:'fa-envelope'}]">
+            <button @click="currentTab = tab.id" 
+                    class="flex-1 py-3 px-2 sm:px-6 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                    :class="currentTab === tab.id ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-500'">
+                <i class="fa-solid" :class="tab.icon"></i>
+                <span class="hidden sm:inline" x-text="tab.id"></span>
             </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Profile Tab -->
-      <div x-show="activeTab === 'profile'" class="mt-8">
-        <%- include('./partials/hotel-profile-form') %>
-      </div>
-
-      <!-- Rooms Tab -->
-      <div x-show="activeTab === 'rooms'" class="mt-8">
-        <%- include('./partials/room-management') %>
-      </div>
-
-      <!-- Settings Tab -->
-      <div x-show="activeTab === 'settings'" class="mt-8">
-        <%- include('./partials/hotel-settings') %>
-      </div>
+        </template>
     </div>
-  </div>
+
+    <div x-show="currentTab === 'Room Management'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6" style="display: none;">
+        
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-lg shadow-inner">
+                <button @click="viewMode = 'grid'" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all" :class="viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-slate-400'"><i class="fa-solid fa-grip"></i></button>
+                <button @click="viewMode = 'list'" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all" :class="viewMode === 'list' ? 'bg-white shadow-sm text-primary' : 'text-slate-400'"><i class="fa-solid fa-list"></i></button>
+            </div>
+            <button @click="showRoomModal = true" class="btn-primary text-xs"><i class="fa-solid fa-plus"></i> Add Room Type</button>
+        </div>
+
+        <div x-show="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="room in rooms" :key="room._id">
+                <div class="card p-0 overflow-hidden border-t-4" :class="room.availableRooms > 0 ? 'border-primary' : 'border-red-500'">
+                    
+                    <div class="h-40 bg-slate-200 dark:bg-slate-800 relative bg-cover bg-center" :style="room.photos && room.photos.length ? `background-image: url(${room.photos[0]})` : ''">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-3 left-4 right-4 flex justify-between items-end">
+                            <div>
+                                <h4 class="text-2xl font-extrabold text-white shadow-sm" x-text="room.type"></h4>
+                                <div class="flex gap-2 mt-1">
+                                    <span x-show="room.bedAndBreakfast" class="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded backdrop-blur-md">B&B Included</span>
+                                    <span x-show="room.hasAC" class="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded backdrop-blur-md">A/C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div>
+                                <span class="text-xl font-black text-primary">UGX <span x-text="(room.price/1000).toFixed(0)"></span>K</span>
+                                <p class="text-[10px] text-slate-400 uppercase font-bold" x-text="room.pricingPeriod"></p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="editRoom(room)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button @click="deleteRoom(room._id)" class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-500 hover:text-white"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                            <div class="flex items-center justify-between"><span class="text-slate-400"><i class="fa-solid fa-layer-group w-5"></i> Floor</span> <span class="font-bold text-slate-700 dark:text-slate-200" x-text="room.floorLevel"></span></div>
+                            <div class="flex items-center justify-between"><span class="text-slate-400"><i class="fa-solid fa-bed w-5"></i> Bed Size</span> <span class="font-bold text-slate-700 dark:text-slate-200" x-text="room.bedSize"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="p-5 pt-0 mt-auto">
+                        <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700">
+                            <div class="flex flex-col px-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Available</span>
+                                <span class="text-base font-extrabold" :class="room.availableRooms === 0 ? 'text-red-500' : 'text-primary'"><span x-text="room.availableRooms"></span> <span class="text-slate-400 font-medium text-sm">/ <span x-text="room.totalRooms"></span></span></span>
+                            </div>
+                            <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg shadow-sm">
+                                <button @click="updateRoomCount(room, -1)" class="w-10 h-10 rounded-md flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" :disabled="room.availableRooms <= 0 || loadingRoom === room._id">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <div class="w-8 text-center font-extrabold text-professional dark:text-white" x-show="loadingRoom !== room._id" x-text="room.availableRooms"></div>
+                                <div class="w-8 text-center text-primary" x-show="loadingRoom === room._id"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                                <button @click="updateRoomCount(room, 1)" class="w-10 h-10 rounded-md flex items-center justify-center text-slate-500 hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" :disabled="room.availableRooms >= room.totalRooms || loadingRoom === room._id">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="viewMode === 'list'" class="space-y-3">
+            <template x-for="room in rooms" :key="room._id">
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-primary" x-text="room.type.charAt(0)"></div>
+                        <div>
+                            <h5 class="font-bold text-sm text-professional dark:text-white" x-text="room.type"></h5>
+                            <p class="text-xs text-slate-400 font-bold">UGX <span x-text="room.price.toLocaleString()"></span> <span x-text="room.pricingPeriod"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button @click="editRoom(room)" class="w-8 h-8 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button @click="deleteRoom(room._id)" class="w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="showRoomModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
+            <div @click.outside="showRoomModal = false" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" class="card w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl border-0">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-professional dark:text-white" x-text="newRoom._id ? 'Edit Room Type' : 'Add Room Type'"></h2>
+                    <button @click="showRoomModal = false" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                
+                <div class="space-y-8">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="input-group col-span-2">
+                            <label>Room Category</label>
+                            <select x-model="newRoom.type" class="input-field font-semibold bg-slate-50 dark:bg-slate-900">
+                                <option value="Single">Single</option><option value="Double">Double</option><option value="Twin">Twin</option><option value="Suite">Suite</option><option value="Family">Family Room</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Floor Level</label>
+                            <select x-model="newRoom.floorLevel" class="input-field font-semibold bg-slate-50 dark:bg-slate-900"><template x-for="i in 10"><option :value="i">Floor <span x-text="i"></span></option></template></select>
+                        </div>
+                        <div class="input-group">
+                            <label>Total Rooms</label>
+                            <input type="number" min="1" x-model="newRoom.totalRooms" class="input-field font-bold text-primary" placeholder="10">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="input-group">
+                            <label>Price (UGX)</label>
+                            <input type="number" x-model="newRoom.price" class="input-field font-bold" placeholder="150000">
+                        </div>
+                        <div class="input-group">
+                            <label>Rate Type</label>
+                            <select x-model="newRoom.pricingPeriod" class="input-field font-semibold">
+                                <option>Per Night</option><option>Per Weekend</option><option>Per Week</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Bed Size</label>
+                            <select x-model="newRoom.bedSize" class="input-field font-semibold">
+                                <option>Single Bed</option><option>Double Bed</option><option>Queen Size</option><option>King Size</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3 block">Room Amenities</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="feature in [
+                                {key: 'bedAndBreakfast', label: 'Bed & Breakfast Incl.'}, 
+                                {key: 'isSelfContained', label: 'Self Contained'}, 
+                                {key: 'hasAC', label: 'Air Conditioning (A/C)'}, 
+                                {key: 'hasBalcony', label: 'Private Balcony'}, 
+                                {key: 'hasTV', label: 'Smart TV / DSTV'}, 
+                                {key: 'hotWater', label: 'Hot Water Heater'}, 
+                                {key: 'workingTable', label: 'Working Desk'}, 
+                                {key: 'isAccessible', label: 'Wheelchair Accessible'}
+                            ]">
+                                <div class="flex justify-between items-center p-3 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer" @click="newRoom[feature.key] = !newRoom[feature.key]">
+                                    <span class="font-bold text-sm text-slate-600 dark:text-slate-300" x-text="feature.label"></span>
+                                    <div class="w-10 h-5 rounded-full relative transition-colors shadow-inner" :class="newRoom[feature.key] ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'">
+                                        <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 shadow transition-transform" :class="newRoom[feature.key] ? 'translate-x-5' : 'translate-x-0.5'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block flex justify-between">
+                            Room Photos <span class="text-xs text-slate-400 normal-case" x-text="`${(newRoom.photos || []).length}/3 Added`"></span>
+                        </label>
+                        
+                        <div class="flex gap-4 overflow-x-auto pb-2">
+                            <template x-for="(photo, index) in (newRoom.photos || [])" :key="index">
+                                <div class="relative w-24 h-24 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden group flex-shrink-0">
+                                    <img :src="photo" class="w-full h-full object-cover">
+                                    <button @click="newRoom.photos.splice(index, 1)" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs shadow-md"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </template>
+                            
+                            <label x-show="(newRoom.photos || []).length < 3" class="w-24 h-24 rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex flex-col items-center justify-center text-primary cursor-pointer transition-colors flex-shrink-0">
+                                <i class="fa-solid fa-camera mb-1"></i>
+                                <span class="text-[10px] font-bold">Add Photo</span>
+                                <input type="file" accept="image/*" class="hidden" @change="handleRoomPhotoUpload">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button @click="showRoomModal = false" class="btn-outline flex-1 py-3" :disabled="saving">Cancel</button>
+                        <button @click="saveNewRoom" class="btn-primary flex-1 py-3 shadow-lg" :disabled="saving">
+                            <span x-show="!saving" x-text="newRoom._id ? 'Save Changes' : 'Save Room Type'"></span>
+                            <span x-show="saving"><i class="fa-solid fa-spinner fa-spin"></i> Processing</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="currentTab === 'Hotel Profile'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8" style="display: none;">
+        
+        <div class="card space-y-8">
+            <h3 class="text-xl font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <i class="fa-solid fa-hotel text-primary"></i> Core Details & Media
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-40 h-40 rounded-2xl border-4 border-slate-100 dark:border-slate-800 overflow-hidden bg-slate-50 dark:bg-slate-900 shadow-inner relative flex items-center justify-center">
+                        <template x-if="hotel.profilePhoto">
+                            <img :src="hotel.profilePhoto" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!hotel.profilePhoto">
+                            <i class="fa-solid fa-image text-4xl text-slate-300"></i>
+                        </template>
+                    </div>
+                    <label class="btn-outline text-sm py-2 cursor-pointer w-full text-center">
+                        Upload Display Photo
+                        <input type="file" accept="image/*" class="hidden" @change="e => handleSingleUpload(e, 'profilePhoto')">
+                    </label>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="input-group">
+                        <label>Hotel Name</label>
+                        <input type="text" x-model="hotel.name" class="input-field font-bold text-lg">
+                        <i class="fa-solid fa-hotel input-icon top-[42px]"></i>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 flex justify-between">
+                            Gallery Photos <span class="text-slate-400 font-normal" x-text="`${hotel.gallery.length}/5`"></span>
+                        </label>
+                        <div class="flex gap-3 overflow-x-auto pb-2">
+                            <template x-for="(photo, index) in hotel.gallery" :key="index">
+                                <div class="relative w-20 h-20 rounded-lg border border-slate-200 overflow-hidden group flex-shrink-0">
+                                    <img :src="photo" class="w-full h-full object-cover">
+                                    <button @click="hotel.gallery.splice(index, 1)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </template>
+                            <label x-show="hotel.gallery.length < 5" class="w-20 h-20 rounded-lg border-2 border-dashed border-primary/50 hover:bg-primary/5 flex flex-col items-center justify-center text-primary cursor-pointer flex-shrink-0">
+                                <i class="fa-solid fa-plus mb-1"></i>
+                                <input type="file" accept="image/*" class="hidden" @change="e => handleGalleryUpload(e)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card space-y-6">
+            <h3 class="text-xl font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <i class="fa-solid fa-address-book text-primary"></i> Contact Channels
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <label class="font-bold text-sm">Phone Numbers</label>
+                    <template x-for="(phone, index) in hotel.phones" :key="index">
+                        <div class="flex gap-2">
+                            <input type="tel" x-model="hotel.phones[index]" class="input-field py-2 bg-slate-50">
+                            <button @click="hotel.phones.splice(index, 1)" class="w-10 bg-red-100 text-red-500 rounded-xl hover:bg-red-500 hover:text-white"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </template>
+                    <button @click="hotel.phones.push('')" class="text-xs font-bold text-primary hover:underline"><i class="fa-solid fa-plus"></i> Add Phone</button>
+                </div>
+                <div class="space-y-3">
+                    <label class="font-bold text-sm text-emerald-600">WhatsApp</label>
+                    <template x-for="(wa, index) in hotel.whatsapps" :key="index">
+                        <div class="flex gap-2">
+                            <input type="tel" x-model="hotel.whatsapps[index]" class="input-field py-2 bg-slate-50 border-emerald-200">
+                            <button @click="hotel.whatsapps.splice(index, 1)" class="w-10 bg-red-100 text-red-500 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </template>
+                    <button @click="hotel.whatsapps.push('')" class="text-xs font-bold text-emerald-600 hover:underline"><i class="fa-solid fa-plus"></i> Add WhatsApp</button>
+                </div>
+                <div class="space-y-3">
+                    <label class="font-bold text-sm">Emails</label>
+                    <template x-for="(email, index) in hotel.emails" :key="index">
+                        <div class="flex gap-2">
+                            <input type="email" x-model="hotel.emails[index]" class="input-field py-2 bg-slate-50">
+                            <button @click="hotel.emails.splice(index, 1)" class="w-10 bg-red-100 text-red-500 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </template>
+                    <button @click="hotel.emails.push('')" class="text-xs font-bold text-primary hover:underline"><i class="fa-solid fa-plus"></i> Add Email</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card space-y-6">
+            <h3 class="text-xl font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <i class="fa-solid fa-map-location-dot text-primary"></i> Location Details
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>District / City</label>
+                    <input type="text" x-model="hotel.districtOrCity" class="input-field" placeholder="e.g. Wakiso, Kampala">
+                </div>
+
+                <div class="input-group">
+                    <label>Division / Municipality</label>
+                    <input type="text" x-model="hotel.division" class="input-field" placeholder="e.g. Makindye, Nakawa">
+                </div>
+
+                <div class="input-group">
+                    <label>Nearest Town / Trading Center</label>
+                    <input type="text" x-model="hotel.nearestTown" class="input-field" placeholder="e.g. Kireka, Wandegeya">
+                </div>
+
+                <div class="input-group">
+                    <label>Distance from Town Center (Km)</label>
+                    <input type="number" step="0.1" x-model="hotel.distanceFromTown" class="input-field" placeholder="e.g. 2.5">
+                </div>
+
+                <div class="input-group">
+                    <label>Most Known Area Name</label>
+                    <input type="text" x-model="hotel.popularAreaName" class="input-field" placeholder="e.g. Kikoni">
+                </div>
+
+                <div class="input-group">
+                    <label>Street Name</label>
+                    <input type="text" x-model="hotel.street" class="input-field" placeholder="e.g. Acacia Avenue">
+                </div>
+
+                <div class="input-group">
+                    <label>Full Physical Address</label>
+                    <input type="text" x-model="hotel.address" class="input-field" placeholder="e.g. Plot 12, Block B">
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer md:col-span-2" @click="hotel.accessTarmacked = !hotel.accessTarmacked">
+                    <span class="font-bold text-sm text-slate-700 dark:text-slate-300">Is the main access road tarmacked?</span>
+                    <div class="w-10 h-5 rounded-full relative transition-colors shadow-inner" :class="hotel.accessTarmacked ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'">
+                        <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 shadow transition-transform" :class="hotel.accessTarmacked ? 'translate-x-5' : 'translate-x-0.5'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card space-y-6">
+            <h3 class="text-xl font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <i class="fa-solid fa-star text-accent"></i> Hotel Facilities
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <template x-for="(value, key) in hotel.amenities" :key="key">
+                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary/50 transition-colors" @click="hotel.amenities[key] = !hotel.amenities[key]">
+                        <span class="font-bold text-sm text-slate-700 dark:text-slate-300 capitalize" x-text="key.replace(/([A-Z])/g, ' $1').trim()"></span>
+                        <div class="w-10 h-5 rounded-full relative transition-colors shadow-inner" :class="hotel.amenities[key] ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 shadow transition-transform" :class="hotel.amenities[key] ? 'translate-x-5' : 'translate-x-0.5'"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="pt-6 border-t border-slate-100 dark:border-slate-800">
+                <button @click="saveHotel" class="btn-primary w-full md:w-auto px-12 py-4 text-lg mx-auto shadow-xl hover:shadow-2xl hover:-translate-y-1" :disabled="saving">
+                    <span x-show="!saving"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Save Hotel Details</span>
+                    <span x-show="saving"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Processing...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="currentTab === 'Messages'" x-transition:enter="transition ease-out duration-300" class="h-[70vh]" style="display: none;">
+        <div class="card p-0 h-full flex overflow-hidden border-0 shadow-2xl rounded-3xl">
+            <div class="w-1/3 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col hidden sm:flex">
+                <div class="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" placeholder="Search chats..." class="w-full bg-white dark:bg-slate-800 py-2 pl-10 pr-4 rounded-xl text-sm outline-none border border-slate-200 dark:border-slate-700">
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto">
+                    <template x-for="chat in [{name: 'Alice Johnson', msg: 'Is breakfast included?', time: '10:42 AM', unread: 2}]">
+                        <div class="flex items-center gap-3 p-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 cursor-pointer">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold" x-text="chat.name.charAt(0)"></div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline mb-1">
+                                    <h5 class="font-bold text-sm truncate" x-text="chat.name"></h5>
+                                    <span class="text-[10px] text-primary font-semibold" x-text="chat.time"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-xs text-slate-500 truncate" x-text="chat.msg"></p>
+                                    <span class="w-5 h-5 bg-primary rounded-full text-white flex items-center justify-center text-[10px] font-bold" x-text="chat.unread"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col bg-[#efeae2] dark:bg-[#0b141a]">
+                <div class="flex-1 overflow-y-auto p-4 flex items-center justify-center text-slate-400 font-bold">Select a chat to start messaging.</div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showVerifyModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" style="display: none;">
+        <div @click.outside="showVerifyModal = false" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" class="card max-w-md w-full border-0 shadow-2xl relative">
+            <button @click="showVerifyModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="text-center space-y-4">
+                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner"><i class="fa-solid fa-circle-info"></i></div>
+                <h3 class="text-2xl font-black text-professional dark:text-white">Verification Process</h3>
+                <p class="text-sm text-slate-500 leading-relaxed text-left bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    • Verification is <span class="text-primary font-bold">Free of Charge</span>.<br>
+                    • Process may take up to <span class="font-bold">30 days</span>.<br>
+                    • Our team may require a <span class="font-bold">physical meeting</span> at the hotel premises to verify credentials and safety standards.
+                </p>
+                <div class="flex gap-3 pt-4">
+                    <button @click="showVerifyModal = false" class="btn-outline flex-1 border-0" :disabled="saving">Cancel</button>
+                    <button @click="applyVerification()" class="btn-primary flex-1 shadow-lg" :disabled="saving">
+                        <span x-show="!saving">Apply Anyway</span>
+                        <span x-show="saving"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<%- include('../partials/toast-notification') %>
+<script>
+function hotelDashboard(initialData) {
+    // Hotel Specific Amenities
+    const defaultAmenities = { 
+        security: false, gym: false, swimmingPool: false, parking: false, freeInternet: false, 
+        restaurant: false, prayerRoom: false, bar: false, massage: false, sauna: false, 
+        salon: false, dstv: false, cottages: false, gardens: false, greenery: false
+    };
+
+    return {
+        currentTab: 'Room Management',
+        showRoomModal: false,
+        showVerifyModal: false,
+        viewMode: 'grid',
+        loadingRoom: null, 
+        saving: false,
+        
+        hotel: initialData.hotel || { 
+            name: '', verificationStatus: 'Draft', 
+            phones: [''], whatsapps: [''], emails: [''], 
+            profilePhoto: '', gallery: [],
+            districtOrCity: '', division: '', distanceFromTown: '', nearestTown: '', popularAreaName: '', street: '', address: '', accessTarmacked: false,
+            amenities: defaultAmenities
+        },
+        rooms: initialData.rooms || [],
+        
+        newRoom: {
+            type: 'Single', totalRooms: 1, floorLevel: 1, 
+            isSelfContained: true, hasBalcony: false, hasAC: false, isAccessible: false, bedAndBreakfast: true, workingTable: true, hotWater: true, hasTV: true,
+            bedSize: 'Single Bed', price: '', pricingPeriod: 'Per Night', photos: []
+        },
+
+        init() {
+            if (!this.hotel.phones) this.hotel.phones = [''];
+            if (!this.hotel.whatsapps) this.hotel.whatsapps = [''];
+            if (!this.hotel.emails) this.hotel.emails = [''];
+            if (!this.hotel.gallery) this.hotel.gallery = [];
+            this.hotel.amenities = { ...defaultAmenities, ...(this.hotel.amenities || {}) };
+        },
+
+        getHeaders() {
+            return { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}` 
+            };
+        },
+
+        handleSingleUpload(e, targetField) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { this.hotel[targetField] = e.target.result; };
+            reader.readAsDataURL(file);
+        },
+
+        handleGalleryUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { this.hotel.gallery.push(e.target.result); };
+            reader.readAsDataURL(file);
+        },
+
+        handleRoomPhotoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                if(!this.newRoom.photos) this.newRoom.photos = [];
+                this.newRoom.photos.push(e.target.result); 
+            };
+            reader.readAsDataURL(file);
+        },
+
+        editRoom(room) {
+            this.newRoom = JSON.parse(JSON.stringify(room));
+            if(!this.newRoom.photos) this.newRoom.photos = [];
+            this.showRoomModal = true;
+        },
+
+        async deleteRoom(roomId) {
+            if(!confirm("Are you sure you want to permanently delete this room group?")) return;
+            this.loadingRoom = roomId;
+            try {
+                const res = await fetch(`/dashboard/hotel/rooms/${roomId}`, { method: 'DELETE', headers: this.getHeaders() });
+                if (!res.ok) throw new Error();
+                this.rooms = this.rooms.filter(r => r._id !== roomId);
+            } catch (e) {
+                alert('Failed to delete room.');
+            } finally {
+                this.loadingRoom = null;
+            }
+        },
+
+        async saveHotel() {
+            this.hotel.phones = this.hotel.phones.filter(p => p && p.trim());
+            this.hotel.whatsapps = this.hotel.whatsapps.filter(w => w && w.trim());
+            this.hotel.emails = this.hotel.emails.filter(e => e && e.trim());
+            if(this.hotel.phones.length === 0) this.hotel.phones.push(''); 
+
+            this.saving = true;
+            try {
+                const res = await fetch('/dashboard/hotel/update', {
+                    method: 'PATCH',
+                    headers: this.getHeaders(),
+                    body: JSON.stringify(this.hotel)
+                });
+                if (!res.ok) throw new Error();
+                alert('Hotel Profile saved successfully!');
+            } catch (e) { 
+                alert('Failed to save profile. Please try again.'); 
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        async applyVerification() {
+            if(this.hotel.verificationStatus !== 'Draft') return;
+            this.saving = true;
+            try {
+                const res = await fetch('/dashboard/hotel/verify', { method: 'PATCH', headers: this.getHeaders() });
+                if (!res.ok) throw new Error();
+                this.hotel.verificationStatus = 'Pending';
+                this.showVerifyModal = false;
+                alert('Application submitted! An Admin will review your hotel soon.');
+            } catch (e) { 
+                alert('Application failed.'); 
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        async saveNewRoom() {
+            if(!this.newRoom.price) return alert("Please enter a price.");
+            this.saving = true;
+            
+            try {
+                const isEditing = !!this.newRoom._id;
+                const url = isEditing ? `/dashboard/hotel/rooms/${this.newRoom._id}` : '/dashboard/hotel/rooms';
+                const method = isEditing ? 'PATCH' : 'POST';
+
+                let payload = { ...this.newRoom };
+                if (!isEditing) payload.availableRooms = payload.totalRooms;
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: this.getHeaders(),
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) throw new Error();
+                const saved = await res.json();
+                
+                if (isEditing) {
+                    const idx = this.rooms.findIndex(r => r._id === saved._id);
+                    if(idx !== -1) this.rooms[idx] = saved;
+                } else {
+                    this.rooms.push(saved);
+                }
+                
+                this.showRoomModal = false;
+                this.newRoom = { 
+                    type: 'Single', totalRooms: 1, floorLevel: 1, isSelfContained: true, hasBalcony: false, hasAC: false, isAccessible: false, bedAndBreakfast: true, workingTable: true, hotWater: true, hasTV: true,
+                    bedSize: 'Single Bed', price: '', pricingPeriod: 'Per Night', photos: []
+                };
+            } catch (e) { 
+                alert('Failed to save room.'); 
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        async updateRoomCount(room, change) {
+            this.loadingRoom = room._id;
+            try {
+                const res = await fetch(`/dashboard/hotel/rooms/${room._id}/quantity`, {
+                    method: 'PATCH',
+                    headers: this.getHeaders(),
+                    body: JSON.stringify({ change })
+                });
+                if (!res.ok) throw new Error();
+                room.availableRooms += change;
+            } catch (e) { 
+                alert('Failed to update availability.'); 
+            } finally {
+                this.loadingRoom = null;
+            }
+        }
+    }
+}
+</script>

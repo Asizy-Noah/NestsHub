@@ -1,88 +1,31 @@
-import { IsString, IsEmail, IsOptional, IsBoolean, IsArray, IsEnum, MinLength } from 'class-validator';
-import { ConnectivityType, PaymentMethod } from '../schemas/hotel.schema';
-
-export class CreateHotelAmenitiesDto {
-  @IsOptional()
-  @IsBoolean()
-  gym?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  bar?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  restaurant?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  parkingSpace?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  storageBuilding?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  supermarketNearby?: boolean;
-}
+import { IsString, IsNumber, IsBoolean, IsOptional, IsArray, IsObject } from 'class-validator';
 
 export class CreateHotelDto {
-  @IsString()
-  @MinLength(3)
-  name!: string;
+  @IsString() name!: string;
 
-  @IsOptional()
-  @IsString()
-  description?: string;
+  @IsArray() @IsString({ each: true }) phones!: string[];
+  @IsArray() @IsString({ each: true }) whatsapps!: string[];
+  @IsArray() @IsString({ each: true }) emails!: string[];
 
-  @IsOptional()
-  @IsString()
-  telephone?: string;
+  @IsOptional() @IsString() profilePhoto?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) gallery?: string[];
 
-  @IsEmail()
-  email!: string;
+  // UPDATED: Location
+  @IsString() @IsOptional() districtOrCity?: string;
+  @IsString() @IsOptional() division?: string;
+  @IsString() @IsOptional() nearestTown?: string;
+  @IsNumber() @IsOptional() distanceFromTown?: number;
+  @IsString() @IsOptional() popularAreaName?: string;
+  @IsString() @IsOptional() street?: string;
+  @IsString() @IsOptional() address?: string;
+  @IsBoolean() @IsOptional() accessTarmacked?: boolean;
 
-  @IsOptional()
-  @IsString()
-  whatsapp?: string;
-
-  @IsString()
-  @MinLength(2)
-  district!: string;
-
-  @IsString()
-  @MinLength(2)
-  townOrCity!: string;
-
-  @IsOptional()
-  @IsString()
-  street?: string;
-
-  @IsOptional()
-  @IsEnum(['on_the_road', 'less_500m', '500m_1km', '1km_5km', '5km_plus'])
-  distanceToMainRoad?: string;
-
-  @IsOptional()
-  @IsString()
-  coverPhoto?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  gallery?: string[];
-
-  @IsOptional()
-  amenities?: CreateHotelAmenitiesDto;
-
-  @IsOptional()
-  @IsEnum(ConnectivityType)
-  wifiStatus?: ConnectivityType;
-
-  @IsOptional()
-  @IsArray()
-  @IsEnum(PaymentMethod, { each: true })
-  paymentMethods?: PaymentMethod[];
+  // UPDATED: Amenities
+  @IsObject() @IsOptional()
+  amenities?: {
+    security: boolean; gym: boolean; swimmingPool: boolean; parking: boolean;
+    freeInternet: boolean; restaurant: boolean; prayerRoom: boolean; bar: boolean;
+    massage: boolean; sauna: boolean; salon: boolean; dstv: boolean; cottages: boolean;
+    gardens: boolean; greenery: boolean;
+  };
 }
-
-export class UpdateHotelDto extends CreateHotelDto {}

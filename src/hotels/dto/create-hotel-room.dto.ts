@@ -1,73 +1,54 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsEnum, Min, Max } from 'class-validator';
-import { RoomType, BedSize } from '../schemas/hotel-room.schema';
-
-export class CreateRoomAmenitiesDto {
-  @IsOptional()
-  @IsBoolean()
-  hasBalcony?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  hasHotWater?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  hasTV?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  hasDSTV?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  hasTableChair?: boolean;
-}
+import { IsString, IsNumber, IsBoolean, IsOptional, IsArray } from 'class-validator';
 
 export class CreateHotelRoomDto {
-  @IsOptional()
   @IsString()
-  photo?: string;
-
-  @IsEnum(RoomType)
-  roomType!: RoomType;
-
-  @IsOptional()
-  @IsBoolean()
-  isSelfContained?: boolean;
+  type!: string; // e.g., 'Single', 'Double', 'Suite'
 
   @IsNumber()
-  @Min(0)
-  @Max(10)
-  floor!: number;
-
-  @IsOptional()
-  amenities?: CreateRoomAmenitiesDto;
-
-  @IsEnum(BedSize)
-  bedSize!: BedSize;
-
-  @IsNumber()
-  @Min(0)
-  costPerNight!: number;
-
-  @IsOptional()
-  @IsBoolean()
-  breakfastIncluded?: boolean;
-
-  @IsNumber()
-  @Min(1)
   totalRooms!: number;
 
   @IsOptional()
   @IsNumber()
-  @Min(0)
-  bookedRooms?: number;
-}
+  availableRooms?: number;
 
-export class UpdateHotelRoomDto extends CreateHotelRoomDto {}
-
-export class UpdateRoomInventoryDto {
   @IsNumber()
-  @Min(0)
-  bookedRooms!: number;
+  floorLevel!: number;
+
+  @IsBoolean()
+  isSelfContained!: boolean;
+
+  @IsBoolean()
+  hasBalcony!: boolean;
+
+  @IsBoolean()
+  hasAC!: boolean;
+
+  @IsBoolean()
+  isAccessible!: boolean;
+
+  @IsBoolean()
+  bedAndBreakfast!: boolean;
+
+  @IsBoolean()
+  workingTable!: boolean;
+
+  @IsBoolean()
+  hotWater!: boolean;
+
+  @IsBoolean()
+  hasTV!: boolean;
+
+  @IsNumber()
+  price!: number;
+
+  @IsString()
+  pricingPeriod!: string; // e.g., 'Per Night'
+
+  @IsString()
+  bedSize!: string; // e.g., 'King Size'
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  photos?: string[];
 }

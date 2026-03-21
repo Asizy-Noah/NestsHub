@@ -1,26 +1,19 @@
-import { RoomType, BedSize } from '../schemas/hotel-room.schema';
-export declare class CreateRoomAmenitiesDto {
-    hasBalcony?: boolean;
-    hasHotWater?: boolean;
-    hasTV?: boolean;
-    hasDSTV?: boolean;
-    hasTableChair?: boolean;
-}
 export declare class CreateHotelRoomDto {
-    photo?: string;
-    roomType: RoomType;
-    isSelfContained?: boolean;
-    floor: number;
-    amenities?: CreateRoomAmenitiesDto;
-    bedSize: BedSize;
-    costPerNight: number;
-    breakfastIncluded?: boolean;
+    type: string;
     totalRooms: number;
-    bookedRooms?: number;
-}
-export declare class UpdateHotelRoomDto extends CreateHotelRoomDto {
-}
-export declare class UpdateRoomInventoryDto {
-    bookedRooms: number;
+    availableRooms?: number;
+    floorLevel: number;
+    isSelfContained: boolean;
+    hasBalcony: boolean;
+    hasAC: boolean;
+    isAccessible: boolean;
+    bedAndBreakfast: boolean;
+    workingTable: boolean;
+    hotWater: boolean;
+    hasTV: boolean;
+    price: number;
+    pricingPeriod: string;
+    bedSize: string;
+    photos?: string[];
 }
 //# sourceMappingURL=create-hotel-room.dto.d.ts.map

@@ -9,94 +9,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateHotelDto = exports.CreateHotelDto = exports.CreateHotelAmenitiesDto = void 0;
+exports.CreateHotelDto = void 0;
 const class_validator_1 = require("class-validator");
-const hotel_schema_1 = require("../schemas/hotel.schema");
-class CreateHotelAmenitiesDto {
-}
-exports.CreateHotelAmenitiesDto = CreateHotelAmenitiesDto;
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateHotelAmenitiesDto.prototype, "gym", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateHotelAmenitiesDto.prototype, "bar", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateHotelAmenitiesDto.prototype, "restaurant", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateHotelAmenitiesDto.prototype, "parkingSpace", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateHotelAmenitiesDto.prototype, "storageBuilding", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateHotelAmenitiesDto.prototype, "supermarketNearby", void 0);
 class CreateHotelDto {
 }
 exports.CreateHotelDto = CreateHotelDto;
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(3),
     __metadata("design:type", String)
 ], CreateHotelDto.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "description", void 0);
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateHotelDto.prototype, "phones", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateHotelDto.prototype, "whatsapps", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateHotelDto.prototype, "emails", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateHotelDto.prototype, "telephone", void 0);
-__decorate([
-    (0, class_validator_1.IsEmail)(),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "email", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "whatsapp", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(2),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "district", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(2),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "townOrCity", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "street", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(['on_the_road', 'less_500m', '500m_1km', '1km_5km', '5km_plus']),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "distanceToMainRoad", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateHotelDto.prototype, "coverPhoto", void 0);
+], CreateHotelDto.prototype, "profilePhoto", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
@@ -104,21 +45,48 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateHotelDto.prototype, "gallery", void 0);
 __decorate([
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", CreateHotelAmenitiesDto)
-], CreateHotelDto.prototype, "amenities", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(hotel_schema_1.ConnectivityType),
     __metadata("design:type", String)
-], CreateHotelDto.prototype, "wifiStatus", void 0);
+], CreateHotelDto.prototype, "districtOrCity", void 0);
 __decorate([
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsEnum)(hotel_schema_1.PaymentMethod, { each: true }),
-    __metadata("design:type", Array)
-], CreateHotelDto.prototype, "paymentMethods", void 0);
-class UpdateHotelDto extends CreateHotelDto {
-}
-exports.UpdateHotelDto = UpdateHotelDto;
+    __metadata("design:type", String)
+], CreateHotelDto.prototype, "division", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateHotelDto.prototype, "nearestTown", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateHotelDto.prototype, "distanceFromTown", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateHotelDto.prototype, "popularAreaName", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateHotelDto.prototype, "street", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateHotelDto.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], CreateHotelDto.prototype, "accessTarmacked", void 0);
+__decorate([
+    (0, class_validator_1.IsObject)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Object)
+], CreateHotelDto.prototype, "amenities", void 0);
 //# sourceMappingURL=create-hotel.dto.js.map
