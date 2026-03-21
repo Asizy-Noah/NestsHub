@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const accounts_service_1 = require("./accounts.service");
 const update_account_dto_1 = require("./dto/update-account.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const change_password_dto_1 = require("./dto/change-password.dto");
 let AccountsController = class AccountsController {
     constructor(accountsService) {
         this.accountsService = accountsService;
@@ -40,14 +41,20 @@ let AccountsController = class AccountsController {
             user: req.user,
         };
     }
+    async updateProfile(req, data) {
+        return this.accountsService.updateAccount(req.user.userId, data);
+    }
+    async changePassword(req, data) {
+        return this.accountsService.changePassword(req.user.userId, data);
+    }
+    async deleteAccount(req) {
+        return this.accountsService.deleteAccount(req.user.userId);
+    }
     async getAccount(id) {
         return await this.accountsService.getAccountById(id);
     }
     async updateAccount(id, updateAccountDto) {
         return await this.accountsService.updateAccount(id, updateAccountDto);
-    }
-    async deleteAccount(id) {
-        return await this.accountsService.deleteAccount(id);
     }
     async getAllAccounts(role) {
         return await this.accountsService.getAllAccounts(role);
@@ -82,6 +89,32 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AccountsController.prototype, "getSettings", null);
 __decorate([
+    (0, common_1.Patch)('update'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_account_dto_1.UpdateAccountDto]),
+    __metadata("design:returntype", Promise)
+], AccountsController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Patch)('change-password'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, change_password_dto_1.ChangePasswordDto]),
+    __metadata("design:returntype", Promise)
+], AccountsController.prototype, "changePassword", null);
+__decorate([
+    (0, common_1.Delete)('delete'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AccountsController.prototype, "deleteAccount", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
@@ -98,14 +131,6 @@ __decorate([
     __metadata("design:paramtypes", [String, update_account_dto_1.UpdateAccountDto]),
     __metadata("design:returntype", Promise)
 ], AccountsController.prototype, "updateAccount", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AccountsController.prototype, "deleteAccount", null);
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

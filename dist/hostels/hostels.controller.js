@@ -51,6 +51,13 @@ let HostelsController = class HostelsController {
     async deleteRoom(req, roomId) {
         return await this.hostelsService.deleteRoom(roomId, req.user.userId);
     }
+    async getProfileView(req) {
+        const account = await this.hostelsService.getManagerAccount(req.user.userId);
+        return { title: 'Manager Profile', layout: 'layouts/hostel', manager: req.user, account: JSON.stringify(account) };
+    }
+    getReviewsView(req) {
+        return { title: 'Hostel Reviews', layout: 'layouts/hostel', manager: req.user };
+    }
 };
 exports.HostelsController = HostelsController;
 __decorate([
@@ -110,6 +117,26 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], HostelsController.prototype, "deleteRoom", null);
+__decorate([
+    (0, common_1.Get)('profile'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOSTEL_MANAGER),
+    (0, common_1.Render)('hostels/profile'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], HostelsController.prototype, "getProfileView", null);
+__decorate([
+    (0, common_1.Get)('reviews'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOSTEL_MANAGER),
+    (0, common_1.Render)('hostels/reviews'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], HostelsController.prototype, "getReviewsView", null);
 exports.HostelsController = HostelsController = __decorate([
     (0, common_1.Controller)('dashboard/hostel'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

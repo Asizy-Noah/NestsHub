@@ -65,4 +65,21 @@ export class HostelsController {
   async deleteRoom(@Request() req: any, @Param('roomId') roomId: string) {
     return await this.hostelsService.deleteRoom(roomId, req.user.userId);
   }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOSTEL_MANAGER)
+  @Render('hostels/profile')
+  async getProfileView(@Request() req: any) {
+    const account = await this.hostelsService.getManagerAccount(req.user.userId);
+    return { title: 'Manager Profile', layout: 'layouts/hostel', manager: req.user, account: JSON.stringify(account) };
+  }
+
+  @Get('reviews')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOSTEL_MANAGER)
+  @Render('hostels/reviews')
+  getReviewsView(@Request() req: any) {
+    return { title: 'Hostel Reviews', layout: 'layouts/hostel', manager: req.user };
+  }
 }

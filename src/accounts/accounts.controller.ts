@@ -2,6 +2,7 @@ import { Controller, Get, Patch, Delete, Body, Param, UseGuards, Request, Render
 import { AccountsService } from './accounts.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('accounts')
 export class AccountsController {
@@ -39,6 +40,24 @@ export class AccountsController {
     };
   }
 
+  @Patch('update')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@Request() req: any, @Body() data: UpdateAccountDto) {
+    return this.accountsService.updateAccount(req.user.userId, data);
+  }
+
+  @Patch('change-password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(@Request() req: any, @Body() data: ChangePasswordDto) {
+    return this.accountsService.changePassword(req.user.userId, data);
+  }
+
+  @Delete('delete')
+  @UseGuards(JwtAuthGuard)
+  async deleteAccount(@Request() req: any) {
+    return this.accountsService.deleteAccount(req.user.userId);
+  }
+
   // API Routes
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -53,12 +72,6 @@ export class AccountsController {
     @Body() updateAccountDto: UpdateAccountDto,
   ) {
     return await this.accountsService.updateAccount(id, updateAccountDto);
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  async deleteAccount(@Param('id') id: string) {
-    return await this.accountsService.deleteAccount(id);
   }
 
   @Get()

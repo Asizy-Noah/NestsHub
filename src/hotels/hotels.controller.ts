@@ -59,4 +59,21 @@ export class HotelsController {
   async updateRoomQuantity(@Request() req: any, @Param('roomId') roomId: string, @Body('change') change: number) {
     return await this.hotelsService.updateRoomQuantity(roomId, req.user.userId, change);
   }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Render('hotels/profile')
+  async getProfileView(@Request() req: any) {
+    const account = await this.hotelsService.getManagerAccount(req.user.userId);
+    return { title: 'Manager Profile', layout: 'layouts/hotel', manager: req.user, account: JSON.stringify(account) };
+  }
+
+  @Get('reviews')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AccountRole.HOTEL_MANAGER)
+  @Render('hotels/reviews')
+  getReviewsView(@Request() req: any) {
+    return { title: 'Hotel Reviews', layout: 'layouts/hotel', manager: req.user };
+  }
 }

@@ -34,5 +34,16 @@ export declare class HotelsController {
     }> & {
         __v: number;
     }>;
+    getProfileView(req: any): Promise<{
+        title: string;
+        layout: string;
+        manager: any;
+        account: string;
+    }>;
+    getReviewsView(req: any): {
+        title: string;
+        layout: string;
+        manager: any;
+    };
 }
 //# sourceMappingURL=hotels.controller.d.ts.map

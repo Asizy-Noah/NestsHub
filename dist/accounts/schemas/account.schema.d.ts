@@ -51,6 +51,9 @@ export declare class Account extends Document {
     otherNames: string;
     nationality: string;
     idNumber: string;
+    photo?: string;
+    phones?: string[];
+    whatsapps?: string[];
 }
 export declare const AccountSchema: import("mongoose").Schema<Account, import("mongoose").Model<Account, any, any, any, Document<unknown, any, Account, any, {}> & Account & Required<{
     _id: import("mongoose").Types.ObjectId;

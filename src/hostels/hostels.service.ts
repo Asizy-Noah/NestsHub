@@ -153,4 +153,8 @@ async deleteRoom(roomId: string, managerId: string) {
 
   return { message: 'Verification application submitted successfully', status: 'Pending' };
 }
+
+async getManagerAccount(managerId: string) {
+    return await this.accountModel.findById(managerId).select('-password');
+  }
 }

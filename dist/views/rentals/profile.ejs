@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto px-4 py-8" x-data="managerProfile(<%= typeof user !== 'undefined' ? JSON.stringify(user) : '{}' %>)">
     
-    <div class="card space-y-8">
+    <div class="card space-y-8 mb-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6">
             <div>
                 <h1 class="text-3xl font-black text-professional dark:text-white">My Identity</h1>
@@ -84,22 +84,112 @@
             </button>
         </div>
     </div>
+
+    <div class="card space-y-6 border-red-100 dark:border-red-900/30 bg-red-50/30 dark:bg-red-900/10">
+        <h3 class="text-xl font-bold flex items-center gap-2 border-b border-red-100 dark:border-red-900/30 pb-3 text-red-500">
+            <i class="fa-solid fa-shield-halved"></i> Danger Zone
+        </h3>
+        
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button @click="showPasswordForm = !showPasswordForm; showDeleteForm = false" class="btn-outline border-slate-300 text-slate-700 bg-white">
+                <i class="fa-solid fa-key mr-2"></i> Change Password
+            </button>
+            
+            <button @click="showDeleteForm = !showDeleteForm; showPasswordForm = false" class="btn-outline border-red-300 text-red-500 bg-white hover:bg-red-50">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i> Delete Account
+            </button>
+        </div>
+
+        <div x-show="showPasswordForm" x-collapse class="pt-4 border-t border-red-100 dark:border-red-900/30">
+            <form @submit.prevent="updatePassword" class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm">
+                <div class="input-group md:col-span-2">
+                    <label class="text-slate-500">Current Password</label>
+                    <input type="password" x-model="passwords.currentPassword" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="text-slate-500">New Password</label>
+                    <input type="password" x-model="passwords.newPassword" class="input-field" required minlength="6">
+                </div>
+                <div class="input-group">
+                    <label class="text-slate-500">Confirm New Password</label>
+                    <input type="password" x-model="passwords.confirmPassword" class="input-field" required minlength="6">
+                </div>
+                <div class="md:col-span-2 pt-2">
+                    <button type="submit" class="btn-primary bg-slate-800 hover:bg-black" :disabled="savingPass">
+                        <span x-show="!savingPass">Update Password</span>
+                        <span x-show="savingPass"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Verifying...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div x-show="showDeleteForm" x-collapse class="pt-4 border-t border-red-100 dark:border-red-900/30">
+            <div class="bg-red-100 dark:bg-red-900/40 p-6 rounded-2xl border border-red-200 dark:border-red-800 space-y-4">
+                <h4 class="text-red-600 dark:text-red-400 font-bold text-lg"><i class="fa-solid fa-skull"></i> Permanently Delete Account</h4>
+                <p class="text-sm text-red-800/70 dark:text-red-200/70 font-medium">This action cannot be undone. This will permanently delete your account, your profile, and remove all your data from our servers.</p>
+                
+                <div class="input-group mt-4">
+                    <label class="text-red-700">Please type <span class="font-black italic text-red-600 bg-red-200 px-2 py-0.5 rounded">delete my account</span> to confirm.</label>
+                    <input type="text" x-model="deleteConfirmText" class="input-field border-red-300 focus:border-red-500 focus:ring-red-500/30 bg-white" placeholder="Type here...">
+                </div>
+                
+                <button @click="deleteAccount" 
+                        class="px-6 py-3 rounded-xl font-bold transition-all shadow-md mt-4 w-full flex items-center justify-center gap-2 text-white"
+                        :class="deleteConfirmText === 'delete my account' ? 'bg-red-600 hover:bg-red-700 hover:shadow-lg' : 'bg-red-300 cursor-not-allowed'"
+                        :disabled="deleteConfirmText !== 'delete my account' || savingDelete">
+                    <span x-show="!savingDelete">Permanently Delete Account</span>
+                    <span x-show="savingDelete"><i class="fa-solid fa-spinner fa-spin"></i> Deleting...</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 function managerProfile(initialUser) {
     return {
-        saving: false, newArea: '',
+        // --- State Management ---
+        saving: false, 
+        savingPass: false, 
+        savingDelete: false,
+        showPasswordForm: false, // Controls the password form visibility
+        showDeleteForm: false,   // Controls the delete warning visibility
+        deleteConfirmText: '',   // Tracks the input for "delete my account"
+        newArea: '',
+        
+        // --- Data Objects ---
         profile: {
-            role: initialUser.role || 'Property Manager', firstName: initialUser.firstName || '', lastName: initialUser.lastName || '', username: initialUser.username || '',
-            photo: initialUser.photo || '', phones: initialUser.phones || [''], whatsapps: initialUser.whatsapps || [''], emails: initialUser.emails || [''],
+            role: initialUser.role || 'Property Manager', 
+            firstName: initialUser.firstName || '', 
+            lastName: initialUser.lastName || '', 
+            username: initialUser.username || '',
+            photo: initialUser.photo || '', 
+            phones: initialUser.phones || [''], 
+            whatsapps: initialUser.whatsapps || [''], 
+            emails: initialUser.emails || [''],
             areasOfOperation: initialUser.areasOfOperation || ['Kampala']
         },
-        init() {
-            if(!this.profile.phones.length) this.profile.phones = [''];
-            if(!this.profile.whatsapps.length) this.profile.whatsapps = [''];
-            if(!this.profile.emails.length) this.profile.emails = [''];
+        
+        passwords: { 
+            currentPassword: '', 
+            newPassword: '', 
+            confirmPassword: '' 
         },
+
+        init() {
+            if(!this.profile.phones || !this.profile.phones.length) this.profile.phones = [''];
+            if(!this.profile.whatsapps || !this.profile.whatsapps.length) this.profile.whatsapps = [''];
+            if(!this.profile.emails || !this.profile.emails.length) this.profile.emails = [''];
+        },
+
+        // --- Helper: Auth Headers ---
+        getHeaders() {
+            return { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}` 
+            };
+        },
+
         uploadPhoto(e) {
             const file = e.target.files[0];
             if(file) {
@@ -108,18 +198,20 @@ function managerProfile(initialUser) {
                 reader.readAsDataURL(file);
             }
         },
+
+        // --- Action: Save Profile ---
         async saveProfile() {
-            // Clean arrays
-            this.profile.phones = this.profile.phones.filter(p => p.trim());
-            this.profile.whatsapps = this.profile.whatsapps.filter(w => w.trim());
-            this.profile.emails = this.profile.emails.filter(e => e.trim());
+            this.profile.phones = this.profile.phones.filter(p => p && p.trim());
+            this.profile.whatsapps = this.profile.whatsapps.filter(w => w && w.trim());
+            this.profile.emails = this.profile.emails.filter(e => e && e.trim());
+            
             if(!this.profile.phones.length) this.profile.phones.push('');
 
             this.saving = true;
             try {
                 const res = await fetch('/dashboard/rentals/profile/update', {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                    headers: this.getHeaders(),
                     body: JSON.stringify(this.profile)
                 });
                 if(!res.ok) throw new Error();
@@ -128,6 +220,56 @@ function managerProfile(initialUser) {
                 alert("Failed to save profile.");
             } finally {
                 this.saving = false;
+            }
+        },
+
+        // --- Action: Update Password ---
+        async updatePassword() {
+            if(this.passwords.newPassword !== this.passwords.confirmPassword) {
+                return alert("New passwords do not match!");
+            }
+            
+            this.savingPass = true;
+            try {
+                const res = await fetch('/accounts/change-password', {
+                    method: 'PATCH',
+                    headers: this.getHeaders(),
+                    body: JSON.stringify({ 
+                        currentPassword: this.passwords.currentPassword, 
+                        newPassword: this.passwords.newPassword 
+                    })
+                });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.message || 'Verification failed');
+                
+                alert("Password updated securely.");
+                this.passwords = { currentPassword: '', newPassword: '', confirmPassword: '' };
+                this.showPasswordForm = false;
+            } catch (e) { 
+                alert(e.message); 
+            } finally { 
+                this.savingPass = false; 
+            }
+        },
+
+        // --- Action: Delete Account ---
+        async deleteAccount() {
+            if(this.deleteConfirmText !== 'delete my account') return;
+            
+            this.savingDelete = true;
+            try {
+                const res = await fetch('/accounts/delete', {
+                    method: 'DELETE',
+                    headers: this.getHeaders()
+                });
+                if(!res.ok) throw new Error();
+                
+                alert("Account deleted permanently.");
+                localStorage.removeItem('accessToken');
+                window.location.href = '/auth/login';
+            } catch (e) {
+                alert("Failed to delete account.");
+                this.savingDelete = false;
             }
         }
     }

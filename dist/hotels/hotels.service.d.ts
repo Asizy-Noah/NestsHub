@@ -48,5 +48,10 @@ export declare class HotelsService {
     applyVerification(managerId: string): Promise<{
         status: string;
     }>;
+    getManagerAccount(managerId: string): Promise<(import("mongoose").Document<unknown, {}, Account, {}, {}> & Account & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }) | null>;
 }
 //# sourceMappingURL=hotels.service.d.ts.map

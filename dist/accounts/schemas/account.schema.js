@@ -173,6 +173,18 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Account.prototype, "idNumber", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: '' }),
+    __metadata("design:type", String)
+], Account.prototype, "photo", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Account.prototype, "phones", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Account.prototype, "whatsapps", void 0);
 exports.Account = Account = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true, discriminatorKey: 'role' })
 ], Account);

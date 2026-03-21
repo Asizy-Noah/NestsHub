@@ -105,7 +105,8 @@ __decorate([
     __metadata("design:type", String)
 ], Hostel.prototype, "verificationStatus", void 0);
 exports.Hostel = Hostel = __decorate([
-    (0, mongoose_1.Schema)({ timestamps: true })
+    (0, mongoose_1.Schema)({ timestamps: true, autoIndex: true })
 ], Hostel);
 exports.HostelSchema = mongoose_1.SchemaFactory.createForClass(Hostel);
+exports.HostelSchema.index({ name: 1, locationType: 1, popularAreaName: 1 }, { unique: true });
 //# sourceMappingURL=hostel.schema.js.map

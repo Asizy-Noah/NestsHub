@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional, IsPhoneNumber } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsArray } from 'class-validator';
 
 export class UpdateAccountDto {
   @IsOptional()
@@ -48,4 +48,10 @@ export class UpdateAccountDto {
   @IsOptional()
   @IsString()
   hotelCountry?: string;
+
+  @IsOptional() @IsEmail() email?: string; // Important if email is ever sent back
+  @IsOptional() @IsString() photo?: string;
+
+  @IsOptional() @IsArray() @IsString({ each: true }) phones?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) whatsapps?: string[];
 }

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, autoIndex: true })
 export class Hostel extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true })
   managerId!: mongoose.Schema.Types.ObjectId;
@@ -35,3 +35,4 @@ export class Hostel extends Document {
   @Prop({ default: 'Draft' }) verificationStatus!: string;
 }
 export const HostelSchema = SchemaFactory.createForClass(Hostel);
+HostelSchema.index({ name: 1, locationType: 1, popularAreaName: 1 }, { unique: true });

@@ -1,45 +1,98 @@
-<div class="max-w-6xl mx-auto p-4 sm:p-8" x-data="reviewBoard()">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="card p-6 flex flex-col items-center justify-center">
-            <h4 class="text-4xl font-black text-professional" x-text="stats.avg"></h4>
-            <div class="flex text-amber-400 gap-1 my-2"><template x-for="i in 5"><i class="fa-solid fa-star"></i></template></div>
-            <p class="text-xs text-slate-400 font-bold uppercase">Overall Rating</p>
+<div class="max-w-6xl mx-auto px-4 py-8" x-data="propertyReviews()">
+    <div class="mb-8">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-professional dark:text-white">Public Reviews</h1>
+        <p class="text-sm text-slate-500">What clients and guests are saying about your property.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="card p-6 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-professional text-white border-0">
+            <h4 class="text-6xl font-black" x-text="stats.avg">4.8</h4>
+            <div class="flex text-amber-400 gap-1 my-3 text-lg">
+                <template x-for="i in 5"><i class="fa-solid" :class="i <= Math.round(stats.avg) ? 'fa-star' : 'fa-star text-slate-600'"></i></template>
+            </div>
+            <p class="text-xs text-slate-300 font-bold uppercase tracking-wider">Overall Rating</p>
         </div>
-        <div class="card col-span-2 p-6 flex flex-col gap-2 justify-center">
-             <template x-for="score in [5,4,3,2,1]">
+
+        <div class="card md:col-span-2 p-6 flex flex-col justify-center gap-3">
+             <template x-for="score in [5,4,3,2,1]" :key="score">
                  <div class="flex items-center gap-4">
-                     <span class="text-xs font-bold w-4" x-text="score"></span>
-                     <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                         <div class="h-full bg-primary" :style="`width: ${stats.distribution[score]}%`"></div>
+                     <div class="flex items-center w-12 text-sm font-bold text-slate-500"><span x-text="score"></span> <i class="fa-solid fa-star text-amber-400 ml-1 text-[10px]"></i></div>
+                     <div class="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative">
+                         <div class="absolute top-0 left-0 h-full rounded-full transition-all duration-1000" :class="score >= 4 ? 'bg-primary' : (score === 3 ? 'bg-amber-400' : 'bg-red-400')" :style="`width: ${stats.distribution[score]}%`"></div>
                      </div>
+                     <span class="text-xs font-bold text-slate-400 w-8 text-right" x-text="stats.distribution[score] + '%'"></span>
                  </div>
              </template>
         </div>
     </div>
 
-    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-        <template x-for="filter in [{id:'all', label:'All'}, {id:'good', label:'Good'}, {id:'bad', label:'Bad'}]">
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
+        <template x-for="filter in filters" :key="filter.id">
             <button @click="activeFilter = filter.id" 
-                    class="px-6 py-2 rounded-xl text-sm font-bold transition-all border"
-                    :class="activeFilter === filter.id ? 'bg-professional text-white' : 'bg-white text-slate-500'">
+                    class="px-6 py-3 text-sm font-black transition-all relative border-b-2"
+                    :class="activeFilter === filter.id ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-slate-600'">
                 <span x-text="filter.label"></span>
-                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md text-[10px]" x-text="getReviewCount(filter.id)"></span>
+                <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] shadow-sm" :class="activeFilter === filter.id ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'" x-text="getReviewCount(filter.id)"></span>
             </button>
         </template>
     </div>
 
     <div class="space-y-4">
-        <template x-for="review in filteredReviews" :key="review.id">
-            <div class="card p-6 border-l-4" :class="review.rating >= 3 ? 'border-primary' : 'border-red-400'">
-                <div class="flex justify-between mb-2">
-                    <h5 class="font-bold text-professional" x-text="review.userName"></h5>
-                    <span class="text-[10px] text-slate-400" x-text="review.date"></span>
+        <template x-for="review in filteredReviews()" :key="review.id">
+            <div class="card p-6 border-l-4 transition-all hover:shadow-lg" :class="review.rating >= 4 ? 'border-primary' : (review.rating === 3 ? 'border-amber-400' : 'border-red-400')">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-professional" x-text="review.author.charAt(0)"></div>
+                        <div>
+                            <h5 class="font-bold text-professional dark:text-white" x-text="review.author"></h5>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide" x-text="review.date"></span>
+                        </div>
+                    </div>
+                    <div class="flex text-amber-400 text-xs">
+                        <template x-for="i in 5"><i class="fa-solid" :class="i <= review.rating ? 'fa-star' : 'fa-star text-slate-200'"></i></template>
+                    </div>
                 </div>
-                <div class="flex text-amber-400 text-xs mb-3">
-                    <template x-for="i in review.rating"><i class="fa-solid fa-star"></i></template>
+                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium" x-text="review.comment"></p>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50 flex gap-2">
+                    <span class="text-[10px] font-bold px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">Subject: <span x-text="review.subjectRef"></span></span>
                 </div>
-                <p class="text-sm text-slate-600 dark:text-slate-400" x-text="review.comment"></p>
             </div>
         </template>
+        
+        <div x-show="filteredReviews().length === 0" class="py-10 text-center text-slate-400 font-bold">
+            No reviews found in this category.
+        </div>
     </div>
 </div>
+
+<script>
+function propertyReviews() {
+    return {
+        activeFilter: 'all',
+        filters: [
+            { id: 'all', label: 'All Reviews' },
+            { id: 'good', label: 'Positive (4-5 Stars)' },
+            { id: 'bad', label: 'Critical (1-3 Stars)' }
+        ],
+        stats: {
+            avg: 4.5,
+            distribution: { 5: 75, 4: 15, 3: 5, 2: 3, 1: 2 }
+        },
+        reviews: [
+            { id: 1, author: 'Emma W.', date: 'Oct 15, 2026', rating: 5, subjectRef: 'Double Room', comment: 'Property is well maintained and the manager is very responsive. Highly recommend staying here!' },
+            { id: 2, author: 'James O.', date: 'Oct 02, 2026', rating: 4, subjectRef: 'Single Room', comment: 'Great location and fast internet. The rooms are clean, but parking can be a bit tricky on weekends.' },
+            { id: 3, author: 'Anonymous', date: 'Sep 10, 2026', rating: 2, subjectRef: 'General Facility', comment: 'The water pressure was very low in the morning. Needs fixing urgently.' }
+        ],
+        getReviewCount(type) {
+            if (type === 'good') return this.reviews.filter(r => r.rating >= 4).length;
+            if (type === 'bad') return this.reviews.filter(r => r.rating <= 3).length;
+            return this.reviews.length;
+        },
+        filteredReviews() {
+            if (this.activeFilter === 'good') return this.reviews.filter(r => r.rating >= 4);
+            if (this.activeFilter === 'bad') return this.reviews.filter(r => r.rating <= 3);
+            return this.reviews;
+        }
+    }
+}
+</script>

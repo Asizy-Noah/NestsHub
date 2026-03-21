@@ -45,6 +45,13 @@ let HotelsController = class HotelsController {
     async updateRoomQuantity(req, roomId, change) {
         return await this.hotelsService.updateRoomQuantity(roomId, req.user.userId, change);
     }
+    async getProfileView(req) {
+        const account = await this.hotelsService.getManagerAccount(req.user.userId);
+        return { title: 'Manager Profile', layout: 'layouts/hotel', manager: req.user, account: JSON.stringify(account) };
+    }
+    getReviewsView(req) {
+        return { title: 'Hotel Reviews', layout: 'layouts/hotel', manager: req.user };
+    }
 };
 exports.HotelsController = HotelsController;
 __decorate([
@@ -118,6 +125,26 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Number]),
     __metadata("design:returntype", Promise)
 ], HotelsController.prototype, "updateRoomQuantity", null);
+__decorate([
+    (0, common_1.Get)('profile'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Render)('hotels/profile'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], HotelsController.prototype, "getProfileView", null);
+__decorate([
+    (0, common_1.Get)('reviews'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(account_schema_1.AccountRole.HOTEL_MANAGER),
+    (0, common_1.Render)('hotels/reviews'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], HotelsController.prototype, "getReviewsView", null);
 exports.HotelsController = HotelsController = __decorate([
     (0, common_1.Controller)('dashboard/hotel'),
     __metadata("design:paramtypes", [hotels_service_1.HotelsService])

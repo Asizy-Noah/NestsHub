@@ -36,5 +36,16 @@ export declare class HostelsController {
         success: boolean;
         message: string;
     }>;
+    getProfileView(req: any): Promise<{
+        title: string;
+        layout: string;
+        manager: any;
+        account: string;
+    }>;
+    getReviewsView(req: any): {
+        title: string;
+        layout: string;
+        manager: any;
+    };
 }
 //# sourceMappingURL=hostels.controller.d.ts.map

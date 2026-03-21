@@ -120,6 +120,9 @@ let HostelsService = HostelsService_1 = class HostelsService {
         }
         return { message: 'Verification application submitted successfully', status: 'Pending' };
     }
+    async getManagerAccount(managerId) {
+        return await this.accountModel.findById(managerId).select('-password');
+    }
 };
 exports.HostelsService = HostelsService;
 exports.HostelsService = HostelsService = HostelsService_1 = __decorate([

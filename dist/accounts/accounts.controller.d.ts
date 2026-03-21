@@ -1,5 +1,6 @@
 import { AccountsService } from './accounts.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 export declare class AccountsController {
     private accountsService;
     constructor(accountsService: AccountsService);
@@ -16,6 +17,19 @@ export declare class AccountsController {
         title: string;
         user: any;
     };
+    updateProfile(req: any, data: UpdateAccountDto): Promise<import("mongoose").Document<unknown, {}, import("./schemas/account.schema").Account, {}, {}> & import("./schemas/account.schema").Account & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }>;
+    changePassword(req: any, data: ChangePasswordDto): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    deleteAccount(req: any): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     getAccount(id: string): Promise<import("mongoose").Document<unknown, {}, import("./schemas/account.schema").Account, {}, {}> & import("./schemas/account.schema").Account & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
@@ -25,9 +39,6 @@ export declare class AccountsController {
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;
-    }>;
-    deleteAccount(id: string): Promise<{
-        message: string;
     }>;
     getAllAccounts(role?: string): Promise<(import("mongoose").Document<unknown, {}, import("./schemas/account.schema").Account, {}, {}> & import("./schemas/account.schema").Account & Required<{
         _id: import("mongoose").Types.ObjectId;

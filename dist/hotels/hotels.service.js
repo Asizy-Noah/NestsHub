@@ -98,6 +98,9 @@ let HotelsService = HotelsService_1 = class HotelsService {
         await hotel.save();
         return { status: 'Pending' };
     }
+    async getManagerAccount(managerId) {
+        return await this.accountModel.findById(managerId).select('-password');
+    }
 };
 exports.HotelsService = HotelsService;
 exports.HotelsService = HotelsService = HotelsService_1 = __decorate([

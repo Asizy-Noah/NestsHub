@@ -50,5 +50,10 @@ export declare class HostelsService {
         message: string;
         status: string;
     }>;
+    getManagerAccount(managerId: string): Promise<(import("mongoose").Document<unknown, {}, Account, {}, {}> & Account & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }) | null>;
 }
 //# sourceMappingURL=hostels.service.d.ts.map

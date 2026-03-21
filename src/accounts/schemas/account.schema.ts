@@ -127,6 +127,10 @@ export class Account extends Document {
 
   @Prop()
   idNumber!: string;
+
+  @Prop({ default: '' }) photo?: string;
+  @Prop({ type: [String], default: [] }) phones?: string[];
+  @Prop({ type: [String], default: [] }) whatsapps?: string[];
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account);

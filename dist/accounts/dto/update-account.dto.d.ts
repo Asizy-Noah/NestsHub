@@ -11,5 +11,9 @@ export declare class UpdateAccountDto {
     hotelAddress?: string;
     hotelCity?: string;
     hotelCountry?: string;
+    email?: string;
+    photo?: string;
+    phones?: string[];
+    whatsapps?: string[];
 }
 //# sourceMappingURL=update-account.dto.d.ts.map

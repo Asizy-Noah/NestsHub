@@ -100,4 +100,8 @@ export class HotelsService {
     // Trigger emails here... (identical to hostels.service implementation)
     return { status: 'Pending' };
   }
+
+  async getManagerAccount(managerId: string) {
+    return await this.accountModel.findById(managerId).select('-password');
+  }
 }
