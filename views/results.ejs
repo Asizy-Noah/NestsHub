@@ -1,0 +1,249 @@
+<div x-data="searchResults()" @scroll.window="handleScroll" class="min-h-screen relative w-full bg-slate-50 dark:bg-dark-bg">
+
+    <div class="fixed top-0 inset-x-0 z-40 bg-white dark:bg-dark-surface border-b border-slate-200 dark:border-slate-800 transition-transform duration-300"
+         :class="showSearchHeader ? 'translate-y-0' : '-translate-y-full'">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
+            <a href="/" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex-shrink-0">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            
+            <button @click="openSearchMode()" class="flex-1 bg-slate-100 dark:bg-slate-800/50 border border-transparent px-4 py-2.5 rounded-xl font-semibold text-sm text-professional dark:text-slate-200 flex items-center justify-between hover:border-primary transition-colors text-left">
+                <span class="truncate" x-text="searchQuery || 'What are you looking for?'"></span>
+                <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+            </button>
+
+            <div class="hidden sm:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg ml-2">
+                <button @click="viewMode = 'grid'" class="w-8 h-8 rounded flex items-center justify-center transition-colors" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'"><i class="fa-solid fa-grip"></i></button>
+                <button @click="viewMode = 'list'" class="w-8 h-8 rounded flex items-center justify-center transition-colors" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'"><i class="fa-solid fa-list"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed inset-x-0 z-30 bg-white dark:bg-dark-surface border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300"
+         :style="showSearchHeader ? 'top: 64px;' : 'top: 0;'">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-x-auto hide-scrollbar">
+            
+            <button @click="showFilterDrawer = true" class="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 text-primary rounded-full font-bold text-sm whitespace-nowrap hover:bg-primary hover:text-white transition-colors shadow-sm">
+                <i class="fa-solid fa-sliders"></i> Filter
+                <span x-show="activeFilterCount > 0" class="w-5 h-5 rounded-full bg-white text-primary flex items-center justify-center text-[10px]" x-text="activeFilterCount"></span>
+            </button>
+
+            <div class="relative flex-shrink-0" @click.outside="showSortMenu = false">
+                <button @click="showSortMenu = !showSortMenu" class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-full font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">
+                    <span x-text="sortLabel"></span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                </button>
+                <div x-show="showSortMenu" x-transition class="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 py-2 z-50">
+                    <template x-for="opt in sortOptions">
+                        <button @click="applySort(opt)" class="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" :class="sortBy === opt.value ? 'text-primary' : 'text-slate-600 dark:text-slate-300'">
+                            <span x-text="opt.label"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <template x-for="pill in ['Under 500K', 'Self Contained', 'WiFi Included']">
+                <button class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-full font-semibold text-sm text-slate-600 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors whitespace-nowrap">
+                    <span x-text="pill"></span>
+                </button>
+            </template>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-36 pb-20">
+        
+        <div class="flex justify-between items-end mb-4">
+            <p class="text-sm font-bold text-slate-500">Showing <span class="text-professional dark:text-white" x-text="results.length"></span> results for "<span class="text-professional dark:text-white" x-text="searchQuery"></span>"</p>
+            
+            <div class="flex sm:hidden bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
+                <button @click="viewMode = 'grid'" class="w-7 h-7 rounded flex items-center justify-center transition-colors" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'"><i class="fa-solid fa-grip text-xs"></i></button>
+                <button @click="viewMode = 'list'" class="w-7 h-7 rounded flex items-center justify-center transition-colors" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'"><i class="fa-solid fa-list text-xs"></i></button>
+            </div>
+        </div>
+
+        <div x-show="viewMode === 'grid'" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <template x-for="item in results" :key="item.id">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer flex flex-col h-full relative">
+                    <div class="relative w-full pt-[85%] bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <img :src="item.image" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm" x-show="item.badge" x-text="item.badge"></div>
+                        <button @click.stop="toggleSave(item.id)" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-900/90 flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-heart text-sm" :class="isSaved(item.id) ? 'text-red-500' : 'text-slate-300'"></i>
+                        </button>
+                    </div>
+                    <div class="p-3 flex flex-col flex-1">
+                        <h4 class="font-bold text-sm text-professional dark:text-white line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors" x-text="item.title"></h4>
+                        <p class="text-xs text-slate-500 font-medium mb-2 truncate"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="item.location"></span></p>
+                        <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <span class="text-primary font-black text-sm">UGX <span x-text="item.price"></span><span class="text-[10px] text-slate-400 font-bold ml-1 uppercase hidden sm:inline" x-text="item.period"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="viewMode === 'list'" class="space-y-3">
+            <template x-for="item in results" :key="item.id">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all group cursor-pointer flex h-32 sm:h-40">
+                    <div class="w-32 sm:w-48 flex-shrink-0 relative overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img :src="item.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm" x-show="item.badge" x-text="item.badge"></div>
+                    </div>
+                    <div class="p-3 sm:p-4 flex flex-col flex-1 min-w-0 relative">
+                        <button @click.stop="toggleSave(item.id)" class="absolute top-3 right-3 text-slate-300 hover:text-red-500 transition-colors z-10 hidden sm:block">
+                            <i class="fa-solid fa-heart" :class="isSaved(item.id) ? 'text-red-500' : ''"></i>
+                        </button>
+                        <h4 class="font-bold text-sm sm:text-base text-professional dark:text-white truncate group-hover:text-primary transition-colors pr-6" x-text="item.title"></h4>
+                        <p class="text-xs text-slate-500 font-medium mb-1 truncate"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="item.location"></span></p>
+                        <div class="flex items-center gap-2 mt-1 hidden sm:flex">
+                            <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-bed mr-1"></i> <span x-text="item.details.beds || '1'"></span></span>
+                            <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-bath mr-1"></i> <span x-text="item.details.baths || '1'"></span></span>
+                        </div>
+                        <div class="mt-auto flex justify-between items-end">
+                            <span class="text-primary font-black text-sm sm:text-lg leading-none">UGX <span x-text="item.price"></span> <span class="text-[10px] text-slate-400 font-bold uppercase block sm:inline mt-0.5 sm:mt-0" x-text="item.period"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <div x-show="showFilterDrawer" class="fixed inset-0 z-[60]" style="display: none;">
+        <div x-show="showFilterDrawer" x-transition.opacity @click="showFilterDrawer = false" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        
+        <div x-show="showFilterDrawer" 
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="translate-y-full sm:translate-y-0 sm:translate-x-full"
+             x-transition:enter-end="translate-y-0 sm:translate-x-0"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="translate-y-0 sm:translate-x-0"
+             x-transition:leave-end="translate-y-full sm:translate-y-0 sm:translate-x-full"
+             class="absolute inset-x-0 bottom-0 sm:inset-y-0 sm:right-0 sm:left-auto w-full sm:w-96 h-[85vh] sm:h-full bg-white dark:bg-dark-surface rounded-t-3xl sm:rounded-none shadow-2xl flex flex-col overflow-hidden">
+            
+            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-xl font-black text-professional dark:text-white">Filters</h3>
+                <button @click="showFilterDrawer = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8">
+                
+                <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Price Range (UGX)</label>
+                    <div class="flex items-center gap-3">
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-3 text-slate-400 text-xs font-bold">Min</span>
+                            <input type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-10 pr-3 font-bold text-professional dark:text-white outline-none focus:border-primary" placeholder="0">
+                        </div>
+                        <span class="text-slate-300">-</span>
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-3 text-slate-400 text-xs font-bold">Max</span>
+                            <input type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-10 pr-3 font-bold text-professional dark:text-white outline-none focus:border-primary" placeholder="Any">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Rooms</label>
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="r in ['Single', 'Double', '1 BR', '2 BR', '3+ BR']">
+                            <button class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors"><span x-text="r"></span></button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Amenities</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <template x-for="a in ['Self Contained', 'Furnished', 'WiFi', 'Parking', 'AC', 'Hot Water']">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" class="w-5 h-5 accent-primary rounded border-slate-300">
+                                <span class="text-sm font-semibold text-slate-600 dark:text-slate-400" x-text="a"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 flex items-center gap-4 bg-white dark:bg-dark-surface z-10">
+                <button class="text-sm font-bold text-slate-500 hover:text-professional dark:hover:text-white">Clear All</button>
+                <button @click="showFilterDrawer = false" class="flex-1 btn-primary shadow-lg">Show Results</button>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+<script>
+function searchResults() {
+    return {
+        // Scroll & Nav State
+        lastScrollY: 0,
+        showSearchHeader: true,
+        
+        // UI State
+        viewMode: 'list', // Results default to list mode usually
+        searchQuery: 'Rentals in Kampala', // Example injected from URL
+        showFilterDrawer: false,
+        activeFilterCount: 2,
+        
+        // Sort State
+        showSortMenu: false,
+        sortBy: 'recommended',
+        sortLabel: 'Recommended',
+        sortOptions: [
+            { value: 'recommended', label: 'Recommended' },
+            { value: 'price_low', label: 'Price: Low to High' },
+            { value: 'price_high', label: 'Price: High to Low' },
+            { value: 'newest', label: 'Newest First' }
+        ],
+
+        // Data State
+        savedItems: [],
+        results: [
+            { id: 'r1', title: 'Modern 2BR Apartment', location: 'Naalya, Kampala', price: '1,200', period: 'Month', image: 'https://images.unsplash.com/photo-1502672260266-1c1e541818bd?q=80&w=400&auto=format&fit=crop', badge: 'New', details: { beds: 2, baths: 2 } },
+            { id: 'r2', title: 'Studio Flat - Tarmac Access', location: 'Kisaasi, Kampala', price: '450', period: 'Month', image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=400&auto=format&fit=crop', badge: null, details: { beds: 1, baths: 1 } },
+            { id: 'r3', title: 'Executive Bungalow', location: 'Kira, Wakiso', price: '2,500', period: 'Month', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=400&auto=format&fit=crop', badge: 'Verified', details: { beds: 3, baths: 3 } },
+            { id: 'r4', title: 'Single Room Self Contained', location: 'Ntinda, Kampala', price: '350', period: 'Month', image: 'https://images.unsplash.com/photo-1522771731470-ea43374b422a?q=80&w=400&auto=format&fit=crop', badge: 'Hot', details: { beds: 1, baths: 1 } },
+            { id: 'r5', title: '3BR Family House', location: 'Muyenga, Kampala', price: '1,800', period: 'Month', image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=400&auto=format&fit=crop', badge: null, details: { beds: 3, baths: 2 } }
+        ],
+
+        // Methods
+        handleScroll() {
+            const currentScrollY = window.scrollY;
+            
+            if (currentScrollY > this.lastScrollY && currentScrollY > 64) {
+                // Scrolling down - hide search header
+                this.showSearchHeader = false;
+            } else {
+                // Scrolling up - show search header
+                this.showSearchHeader = true;
+            }
+            this.lastScrollY = currentScrollY;
+        },
+
+        applySort(option) {
+            this.sortBy = option.value;
+            this.sortLabel = option.label;
+            this.showSortMenu = false;
+            // In reality, this would trigger a fetch/resort
+            console.log("Sorting by:", option.value);
+        },
+
+        toggleSave(id) {
+            if(this.savedItems.includes(id)) {
+                this.savedItems = this.savedItems.filter(i => i !== id);
+            } else {
+                this.savedItems.push(id);
+            }
+        },
+
+        isSaved(id) {
+            return this.savedItems.includes(id);
+        },
+
+        openSearchMode() {
+            // Trigger the global search overlay (You will reuse the overlay from index.ejs here)
+            console.log("Opening search overlay");
+        }
+    }
+}
+</script>

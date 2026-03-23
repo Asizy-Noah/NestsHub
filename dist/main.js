@@ -9,6 +9,7 @@ const path_1 = require("path");
 const app_module_1 = require("./app.module");
 const express_ejs_layouts_1 = __importDefault(require("express-ejs-layouts"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const express_1 = require("express");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useStaticAssets((0, path_1.join)(__dirname, '..', 'public'));
@@ -16,6 +17,7 @@ async function bootstrap() {
     app.setViewEngine('ejs');
     app.use(express_ejs_layouts_1.default);
     app.use((0, cookie_parser_1.default)());
+    app.use((0, express_1.json)({ limit: '10mb' }));
     app.set('layout', 'layouts/main');
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,

@@ -1,0 +1,201 @@
+<div x-data="hotelProfile()" class="bg-slate-50 dark:bg-dark-bg min-h-screen pb-24 sm:pb-8" x-cloak>
+    
+    <div class="relative w-full h-[30vh] sm:h-[45vh] bg-slate-200 dark:bg-slate-900 group overflow-hidden">
+        <div class="flex h-full w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+            <template x-for="(img, index) in hotel.gallery" :key="index">
+                <div class="w-full h-full flex-shrink-0 snap-center relative">
+                    <img :src="img" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40"></div>
+                </div>
+            </template>
+        </div>
+
+        <div class="absolute top-0 inset-x-0 p-4 flex justify-between items-start z-10">
+            <button @click="history.back()" class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-white/40 transition-colors shadow-sm">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-white/40 transition-colors shadow-sm">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-24 relative z-20">
+        <div class="bg-white dark:bg-dark-surface rounded-3xl shadow-glass p-6 sm:p-8 border border-slate-100 dark:border-slate-800">
+            
+            <div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-dark-surface shadow-md overflow-hidden relative flex-shrink-0">
+                    <img :src="hotel.profilePhoto || 'https://ui-avatars.com/api/?name=' + hotel.name" class="w-full h-full object-cover">
+                    <div x-show="hotel.isVerified" class="absolute bottom-1 right-1 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-[10px] border-2 border-white shadow-sm"><i class="fa-solid fa-check"></i></div>
+                </div>
+
+                <div class="flex-1">
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <h1 class="text-2xl sm:text-4xl font-black text-professional dark:text-white" x-text="hotel.name"></h1>
+                        <span x-show="hotel.isVerified" class="px-2 py-0.5 bg-emerald-50 text-primary rounded text-[10px] font-bold uppercase tracking-wider border border-emerald-100">Verified Partner</span>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="hotel.street + ', ' + hotel.town"></span></p>
+                    
+                    <div class="flex gap-4 sm:gap-8">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Guest Rating</p>
+                            <a href="#reviews" class="flex items-center gap-1 group">
+                                <span class="text-lg font-black text-professional dark:text-white group-hover:text-primary transition-colors" x-text="stats.rating"></span>
+                                <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                                <span class="text-xs text-slate-500 font-medium ml-1">(<span x-text="stats.reviewCount"></span>)</span>
+                            </a>
+                        </div>
+                        <div class="w-px bg-slate-200 dark:bg-slate-700"></div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Room Types</p>
+                            <p class="text-lg font-black text-professional dark:text-white" x-text="rooms.length"></p>
+                        </div>
+                        <div class="w-px bg-slate-200 dark:bg-slate-700"></div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Location</p>
+                            <p class="text-lg font-black text-professional dark:text-white"><span x-text="hotel.distanceFromTown"></span>km <span class="text-[10px] text-slate-500 font-medium">from center</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden sm:flex flex-col gap-3 w-full sm:w-auto">
+                    <button @click="toggleFollow()" class="btn-primary px-8" :class="isFollowing ? 'bg-slate-800 hover:bg-slate-900' : ''">
+                        <i class="fa-solid" :class="isFollowing ? 'fa-check' : 'fa-bell'"></i>
+                        <span x-text="isFollowing ? 'Following' : 'Get Offers'"></span>
+                    </button>
+                    <a href="#reviews" class="btn-outline border-slate-200 hover:border-slate-300 text-slate-600 bg-slate-50 px-8 text-center">Read Reviews</a>
+                </div>
+            </div>
+
+            <div class="flex sm:hidden gap-3 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <button @click="toggleFollow()" class="flex-1 btn-primary py-2.5 text-sm" :class="isFollowing ? 'bg-slate-800' : ''">
+                    <i class="fa-solid" :class="isFollowing ? 'fa-check' : 'fa-bell'"></i> <span x-text="isFollowing ? 'Following' : 'Get Offers'"></span>
+                </button>
+                <a href="#reviews" class="flex-1 btn-outline py-2.5 text-sm border-slate-200 text-center">Reviews</a>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Hotel Facilities</p>
+                <div class="flex flex-wrap gap-2">
+                    <template x-for="(value, key) in hotel.amenities" :key="key">
+                        <span x-show="value" class="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 capitalize flex items-center gap-1.5 hover:border-primary hover:text-primary transition-colors cursor-default">
+                            <i class="fa-solid fa-circle-check text-primary text-[8px]"></i> <span x-text="key.replace(/([A-Z])/g, ' $1').trim()"></span>
+                        </span>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <div class="sticky top-16 z-30 bg-slate-50 dark:bg-dark-bg pt-2 pb-4">
+            <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar">
+                <button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:border-primary hover:text-primary transition-colors shadow-sm flex-shrink-0">
+                    <i class="fa-solid fa-sliders"></i> Filter Rooms
+                </button>
+
+                <div class="relative flex-shrink-0" x-data="{ open: false }">
+                    <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:border-primary hover:text-primary transition-colors shadow-sm">
+                        <span x-text="sortLabel"></span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                    <div x-show="open" class="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 py-2 z-50" style="display: none;">
+                        <button @click="sortRooms('price_asc', 'Lowest Price'); open = false" class="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700">Lowest Price</button>
+                        <button @click="sortRooms('price_desc', 'Highest Price'); open = false" class="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700">Highest Price</button>
+                        <button @click="sortRooms('available', 'Available First'); open = false" class="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700">Available First</button>
+                    </div>
+                </div>
+
+                <button class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-semibold text-sm hover:border-primary transition-colors shadow-sm flex-shrink-0">Breakfast Included</button>
+                <button class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-semibold text-sm hover:border-primary transition-colors shadow-sm flex-shrink-0">King Bed</button>
+                <button class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-semibold text-sm hover:border-primary transition-colors shadow-sm flex-shrink-0">AC Rooms</button>
+            </div>
+        </div>
+
+        <div class="space-y-4 pb-12">
+            <template x-for="room in rooms" :key="room._id">
+                <a :href="'/public/hotels/room/' + room._id" class="block bg-white dark:bg-dark-surface rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-primary/50 transition-all p-4 sm:p-6 group relative overflow-hidden">
+                    
+                    <div class="absolute left-0 top-0 bottom-0 w-1" :class="room.availableRooms > 0 ? 'bg-primary' : 'bg-red-500'"></div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pl-2">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h3 class="text-lg font-black text-professional dark:text-white group-hover:text-primary transition-colors" x-text="room.type"></h3>
+                                <span x-show="room.availableRooms === 0" class="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[10px] font-bold uppercase tracking-wider border border-red-100">Sold Out</span>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs font-semibold text-slate-500">
+                                <span class="flex items-center gap-1 text-professional dark:text-slate-300"><i class="fa-solid fa-bed text-primary"></i> <span x-text="room.bedSize"></span></span>
+                                <span class="flex items-center gap-1" :class="room.bedAndBreakfast ? 'text-primary font-bold' : ''"><i class="fa-solid fa-mug-hot"></i> <span x-text="room.bedAndBreakfast ? 'B&B Included' : 'Room Only'"></span></span>
+                                <span class="flex items-center gap-1" x-show="room.hasAC"><i class="fa-solid fa-snowflake text-sky-500"></i> AC</span>
+                                <span class="flex items-center gap-1" x-show="room.hasTV"><i class="fa-solid fa-tv text-slate-400"></i> Smart TV</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-3 sm:pt-0">
+                            <div class="text-left sm:text-right">
+                                <span class="text-lg font-black text-primary block leading-none">UGX <span x-text="(room.price/1000).toFixed(0)"></span>K</span>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Per Night</span>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors ml-4 sm:ml-0 sm:mt-2">
+                                <i class="fa-solid fa-chevron-right text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </template>
+        </div>
+
+    </div>
+
+    <div class="fixed bottom-0 inset-x-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-4 pb-safe flex justify-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+        <div class="w-full max-w-4xl flex gap-3">
+            <a :href="`tel:${hotel.phones[0]}`" class="flex-1 btn-primary py-3.5 shadow-lg bg-slate-800 hover:bg-black text-white">
+                <i class="fa-solid fa-phone"></i> <span class="hidden sm:inline ml-2">Call Reception</span>
+            </a>
+            <a :href="`https://wa.me/${hotel.whatsapps[0]}`" target="_blank" class="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl py-3.5 flex items-center justify-center font-bold shadow-lg transition-colors">
+                <i class="fa-brands fa-whatsapp text-lg"></i> <span class="hidden sm:inline ml-2">WhatsApp</span>
+            </a>
+            <button class="flex-1 btn-outline py-3.5 border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 shadow-sm">
+                <i class="fa-regular fa-comment-dots text-lg"></i> <span class="hidden sm:inline ml-2">Inquire</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function hotelProfile() {
+    return {
+        isFollowing: false,
+        sortLabel: 'Lowest Price',
+        sortBy: 'price_asc',
+
+        // Dummy Data modeled on Hotel schemas
+        hotel: { 
+            name: 'The Pearl Resort', town: 'Entebbe', street: 'Lakeview Drive', distanceFromTown: 2.5, isVerified: true, 
+            phones: ['0700000000'], whatsapps: ['0700000000'], 
+            profilePhoto: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200',
+            gallery: ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800', 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800'], 
+            amenities: { swimmingPool: true, restaurant: true, bar: true, massage: true, freeInternet: true, parking: true, gym: true, security: true }
+        },
+        stats: { rating: 4.9, reviewCount: 340 },
+        rooms: [
+            { _id: '1', type: 'Standard Room', price: 250000, availableRooms: 8, bedSize: 'Double Bed', bedAndBreakfast: false, hasAC: true, hasTV: true },
+            { _id: '2', type: 'Deluxe Room', price: 350000, availableRooms: 3, bedSize: 'Queen Size', bedAndBreakfast: true, hasAC: true, hasTV: true },
+            { _id: '3', type: 'Executive Suite', price: 650000, availableRooms: 1, bedSize: 'King Size', bedAndBreakfast: true, hasAC: true, hasTV: true }
+        ],
+
+        toggleFollow() {
+            this.isFollowing = !this.isFollowing;
+        },
+
+        sortRooms(criteria, label) {
+            this.sortBy = criteria;
+            this.sortLabel = label;
+            
+            if(criteria === 'price_asc') this.rooms.sort((a,b) => a.price - b.price);
+            if(criteria === 'price_desc') this.rooms.sort((a,b) => b.price - a.price);
+            if(criteria === 'available') this.rooms.sort((a,b) => b.availableRooms - a.availableRooms);
+        }
+    }
+}
+</script>

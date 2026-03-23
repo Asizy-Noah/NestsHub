@@ -5,6 +5,7 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 import expressLayouts from 'express-ejs-layouts';
 import cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -18,6 +19,9 @@ async function bootstrap() {
   app.use(expressLayouts);
 
   app.use(cookieParser());
+
+  // 1. Increase JSON limit (e.g., to 50MB)
+  app.use(json({ limit: '10mb' }));
   
   // 3. Set the default layout to 'layouts/main' 
   app.set('layout', 'layouts/main');

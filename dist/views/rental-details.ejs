@@ -1,0 +1,342 @@
+<div x-data="rentalDetails()" class="bg-slate-50 dark:bg-dark-bg min-h-screen pb-24 sm:pb-8" x-cloak>
+    
+    <div class="relative w-full h-[40vh] sm:h-[60vh] bg-slate-200 dark:bg-slate-900 group overflow-hidden">
+        
+        <div class="flex h-full w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar" @scroll="updateActiveImage($event)">
+            <template x-for="(img, index) in allPhotos" :key="index">
+                <div class="w-full h-full flex-shrink-0 snap-center relative">
+                    <img :src="img" class="w-full h-full object-cover cursor-pointer" @click="openGallery(index)">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+                </div>
+            </template>
+            <div x-show="allPhotos.length === 0" class="w-full h-full flex items-center justify-center text-slate-400">
+                <i class="fa-solid fa-house-user text-6xl"></i>
+            </div>
+        </div>
+
+        <div class="absolute top-0 inset-x-0 p-4 flex justify-between items-start z-10">
+            <button @click="history.back()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="flex gap-2">
+                <button class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                <button @click="toggleSave()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
+                    <i class="fa-solid fa-heart" :class="isSaved ? 'text-red-500' : ''"></i>
+                </button>
+            </div>
+        </div>
+
+        <div x-show="allPhotos.length > 1" class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-full z-10 shadow-sm flex items-center gap-2">
+            <i class="fa-regular fa-image"></i> <span x-text="`${activeImageIndex + 1} / ${allPhotos.length}`"></span>
+        </div>
+
+        <div x-show="rental.availableUnits > 0" class="absolute bottom-4 left-4 bg-primary/90 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-full z-10 shadow-lg flex items-center gap-1">
+            <i class="fa-solid fa-check-circle"></i> Available Now
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+        
+        <div class="bg-white dark:bg-dark-surface rounded-3xl shadow-glass p-6 sm:p-8 mb-6 border border-slate-100 dark:border-slate-800">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-professional dark:text-white leading-tight mb-2" x-text="rental.category"></h1>
+                    <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-slate-300"></i>
+                        <span x-text="rental.popularAreaName + ', ' + rental.nearestTown + ' - ' + rental.district"></span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-end justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Rental Price</p>
+                    <div class="flex items-baseline gap-1 text-primary">
+                        <span class="text-xl font-bold">UGX</span>
+                        <span class="text-3xl sm:text-4xl font-black" x-text="rental.price.toLocaleString()"></span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-500 mt-1 uppercase" x-text="rental.rateType"></p>
+                </div>
+                
+                <div class="text-right flex flex-col items-end">
+                    <span class="inline-block px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider mb-1" 
+                          :class="rental.availableUnits > 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'"
+                          x-text="rental.availableUnits > 0 ? 'Available' : 'Rented Out'"></span>
+                    <p class="text-[10px] font-bold text-slate-400"><span x-text="rental.availableUnits"></span> of <span x-text="rental.totalUnits"></span> units empty</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="md:col-span-2 space-y-6">
+                
+                <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <h3 class="text-lg font-black text-professional dark:text-white mb-4">Property Description</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" x-text="generateDescription()"></p>
+                </div>
+
+                <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <h3 class="text-lg font-black text-professional dark:text-white mb-6">Unit Features</h3>
+                    
+                    <div class="grid grid-cols-2 gap-y-6 gap-x-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-layer-group"></i></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Floor</p><p class="text-sm font-bold text-professional dark:text-white" x-text="'Level ' + rental.floorLevel"></p></div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center" :class="rental.isSelfContained ? 'text-primary' : 'text-slate-400'"><i class="fa-solid fa-bath"></i></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Bathroom</p><p class="text-sm font-bold text-professional dark:text-white" x-text="rental.isSelfContained ? 'Self Contained' : 'Shared'"></p></div>
+                        </div>
+                        <div class="flex items-center gap-3" x-show="rental.hasBalcony || rental.hasVeranda">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary"><i class="fa-solid fa-cloud-sun"></i></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Outdoor Space</p><p class="text-sm font-bold text-professional dark:text-white" x-text="rental.hasBalcony ? 'Balcony' : 'Veranda'"></p></div>
+                        </div>
+                        <div class="flex items-center gap-3" x-show="rental.hasAC">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary"><i class="fa-solid fa-fan"></i></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Climate</p><p class="text-sm font-bold text-professional dark:text-white">Air Conditioning</p></div>
+                        </div>
+                        <div class="flex items-center gap-3" x-show="rental.hotWater">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary"><i class="fa-solid fa-shower"></i></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Plumbing</p><p class="text-sm font-bold text-professional dark:text-white">Hot Water Installed</p></div>
+                        </div>
+                        <div class="flex items-center gap-3" x-show="rental.accessiblePWD">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary"><i class="fa-solid fa-wheelchair"></i></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Accessibility</p><p class="text-sm font-bold text-professional dark:text-white">PWD Accessible</p></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 flex flex-wrap gap-4 border border-slate-100 dark:border-slate-700/50">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                            <i class="fa-solid fa-droplet text-blue-500"></i> Water: <span x-text="rental.paidWater ? 'Paid by Tenant' : 'Free/Included'"></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                            <i class="fa-solid fa-bolt text-amber-500"></i> Power: <span x-text="rental.paidElectricity ? 'Paid by Tenant (Yaka)' : 'Included'"></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300" x-show="rental.paidInternet">
+                            <i class="fa-solid fa-wifi text-primary"></i> Internet: Paid Connection
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800" x-show="rental.isFurnished && rental.furnishing.length > 0">
+                        <p class="text-xs font-bold text-slate-500 mb-3">Included Furnishing</p>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="item in rental.furnishing">
+                                <span class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold" x-text="item"></span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800" x-show="rental.cookingMethods && rental.cookingMethods.length > 0">
+                        <p class="text-xs font-bold text-slate-500 mb-3">Allowed Cooking Methods</p>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="method in rental.cookingMethods">
+                                <span class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300" x-text="method"></span>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <h3 class="text-lg font-black text-professional dark:text-white mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-building-user text-primary"></i> Property Details
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Building Type</p>
+                            <p class="text-sm font-black text-professional dark:text-white" x-text="rental.propertyType"></p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Tarmac Distance</p>
+                            <p class="text-sm font-black text-professional dark:text-white" x-text="rental.tarmackedAccess ? 'Direct Access' : rental.distanceToTarmac + ' Meters'"></p>
+                        </div>
+                    </div>
+
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Property Features</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-2 pb-6 border-b border-slate-100 dark:border-slate-800">
+                        <template x-for="feat in [{k: 'fenced', l: 'Fenced'}, {k: 'parking', l: 'Parking'}, {k: 'backyard', l: 'Backyard'}, {k: 'largeCompound', l: 'Large Compound'}, {k: 'greenery', l: 'Greenery'}, {k: 'cctvs', l: 'CCTV Cameras'}, {k: 'security', l: 'Security Guard'}]">
+                            <div x-show="rental[feat.k]" class="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                                <i class="fa-solid fa-circle-check text-primary text-[10px]"></i>
+                                <span x-text="feat.l"></span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 mt-6">Nearby Services</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-2">
+                        <div x-show="rental.nearbyPharmacy" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-semibold"><i class="fa-solid fa-notes-medical text-primary w-4"></i> Pharmacy Nearby</div>
+                        <div x-show="rental.nearbyGym" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-semibold"><i class="fa-solid fa-dumbbell text-primary w-4"></i> Gym / Fitness</div>
+                        <div x-show="rental.nearbyGrocery" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-semibold"><i class="fa-solid fa-basket-shopping text-primary w-4"></i> Grocery Store</div>
+                        <div x-show="rental.nearbyBodaboda" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-semibold"><i class="fa-solid fa-motorcycle text-primary w-4"></i> Bodaboda Stage</div>
+                        
+                        <div x-show="rental.hospitalName" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400"><i class="fa-solid fa-hospital text-primary w-4 mt-1"></i> <div><span class="font-bold text-[10px] uppercase block text-slate-400">Hospital</span><span class="font-semibold" x-text="rental.hospitalName"></span></div></div>
+                        <div x-show="rental.marketName" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400"><i class="fa-solid fa-store text-primary w-4 mt-1"></i> <div><span class="font-bold text-[10px] uppercase block text-slate-400">Local Market</span><span class="font-semibold" x-text="rental.marketName"></span></div></div>
+                        <div x-show="rental.restaurantLevels && rental.restaurantLevels.length" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400 sm:col-span-2"><i class="fa-solid fa-utensils text-primary w-4 mt-1"></i> <div><span class="font-bold text-[10px] uppercase block text-slate-400">Restaurants</span><span class="font-semibold" x-text="rental.restaurantLevels.join(', ')"></span></div></div>
+                    </div>
+                </div>
+                
+                <div class="bg-amber-50 dark:bg-amber-900/10 rounded-3xl p-6 sm:p-8 border border-amber-100 dark:border-amber-900/30">
+                    <h3 class="text-sm font-black text-amber-600 dark:text-amber-500 mb-3 flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> Rental Safety Advice</h3>
+                    <ul class="text-xs text-amber-700/80 dark:text-amber-400/80 space-y-2 font-medium">
+                        <li>• Do not pay inspection fees before verifying the broker's identity.</li>
+                        <li>• Ensure you sign a formal tenancy agreement before handing over rent.</li>
+                        <li>• Always visit the property physically during the day before committing.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="sticky top-24 space-y-6">
+                    
+                    <div class="bg-white dark:bg-dark-surface rounded-3xl p-4 shadow-glass border border-slate-100 dark:border-slate-800 flex flex-col gap-3">
+                        <a :href="`tel:${managerProfile.phones[0]}`" class="btn-primary w-full py-4 text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                            <i class="fa-solid fa-phone-volume"></i> Call Broker/Owner
+                        </a>
+                        <div class="flex gap-3">
+                            <a :href="`https://wa.me/${managerProfile.whatsapps[0]}`" target="_blank" class="flex-1 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-xl py-3 flex items-center justify-center gap-2 font-bold transition-colors">
+                                <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                            </a>
+                            <button @click="openMessageModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-professional dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl py-3 flex items-center justify-center gap-2 font-bold transition-colors">
+                                <i class="fa-regular fa-comment-dots text-lg"></i> Message
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm text-center">
+                        <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-dark-surface shadow-md overflow-hidden mb-3 relative">
+                            <img :src="managerProfile.photo || 'https://ui-avatars.com/api/?name=' + managerProfile.firstName" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-black text-professional dark:text-white text-lg" x-text="managerProfile.firstName + ' ' + managerProfile.lastName"></h4>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4" x-text="managerProfile.role"></p>
+                        
+                        <div class="flex justify-center gap-4 py-4 border-y border-slate-50 dark:border-slate-800/50 mb-4">
+                            <div><p class="text-lg font-black text-professional dark:text-white" x-text="managerProfile.activeListings || 12"></p><p class="text-[10px] font-bold text-slate-400 uppercase">Listings</p></div>
+                            <div class="w-px bg-slate-100 dark:bg-slate-800"></div>
+                            <div><p class="text-lg font-black text-professional dark:text-white flex items-center justify-center gap-1"><span x-text="reviews.avgRating"></span><i class="fa-solid fa-star text-amber-400 text-[10px]"></i></p><p class="text-[10px] font-bold text-slate-400 uppercase"><span x-text="reviews.total"></span> Reviews</p></div>
+                        </div>
+                        
+                        <div class="text-left bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl relative">
+                            <i class="fa-solid fa-quote-left absolute text-slate-200 dark:text-slate-700 text-2xl -top-2 -left-1"></i>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 font-medium italic relative z-10 line-clamp-3" x-text="reviews.latest.comment"></p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-2 text-right" x-text="'- ' + reviews.latest.author"></p>
+                        </div>
+                        
+                        <a href="#reviews" class="block mt-4 text-xs font-bold text-primary hover:underline">Read Broker Reviews</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <h3 class="text-xl font-black text-professional dark:text-white mb-6">Similar Rentals in <span x-text="rental.nearestTown"></span></h3>
+            <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-4">
+                <template x-for="item in similarProperties" :key="item.id">
+                    <div class="w-64 flex-shrink-0 bg-white dark:bg-dark-surface rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm group cursor-pointer">
+                        <div class="h-40 relative overflow-hidden bg-slate-100"><img :src="item.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"></div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-sm text-professional dark:text-white truncate" x-text="item.title"></h4>
+                            <p class="text-primary font-black text-sm mt-1">UGX <span x-text="item.price"></span> <span class="text-slate-400 text-[10px] uppercase ml-1" x-text="rental.rateType"></span></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-4 pb-safe flex gap-3 transition-transform duration-300"
+         :class="showMobileContact ? 'translate-y-0' : 'translate-y-full'">
+        <a :href="`tel:${managerProfile.phones[0]}`" class="flex-1 btn-primary py-3 shadow-lg"><i class="fa-solid fa-phone"></i> Call Broker</a>
+        <a :href="`https://wa.me/${managerProfile.whatsapps[0]}`" target="_blank" class="w-14 bg-[#25D366]/10 text-[#25D366] rounded-xl flex items-center justify-center text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+    </div>
+
+    <div x-show="galleryOpen" class="fixed inset-0 z-[100] bg-black flex flex-col" style="display: none;">
+        <div class="p-4 flex justify-between items-center text-white">
+            <span class="font-bold text-sm" x-text="`${activeImageIndex + 1} / ${allPhotos.length}`"></span>
+            <button @click="galleryOpen = false" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex-1 relative flex items-center justify-center overflow-hidden">
+            <img :src="allPhotos[activeImageIndex]" class="max-w-full max-h-full object-contain">
+            <button @click="activeImageIndex = (activeImageIndex - 1 + allPhotos.length) % allPhotos.length" class="absolute left-4 w-12 h-12 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80"><i class="fa-solid fa-chevron-left"></i></button>
+            <button @click="activeImageIndex = (activeImageIndex + 1) % allPhotos.length" class="absolute right-4 w-12 h-12 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+function rentalDetails() {
+    // Demo data mimicking the schema structure perfectly
+    const dummyRental = { 
+        category: '2 Bedroom Apartment', price: 850000, rateType: 'Per Month', floorLevel: 1, 
+        totalUnits: 4, availableUnits: 1, isSelfContained: true, hasBalcony: true, hasAC: false, 
+        hotWater: true, accessiblePWD: false, hasVeranda: false, paidWater: true, paidElectricity: true, paidInternet: false,
+        isFurnished: false, furnishing: [], cookingMethods: ['Gas', 'Electricity'],
+        unitPhotos: ['https://images.unsplash.com/photo-1502672260266-1c1e541818bd?w=800'],
+        propertyType: 'Apartment Complex', fenced: true, parking: true, backyard: false, largeCompound: true, greenery: true, cctvs: true, security: true, tarmackedAccess: false, distanceToTarmac: 100,
+        propertyPhotos: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800'],
+        nearbyPharmacy: true, nearbyGym: false, nearbyGrocery: true, nearbyBodaboda: true, hospitalName: 'Kira Health Center', marketName: '', restaurantLevels: ['Middle-class', 'Local'],
+        district: 'Wakiso', division: 'Kira Municipality', nearestTown: 'Najjera', distanceToTown: 1.5, popularAreaName: 'Buwate', streetName: 'Kiwatule Road'
+    };
+    
+    const dummyManager = { firstName: 'Robert', lastName: 'K.', role: 'Broker / Agent', photo: '', phones: ['0700000000'], whatsapps: ['0700000000'], activeListings: 8 };
+
+    return {
+        rental: dummyRental, managerProfile: dummyManager,
+        
+        allPhotos: [...(dummyRental.unitPhotos || []), ...(dummyRental.propertyPhotos || [])],
+        activeImageIndex: 0,
+        galleryOpen: false,
+        isSaved: false,
+        showMobileContact: false,
+
+        reviews: { avgRating: 4.6, total: 42, latest: { author: 'Sarah N.', comment: 'Robert was very professional. He showed me 3 different properties and didn\'t rush my decision.' } },
+        
+        similarProperties: [
+            { id: 1, title: 'Modern 2BR Flat', price: '900,000', image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400' },
+            { id: 2, title: 'Spacious Bungalow Annex', price: '750,000', image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400' }
+        ],
+
+        init() {
+            window.addEventListener('scroll', () => { this.showMobileContact = window.scrollY > 300; });
+        },
+
+        updateActiveImage(e) {
+            const container = e.target;
+            this.activeImageIndex = Math.round(container.scrollLeft / container.offsetWidth);
+        },
+
+        openGallery(index) {
+            this.activeImageIndex = index;
+            this.galleryOpen = true;
+        },
+
+        toggleSave() {
+            this.isSaved = !this.isSaved;
+        },
+
+        generateDescription() {
+            let desc = `This beautiful ${this.rental.category} is located in ${this.rental.popularAreaName}, just ${this.rental.distanceToTown}km from ${this.rental.nearestTown}. `;
+            desc += `It is situated on Floor ${this.rental.floorLevel} of a ${this.rental.propertyType}. `;
+            
+            let features = [];
+            if(this.rental.isSelfContained) features.push('self-contained');
+            if(this.rental.hasBalcony) features.push('a private balcony');
+            if(this.rental.hasAC) features.push('air conditioning');
+            
+            if(features.length > 0) {
+                desc += `The unit is ` + features.join(', ').replace(/, ([^,]*)$/, ' and $1') + '. ';
+            }
+
+            desc += `The property is highly secure, featuring ` + (this.rental.fenced ? 'a perimeter wall' : '') + (this.rental.security ? ' with a security guard' : '') + `. `;
+            
+            if(this.rental.tarmackedAccess) desc += `Access to the property is fully tarmacked. `;
+            else desc += `The property is located ${this.rental.distanceToTarmac} meters off the main tarmac road. `;
+
+            return desc;
+        }
+    }
+}
+</script>
