@@ -116,14 +116,58 @@ let AppController = class AppController {
             category: category || 'all'
         };
     }
-    getHostelRoom(id) {
-        return { title: 'Hostel Room Details', layout: 'layouts/public', roomId: id };
+    async getHostelRoom(id) {
+        const room = await this.hostelsService['roomModel'].findById(id).populate('managerId').lean().exec();
+        const hostel = room ? await this.hostelsService['hostelModel'].findById(room.hostelId).lean().exec() : null;
+        const manager = room?.managerId || {};
+        const payload = {
+            room: room || {},
+            hostel: hostel || {},
+            managerProfile: {
+                firstName: manager.firstName || 'Property',
+                lastName: manager.lastName || 'Manager',
+                role: manager.role || 'Hostel Manager',
+                photo: manager.profilePhoto || '',
+                phones: hostel?.phones?.length ? hostel.phones : (manager.phones || ['0700000000']),
+                whatsapps: hostel?.whatsapps?.length ? hostel.whatsapps : (manager.whatsapps || ['0700000000'])
+            }
+        };
+        return { title: `${room?.type || 'Room'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
     }
-    getHotelRoom(id) {
-        return { title: 'Hotel Room Details', layout: 'layouts/public', roomId: id };
+    async getHotelRoom(id) {
+        const room = await this.hotelsService['roomModel'].findById(id).populate('managerId').lean().exec();
+        const hotel = room ? await this.hotelsService['hotelModel'].findById(room.hotelId).lean().exec() : null;
+        const manager = room?.managerId || {};
+        const payload = {
+            room: room || {},
+            hotel: hotel || {},
+            managerProfile: {
+                firstName: manager.firstName || hotel?.name || 'Hotel',
+                lastName: manager.lastName || 'Management',
+                role: manager.role || 'Hotel Manager',
+                photo: manager.profilePhoto || hotel?.profilePhoto || '',
+                phones: hotel?.phones?.length ? hotel.phones : ['0700000000'],
+                whatsapps: hotel?.whatsapps?.length ? hotel.whatsapps : ['0700000000']
+            }
+        };
+        return { title: `${room?.type || 'Room'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
     }
-    getRentalItem(id) {
-        return { title: 'Rental Property Details', layout: 'layouts/public', itemId: id };
+    async getRentalItem(id) {
+        const rental = await this.rentalsService['rentalModel'].findById(id).populate('managerId').lean().exec();
+        const manager = rental?.managerId || {};
+        const payload = {
+            rental: rental || {},
+            managerProfile: {
+                firstName: manager.firstName || 'Property',
+                lastName: manager.lastName || 'Broker',
+                role: manager.role || 'Broker / Owner',
+                photo: manager.profilePhoto || '',
+                phones: manager.phones?.length ? manager.phones : ['0700000000'],
+                whatsapps: manager.whatsapps?.length ? manager.whatsapps : ['0700000000'],
+                activeListings: 1
+            }
+        };
+        return { title: `${rental?.category || 'Property'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
     }
     getHostelProfile(id) {
         return { title: 'Hostel Profile', layout: 'layouts/public', hostelId: id };
@@ -164,7 +208,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getHostelRoom", null);
 __decorate([
     (0, common_1.Get)('public/hotels/room/:id'),
@@ -172,7 +216,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getHotelRoom", null);
 __decorate([
     (0, common_1.Get)('public/rentals/item/:id'),
@@ -180,7 +224,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getRentalItem", null);
 __decorate([
     (0, common_1.Get)('public/hostels/:id'),

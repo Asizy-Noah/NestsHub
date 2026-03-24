@@ -125,21 +125,70 @@ export class AppController {
 
   @Get('public/hostels/room/:id')
   @Render('hostel-details')
-  getHostelRoom(@Param('id') id: string) {
-    // In the future: const roomData = await this.hostelsService.getRoomDetails(id);
-    return { title: 'Hostel Room Details', layout: 'layouts/public', roomId: id };
+  async getHostelRoom(@Param('id') id: string) {
+    const room: any = await this.hostelsService['roomModel'].findById(id).populate('managerId').lean().exec();
+    const hostel: any = room ? await this.hostelsService['hostelModel'].findById(room.hostelId).lean().exec() : null;
+    
+    const manager = room?.managerId || {};
+    const payload = {
+      room: room || {},
+      hostel: hostel || {},
+      managerProfile: {
+        firstName: manager.firstName || 'Property',
+        lastName: manager.lastName || 'Manager',
+        role: manager.role || 'Hostel Manager',
+        photo: manager.profilePhoto || '',
+        phones: hostel?.phones?.length ? hostel.phones : (manager.phones || ['0700000000']),
+        whatsapps: hostel?.whatsapps?.length ? hostel.whatsapps : (manager.whatsapps || ['0700000000'])
+      }
+    };
+
+    return { title: `${room?.type || 'Room'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
   }
 
   @Get('public/hotels/room/:id')
   @Render('hotel-details')
-  getHotelRoom(@Param('id') id: string) {
-    return { title: 'Hotel Room Details', layout: 'layouts/public', roomId: id };
+  async getHotelRoom(@Param('id') id: string) {
+    const room: any = await this.hotelsService['roomModel'].findById(id).populate('managerId').lean().exec();
+    const hotel: any = room ? await this.hotelsService['hotelModel'].findById(room.hotelId).lean().exec() : null;
+    
+    const manager = room?.managerId || {};
+    const payload = {
+      room: room || {},
+      hotel: hotel || {},
+      managerProfile: {
+        firstName: manager.firstName || hotel?.name || 'Hotel',
+        lastName: manager.lastName || 'Management',
+        role: manager.role || 'Hotel Manager',
+        photo: manager.profilePhoto || hotel?.profilePhoto || '',
+        phones: hotel?.phones?.length ? hotel.phones : ['0700000000'],
+        whatsapps: hotel?.whatsapps?.length ? hotel.whatsapps : ['0700000000']
+      }
+    };
+
+    return { title: `${room?.type || 'Room'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
   }
 
   @Get('public/rentals/item/:id')
   @Render('rental-details')
-  getRentalItem(@Param('id') id: string) {
-    return { title: 'Rental Property Details', layout: 'layouts/public', itemId: id };
+  async getRentalItem(@Param('id') id: string) {
+    const rental: any = await this.rentalsService['rentalModel'].findById(id).populate('managerId').lean().exec();
+    
+    const manager = rental?.managerId || {};
+    const payload = {
+      rental: rental || {},
+      managerProfile: {
+        firstName: manager.firstName || 'Property',
+        lastName: manager.lastName || 'Broker',
+        role: manager.role || 'Broker / Owner',
+        photo: manager.profilePhoto || '',
+        phones: manager.phones?.length ? manager.phones : ['0700000000'],
+        whatsapps: manager.whatsapps?.length ? manager.whatsapps : ['0700000000'],
+        activeListings: 1 // Default fallback
+      }
+    };
+
+    return { title: `${rental?.category || 'Property'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
   }
 
   // ==========================================

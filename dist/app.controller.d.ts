@@ -19,21 +19,21 @@ export declare class AppController {
         searchQuery: string;
         category: string;
     };
-    getHostelRoom(id: string): {
+    getHostelRoom(id: string): Promise<{
         title: string;
         layout: string;
-        roomId: string;
-    };
-    getHotelRoom(id: string): {
+        payload: string;
+    }>;
+    getHotelRoom(id: string): Promise<{
         title: string;
         layout: string;
-        roomId: string;
-    };
-    getRentalItem(id: string): {
+        payload: string;
+    }>;
+    getRentalItem(id: string): Promise<{
         title: string;
         layout: string;
-        itemId: string;
-    };
+        payload: string;
+    }>;
     getHostelProfile(id: string): {
         title: string;
         layout: string;
