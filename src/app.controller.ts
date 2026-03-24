@@ -126,21 +126,53 @@ export class AppController {
   @Get('public/hostels/room/:id')
   @Render('hostel-details')
   async getHostelRoom(@Param('id') id: string) {
-    const room: any = await this.hostelsService['roomModel'].findById(id).populate('managerId').lean().exec();
-    const hostel: any = room ? await this.hostelsService['hostelModel'].findById(room.hostelId).lean().exec() : null;
+    const roomModel = this.hostelsService['roomModel'];
+    const hostelModel = this.hostelsService['hostelModel'];
+
+    const room: any = await roomModel.findById(id).lean().exec();
+    const hostel: any = room ? await hostelModel.findById(room.hostelId).lean().exec() : null;
     
-    const manager = room?.managerId || {};
+    // Fetch all hostels for quick mapping
+    const allHostels = await hostelModel.find().lean().exec();
+
+    // 1. Comparison Rooms (Same type, different hostel)
+    const comparisonRoomsRaw = await roomModel
+      .find({ type: room?.type, hostelId: { $ne: room?.hostelId }, availableRooms: { $gt: 0 } })
+      .limit(5).lean().exec();
+
+    const comparisonRooms = comparisonRoomsRaw.map((r: any) => {
+      const h = allHostels.find((x: any) => x._id.toString() === r.hostelId?.toString());
+      return { 
+        id: r._id, type: r.type, price: r.price, period: r.pricingPeriod,
+        hostelName: h?.name, location: h?.locationName,
+        image: r.photos?.[0] || h?.gallery?.[0] || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400'
+      };
+    });
+
+    // 2. Other Rooms (Different categories or general)
+    const otherRoomsRaw = await roomModel
+      .find({ _id: { $ne: id }, availableRooms: { $gt: 0 } })
+      .limit(10).lean().exec();
+
+    const otherRooms = otherRoomsRaw.map((r: any) => {
+      const h = allHostels.find((x: any) => x._id.toString() === r.hostelId?.toString());
+      const amenities = [];
+      if (r.isSelfContained) amenities.push({ icon: 'fa-bath', text: 'Self Contained' });
+      if (r.hasAC) amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+      
+      return {
+        id: r._id, url: `/public/hostels/room/${r._id}`, title: `${r.type} Room at ${h?.name || 'Hostel'}`,
+        location: h?.locationName || '', price: r.price, period: r.pricingPeriod || 'Semester',
+        image: r.photos?.[0] || h?.gallery?.[0] || 'https://images.unsplash.com/photo-1522771731470-ea43374b422a?w=400',
+        badge: h?.isVerified ? 'Verified' : null, amenities
+      };
+    });
+
     const payload = {
       room: room || {},
       hostel: hostel || {},
-      managerProfile: {
-        firstName: manager.firstName || 'Property',
-        lastName: manager.lastName || 'Manager',
-        role: manager.role || 'Hostel Manager',
-        photo: manager.profilePhoto || '',
-        phones: hostel?.phones?.length ? hostel.phones : (manager.phones || ['0700000000']),
-        whatsapps: hostel?.whatsapps?.length ? hostel.whatsapps : (manager.whatsapps || ['0700000000'])
-      }
+      comparisonRooms,
+      otherRooms
     };
 
     return { title: `${room?.type || 'Room'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
@@ -149,21 +181,54 @@ export class AppController {
   @Get('public/hotels/room/:id')
   @Render('hotel-details')
   async getHotelRoom(@Param('id') id: string) {
-    const room: any = await this.hotelsService['roomModel'].findById(id).populate('managerId').lean().exec();
-    const hotel: any = room ? await this.hotelsService['hotelModel'].findById(room.hotelId).lean().exec() : null;
+    const roomModel = this.hotelsService['roomModel'];
+    const hotelModel = this.hotelsService['hotelModel'];
+
+    const room: any = await roomModel.findById(id).lean().exec();
+    const hotel: any = room ? await hotelModel.findById(room.hotelId).lean().exec() : null;
     
-    const manager = room?.managerId || {};
+    // Fetch all hotels for quick mapping
+    const allHotels = await hotelModel.find().lean().exec();
+
+    // 1. Comparison Rooms (Same type, different hotel)
+    const comparisonRoomsRaw = await roomModel
+      .find({ type: room?.type, hotelId: { $ne: room?.hotelId }, availableRooms: { $gt: 0 } })
+      .limit(5).lean().exec();
+
+    const comparisonRooms = comparisonRoomsRaw.map((r: any) => {
+      const h = allHotels.find((x: any) => x._id.toString() === r.hotelId?.toString());
+      return { 
+        id: r._id, type: r.type, price: r.price, period: r.pricingPeriod || 'Night',
+        hotelName: h?.name || 'Hotel', location: h?.districtOrCity || '',
+        image: r.photos?.[0] || h?.gallery?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400'
+      };
+    });
+
+    // 2. Other Rooms (Different categories or general)
+    const otherRoomsRaw = await roomModel
+      .find({ _id: { $ne: id }, availableRooms: { $gt: 0 } })
+      .limit(10).lean().exec();
+
+    const otherRooms = otherRoomsRaw.map((r: any) => {
+      const h = allHotels.find((x: any) => x._id.toString() === r.hotelId?.toString());
+      const amenities = [];
+      if (r.bedAndBreakfast) amenities.push({ icon: 'fa-mug-hot', text: 'Breakfast' });
+      if (r.hasAC) amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+      if (r.hotWater) amenities.push({ icon: 'fa-shower', text: 'Hot Water' });
+      
+      return {
+        id: r._id, url: `/public/hotels/room/${r._id}`, title: `${r.type} at ${h?.name || 'Hotel'}`,
+        location: h?.districtOrCity || '', price: r.price, period: r.pricingPeriod || 'Night',
+        image: r.photos?.[0] || h?.gallery?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+        badge: h?.isVerified ? 'Verified' : null, amenities
+      };
+    });
+
     const payload = {
       room: room || {},
       hotel: hotel || {},
-      managerProfile: {
-        firstName: manager.firstName || hotel?.name || 'Hotel',
-        lastName: manager.lastName || 'Management',
-        role: manager.role || 'Hotel Manager',
-        photo: manager.profilePhoto || hotel?.profilePhoto || '',
-        phones: hotel?.phones?.length ? hotel.phones : ['0700000000'],
-        whatsapps: hotel?.whatsapps?.length ? hotel.whatsapps : ['0700000000']
-      }
+      comparisonRooms,
+      otherRooms
     };
 
     return { title: `${room?.type || 'Room'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };
@@ -172,20 +237,73 @@ export class AppController {
   @Get('public/rentals/item/:id')
   @Render('rental-details')
   async getRentalItem(@Param('id') id: string) {
-    const rental: any = await this.rentalsService['rentalModel'].findById(id).populate('managerId').lean().exec();
+    const rentalModel = this.rentalsService['rentalModel'];
     
+    // Fetch the specific rental and populate its manager
+    const rental: any = await rentalModel.findById(id).populate('managerId').lean().exec();
     const manager = rental?.managerId || {};
+
+    // 1. Comparison Rentals (Broader Search: Matches Category OR Property Type)
+    const comparisonRaw = await rentalModel
+      .find({ 
+        $or: [
+          { category: rental?.category }, 
+          { propertyType: rental?.propertyType }
+        ],
+        _id: { $ne: rental?._id }, 
+        availableUnits: { $gt: 0 } 
+      })
+      .limit(5).lean().exec();
+
+    const comparisonRentals = comparisonRaw.map((r: any) => {
+      // Build dynamic amenities array for comparison cards
+      const amenities = [];
+      if (r.isSelfContained) amenities.push({ icon: 'fa-bath', text: 'Self Contained' });
+      if (r.fenced) amenities.push({ icon: 'fa-shield-halved', text: 'Fenced' });
+      if (r.parking) amenities.push({ icon: 'fa-square-parking', text: 'Parking' });
+      if (r.hasAC) amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+
+      return {
+        id: r._id, url: `/public/rentals/item/${r._id}`, title: `${r.category} in ${r.propertyType}`,
+        location: r.nearestTown || r.district || '', price: r.price, period: r.rateType || 'Month',
+        image: r.unitPhotos?.[0] || r.propertyPhotos?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1e541818bd?w=400',
+        badge: 'Compare', amenities: amenities.slice(0, 2) // Limit to 2 for smaller cards
+      };
+    });
+
+    // 2. Other Rentals
+    const otherRaw = await rentalModel
+      .find({ _id: { $ne: id }, availableUnits: { $gt: 0 } })
+      .limit(10).lean().exec();
+
+    const otherRentals = otherRaw.map((r: any) => {
+      const amenities = [];
+      if (r.isSelfContained) amenities.push({ icon: 'fa-bath', text: 'Self Contained' });
+      if (r.fenced) amenities.push({ icon: 'fa-shield-halved', text: 'Fenced' });
+      if (r.parking) amenities.push({ icon: 'fa-square-parking', text: 'Parking' });
+      if (r.hasAC) amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+
+      return {
+        id: r._id, url: `/public/rentals/item/${r._id}`, title: `${r.category} in ${r.propertyType}`,
+        location: r.nearestTown || r.district || '', price: r.price, period: r.rateType || 'Month',
+        image: r.unitPhotos?.[0] || r.propertyPhotos?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1e541818bd?w=400',
+        badge: 'Available', amenities: amenities.slice(0, 3)
+      };
+    });
+
     const payload = {
       rental: rental || {},
       managerProfile: {
+        _id: manager._id || '',
         firstName: manager.firstName || 'Property',
         lastName: manager.lastName || 'Broker',
         role: manager.role || 'Broker / Owner',
         photo: manager.profilePhoto || '',
         phones: manager.phones?.length ? manager.phones : ['0700000000'],
-        whatsapps: manager.whatsapps?.length ? manager.whatsapps : ['0700000000'],
-        activeListings: 1 // Default fallback
-      }
+        whatsapps: manager.whatsapps?.length ? manager.whatsapps : ['0700000000']
+      },
+      comparisonRentals,
+      otherRentals
     };
 
     return { title: `${rental?.category || 'Property'} Details`, layout: 'layouts/public', payload: JSON.stringify(payload) };

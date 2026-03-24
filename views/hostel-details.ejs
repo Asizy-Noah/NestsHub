@@ -1,4 +1,4 @@
-<div x-data="propertyDetails(<%= typeof payload !== 'undefined' ? payload : '{}' %>)" class="bg-slate-50 dark:bg-dark-bg min-h-screen pb-24 sm:pb-8" x-cloak>
+<div x-data="hostelRoomDetails(<%= typeof payload !== 'undefined' ? payload : '{}' %>)" class="bg-slate-50 dark:bg-dark-bg min-h-screen pb-24 sm:pb-8" x-cloak>
     
     <div class="relative w-full h-[40vh] sm:h-[60vh] bg-slate-200 dark:bg-slate-900 group overflow-hidden">
         <div class="flex h-full w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar" @scroll="updateActiveImage($event)">
@@ -14,29 +14,17 @@
         </div>
 
         <div class="absolute top-0 inset-x-0 p-4 flex justify-between items-start z-10">
-            <button @click="history.back()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
+            <button @click="history.back()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm"><i class="fa-solid fa-arrow-left"></i></button>
             <div class="flex gap-2">
-                <button class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
-                    <i class="fa-solid fa-share-nodes"></i>
-                </button>
-                <button @click="toggleSave()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
-                    <i class="fa-solid fa-heart" :class="isSaved ? 'text-red-500' : ''"></i>
-                </button>
+                <button class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm"><i class="fa-solid fa-share-nodes"></i></button>
+                <button @click="toggleSave()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm"><i class="fa-solid fa-heart" :class="isSaved ? 'text-red-500' : ''"></i></button>
             </div>
         </div>
 
-        <div x-show="allPhotos.length > 1" class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-full z-10 shadow-sm flex items-center gap-2">
-            <i class="fa-regular fa-image"></i> <span x-text="`${activeImageIndex + 1} / ${allPhotos.length}`"></span>
-        </div>
-
-        <div x-show="hostel.isVerified" class="absolute bottom-4 left-4 bg-primary/90 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-full z-10 shadow-lg flex items-center gap-1">
-            <i class="fa-solid fa-shield-check"></i> Verified
-        </div>
+        <div x-show="allPhotos.length > 1" class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-full z-10 shadow-sm flex items-center gap-2"><i class="fa-regular fa-image"></i> <span x-text="`${activeImageIndex + 1} / ${allPhotos.length}`"></span></div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
         
         <div class="bg-white dark:bg-dark-surface rounded-3xl shadow-glass p-6 sm:p-8 mb-6 border border-slate-100 dark:border-slate-800">
             <div class="flex justify-between items-start mb-2">
@@ -44,7 +32,8 @@
                     <h1 class="text-2xl sm:text-3xl font-black text-professional dark:text-white leading-tight mb-2" x-text="room.type + ' Room'"></h1>
                     <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-2">
                         <i class="fa-solid fa-location-dot text-slate-300"></i>
-                        <span x-text="hostel.name + ' • ' + (hostel.popularAreaName || '') + ', ' + (hostel.locationName || '')"></span>
+                        <a :href="'/public/hostels/' + hostel._id" class="hover:text-primary transition-colors font-bold" x-text="hostel.name"></a>
+                        <span x-text="' • ' + (hostel.popularAreaName || '') + ', ' + (hostel.locationName || '')"></span>
                     </p>
                 </div>
             </div>
@@ -52,70 +41,81 @@
             <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-end justify-between">
                 <div>
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Rental Rate</p>
-                    <div class="flex items-baseline gap-1 text-primary">
-                        <span class="text-xl font-bold">UGX</span>
-                        <span class="text-3xl sm:text-4xl font-black" x-text="Number(room.price).toLocaleString()"></span>
-                    </div>
+                    <div class="flex items-baseline gap-1 text-primary"><span class="text-xl font-bold">UGX</span><span class="text-3xl sm:text-4xl font-black" x-text="Number(room.price).toLocaleString()"></span></div>
                     <p class="text-xs font-bold text-slate-500 mt-1 uppercase" x-text="room.pricingPeriod"></p>
                 </div>
-                
                 <div class="text-right">
-                    <span class="inline-block px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider mb-1" 
-                          :class="room.availableRooms > 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'"
-                          x-text="room.availableRooms > 0 ? 'Available' : 'Sold Out'"></span>
+                    <span class="inline-block px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider mb-1" :class="room.availableRooms > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'" x-text="room.availableRooms > 0 ? 'Available' : 'Sold Out'"></span>
                     <p class="text-[10px] font-bold text-slate-400"><span x-text="room.availableRooms"></span> of <span x-text="room.totalRooms"></span> units left</p>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="flex flex-col lg:flex-row gap-6">
             
-            <div class="md:col-span-2 space-y-6">
+            <div class="lg:w-2/3 space-y-6">
                 
                 <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <h3 class="text-lg font-black text-professional dark:text-white mb-4">About this Room</h3>
-                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" x-text="generateRoomDescription()"></p>
+                    <h3 class="text-lg font-black text-professional dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-list-check text-primary"></i> Room Specifications</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-door-open w-4 text-center text-slate-300"></i> Room Type</span>
+                            <span class="text-sm font-bold text-professional dark:text-white" x-text="room.type"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-layer-group w-4 text-center text-slate-300"></i> Floor Level</span>
+                            <span class="text-sm font-bold text-professional dark:text-white" x-text="room.floorLevel"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-bath w-4 text-center text-slate-300"></i> Bathroom</span>
+                            <span class="text-sm font-bold" :class="room.isSelfContained ? 'text-primary' : 'text-slate-600 dark:text-slate-400'" x-text="room.isSelfContained ? 'Self Contained' : 'Shared'"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-couch w-4 text-center text-slate-300"></i> Furnished</span>
+                            <span class="text-sm font-bold" :class="room.isFurnished ? 'text-primary' : 'text-slate-600 dark:text-slate-400'" x-text="room.isFurnished ? 'Yes' : 'No'"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-cloud-sun w-4 text-center text-slate-300"></i> Balcony</span>
+                            <span class="text-sm font-bold text-professional dark:text-white" x-text="room.hasBalcony ? 'Available' : 'None'"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-fan w-4 text-center text-slate-300"></i> Air Conditioning</span>
+                            <span class="text-sm font-bold text-professional dark:text-white" x-text="room.hasAC ? 'Yes' : 'No'"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-wheelchair w-4 text-center text-slate-300"></i> Accessibility</span>
+                            <span class="text-sm font-bold text-professional dark:text-white" x-text="room.isAccessible ? 'PWD Friendly' : 'Standard Access'"></span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800/50">
+                            <span class="text-sm text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-hashtag w-4 text-center text-slate-300"></i> Total Units</span>
+                            <span class="text-sm font-bold text-professional dark:text-white" x-text="room.totalRooms + ' Units'"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-4">
+                        <div x-show="room.isFurnished && room.furniture.length > 0">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Included Furniture</p>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="item in room.furniture">
+                                    <span class="px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold" x-text="item"></span>
+                                </template>
+                            </div>
+                        </div>
+                        <div x-show="room.cookingMethods && room.cookingMethods.length > 0">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Allowed Cooking Methods</p>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="method in room.cookingMethods">
+                                    <span class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300" x-text="method"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <h3 class="text-lg font-black text-professional dark:text-white mb-6">Room Specifications</h3>
-                    
-                    <div class="grid grid-cols-2 gap-y-6 gap-x-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-layer-group"></i></div>
-                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Floor Level</p><p class="text-sm font-bold text-professional dark:text-white" x-text="room.floorLevel || 'Ground'"></p></div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400" :class="room.isSelfContained ? 'text-primary' : ''"><i class="fa-solid fa-bath"></i></div>
-                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Bathroom</p><p class="text-sm font-bold text-professional dark:text-white" x-text="room.isSelfContained ? 'Self Contained' : 'Shared'"></p></div>
-                        </div>
-                        <div class="flex items-center gap-3" x-show="room.hasBalcony">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary"><i class="fa-solid fa-cloud-sun"></i></div>
-                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">View</p><p class="text-sm font-bold text-professional dark:text-white">Private Balcony</p></div>
-                        </div>
-                        <div class="flex items-center gap-3" x-show="room.hasAC">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary"><i class="fa-solid fa-fan"></i></div>
-                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Climate</p><p class="text-sm font-bold text-professional dark:text-white">Air Conditioning</p></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800" x-show="room.cookingMethods && room.cookingMethods.length > 0">
-                        <p class="text-xs font-bold text-slate-500 mb-3">Allowed Cooking Methods</p>
-                        <div class="flex flex-wrap gap-2">
-                            <template x-for="method in room.cookingMethods">
-                                <span class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300" x-text="method"></span>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800" x-show="room.isFurnished && room.furniture.length > 0">
-                        <p class="text-xs font-bold text-slate-500 mb-3">Included Furniture</p>
-                        <div class="flex flex-wrap gap-2">
-                            <template x-for="item in room.furniture">
-                                <span class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold" x-text="item"></span>
-                            </template>
-                        </div>
-                    </div>
+                    <h3 class="text-lg font-black text-professional dark:text-white mb-4">About this Room</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" x-text="generateRoomDescription()"></p>
                 </div>
 
                 <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
@@ -123,61 +123,166 @@
                         <i class="fa-solid fa-building text-primary"></i> About <span x-text="hostel.name"></span>
                     </h3>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
                             <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Distance to Campus</p>
-                            <p class="text-sm font-black text-professional dark:text-white" x-text="(hostel.distance || 0) + ' Meters'"></p>
+                            <p class="text-base font-black text-professional dark:text-white" x-text="(hostel.distance || 0) + ' Meters'"></p>
                         </div>
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
                             <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Environment</p>
-                            <p class="text-sm font-black text-professional dark:text-white" x-text="hostel.locationType || 'Standard'"></p>
+                            <p class="text-base font-black text-professional dark:text-white" x-text="hostel.locationType || 'Standard'"></p>
                         </div>
                     </div>
 
-                    <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Hostel Amenities</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-2">
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">General Hostel Amenities</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-4">
                         <template x-for="(value, key) in hostel.amenities" :key="key">
-                            <div x-show="value" class="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-400">
-                                <i class="fa-solid fa-circle-check text-primary text-[10px]"></i>
+                            <div x-show="value" class="flex items-center gap-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                                    <i class="fa-solid fa-check text-xs"></i>
+                                </div>
                                 <span class="capitalize" x-text="key.replace(/([A-Z])/g, ' $1').trim()"></span>
                             </div>
                         </template>
                     </div>
                 </div>
+
+                <div class="bg-amber-50 dark:bg-amber-900/10 rounded-3xl p-6 sm:p-8 border border-amber-200 dark:border-amber-900/30">
+                    <h3 class="text-sm font-black text-amber-700 dark:text-amber-500 mb-3 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Important Safety Tips</h3>
+                    <ul class="text-xs text-amber-800/80 dark:text-amber-400/80 space-y-2 font-semibold">
+                        <li>• Do not pay any booking or viewing fees before physically visiting <a :href="'/public/hostels/' + hostel._id" class="font-bold underline text-amber-900 dark:text-amber-300" x-text="hostel.name"></a>.</li>
+                        <li>• Verify the manager's identity at the physical hostel premises before signing contracts.</li>
+                        <li>• NestHub does not handle payments directly for this property.</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="space-y-6">
+            <div class="lg:w-1/3 space-y-6">
                 <div class="sticky top-24 space-y-6">
+                    
                     <div class="bg-white dark:bg-dark-surface rounded-3xl p-4 shadow-glass border border-slate-100 dark:border-slate-800 flex flex-col gap-3">
-                        <a :href="`tel:${managerProfile.phones[0]}`" class="btn-primary w-full py-4 text-base shadow-lg">
-                            <i class="fa-solid fa-phone-volume"></i> Call Manager
-                        </a>
+                        <a :href="`tel:${hostel.phones && hostel.phones[0] ? hostel.phones[0] : managerProfile.phones[0]}`" class="btn-primary w-full py-4 text-base shadow-lg"><i class="fa-solid fa-phone-volume"></i> Call Hostel</a>
                         <div class="flex gap-3">
-                            <a :href="`https://wa.me/${managerProfile.whatsapps[0]}`" target="_blank" class="flex-1 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-xl py-3 flex items-center justify-center gap-2 font-bold transition-colors">
-                                <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
-                            </a>
-                            <button @click="alert('Messaging coming soon!')" class="flex-1 bg-slate-100 dark:bg-slate-800 text-professional dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl py-3 flex items-center justify-center gap-2 font-bold transition-colors">
-                                <i class="fa-regular fa-comment-dots text-lg"></i> Message
-                            </button>
+                            <a :href="`https://wa.me/${hostel.whatsapps && hostel.whatsapps[0] ? hostel.whatsapps[0] : managerProfile.whatsapps[0]}`" target="_blank" class="flex-1 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-xl py-3 flex items-center justify-center gap-2 font-bold transition-colors"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
+                            <button @click="alert('Messaging coming soon!')" class="flex-1 bg-slate-100 dark:bg-slate-800 text-professional dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl py-3 flex items-center justify-center gap-2 font-bold transition-colors"><i class="fa-regular fa-comment-dots text-lg"></i> Message</button>
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-dark-surface rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm text-center">
-                        <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-dark-surface shadow-md overflow-hidden mb-3 relative">
-                            <img :src="managerProfile.photo || 'https://ui-avatars.com/api/?name=' + managerProfile.firstName" class="w-full h-full object-cover">
+                    <a :href="'/public/hostels/' + hostel._id" class="block bg-white dark:bg-dark-surface rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm text-center hover:shadow-md hover:border-primary/50 transition-all group">
+                        <div class="w-24 h-24 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-50 dark:border-dark-surface shadow-sm overflow-hidden mb-4 relative">
+                            <img :src="hostel.profilePhoto || 'https://ui-avatars.com/api/?name=' + hostel.name" class="w-full h-full object-cover">
+                            <div x-show="hostel.isVerified" class="absolute bottom-0 right-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-check"></i></div>
                         </div>
-                        <h4 class="font-black text-professional dark:text-white text-lg" x-text="managerProfile.firstName + ' ' + managerProfile.lastName"></h4>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4" x-text="managerProfile.role.replace('_', ' ')"></p>
+                        <h4 class="font-black text-professional dark:text-white text-xl group-hover:text-primary transition-colors leading-tight" x-text="hostel.name"></h4>
+                        <p class="text-xs font-bold text-slate-400 mt-1.5 uppercase tracking-wider">Official Profile</p>
+                        
+                        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-center items-center gap-2 text-sm font-bold text-primary group-hover:underline">
+                            View All Rooms & Reviews <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800" x-show="comparisonRooms.length > 0">
+            <h3 class="text-xl font-black text-professional dark:text-white mb-6">Compare Similar <span x-text="room.type"></span> Rooms</h3>
+            
+            <div class="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-6 relative items-stretch">
+                
+                <div class="w-40 sm:w-64 flex-shrink-0 sticky left-0 z-20 bg-slate-50 dark:bg-dark-bg pr-3 sm:pr-4 -ml-4 pl-4 snap-start">
+                    <div class="bg-primary/5 border-2 border-primary rounded-2xl h-full shadow-lg overflow-hidden flex flex-col relative">
+                        <div class="absolute top-0 inset-x-0 bg-primary text-white text-[8px] sm:text-[10px] font-black uppercase text-center py-1 z-10">Current</div>
+                        <div class="h-24 sm:h-32 bg-slate-200 relative overflow-hidden"><img :src="allPhotos[0]" class="w-full h-full object-cover"></div>
+                        <div class="p-3 sm:p-4 flex-1 flex flex-col">
+                            <h4 class="font-bold text-xs sm:text-sm text-professional dark:text-white truncate" x-text="hostel.name"></h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mb-2 truncate" x-text="hostel.locationName"></p>
+                            <div class="mt-auto text-primary font-black text-xs sm:text-base">UGX <span x-text="Number(room.price).toLocaleString()"></span></div>
+                        </div>
                     </div>
                 </div>
+
+                <template x-for="comp in comparisonRooms" :key="comp.id">
+                    <a :href="'/public/hostels/room/' + comp.id" class="w-40 sm:w-64 flex-shrink-0 bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-slate-700 h-full overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col relative z-10 group snap-start">
+                        <div class="h-24 sm:h-32 bg-slate-100 relative overflow-hidden"><img :src="comp.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="$event.target.src='https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'"></div>
+                        <div class="p-3 sm:p-4 flex-1 flex flex-col">
+                            <h4 class="font-bold text-xs sm:text-sm text-professional dark:text-white truncate group-hover:text-primary transition-colors" x-text="comp.hostelName"></h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mb-2 truncate" x-text="comp.location"></p>
+                            <div class="mt-auto text-slate-700 dark:text-slate-300 font-black text-xs sm:text-base">UGX <span x-text="Number(comp.price).toLocaleString()"></span></div>
+                        </div>
+                    </a>
+                </template>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800" x-show="otherRooms.length > 0">
+            <div class="flex justify-between items-end mb-6">
+                <h3 class="text-xl font-black text-professional dark:text-white">More Options to Consider</h3>
+                <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
+                    <button @click="viewMode = 'grid'" class="w-8 h-8 rounded flex items-center justify-center transition-colors" :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400'"><i class="fa-solid fa-grip"></i></button>
+                    <button @click="viewMode = 'list'" class="w-8 h-8 rounded flex items-center justify-center transition-colors" :class="viewMode === 'list' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400'"><i class="fa-solid fa-list"></i></button>
+                </div>
+            </div>
+
+            <div x-show="viewMode === 'grid'" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                <template x-for="item in otherRooms" :key="item.id">
+                    <a :href="item.url" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/50 transition-all group flex flex-col h-full relative">
+                        <div class="relative w-full pt-[85%] bg-slate-100 overflow-hidden">
+                            <img :src="item.image" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="$event.target.src='https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'">
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm" x-show="item.badge" x-text="item.badge"></div>
+                        </div>
+                        <div class="p-3 flex flex-col flex-1">
+                            <h4 class="font-bold text-sm text-professional dark:text-white line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors" x-text="item.title"></h4>
+                            <p class="text-xs text-slate-500 font-medium mb-2 truncate"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="item.location"></span></p>
+                            
+                            <div class="flex flex-wrap gap-1 mb-2 mt-auto">
+                                <template x-for="(am, index) in item.amenities" :key="index">
+                                    <span class="text-[9px] font-bold bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                        <i class="fa-solid mr-1 text-slate-400" :class="am.icon"></i><span x-text="am.text"></span>
+                                    </span>
+                                </template>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <span class="text-primary font-black text-sm">UGX <span x-text="Number(item.price).toLocaleString()"></span><span class="text-[10px] text-slate-400 font-bold ml-1 uppercase hidden sm:inline" x-text="item.period"></span></span>
+                            </div>
+                        </div>
+                    </a>
+                </template>
+            </div>
+
+            <div x-show="viewMode === 'list'" class="space-y-3">
+                <template x-for="item in otherRooms" :key="item.id">
+                    <a :href="item.url" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all group flex h-36 sm:h-40">
+                        <div class="w-32 sm:w-48 flex-shrink-0 relative overflow-hidden bg-slate-100 dark:bg-slate-800">
+                            <img :src="item.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="$event.target.src='https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'">
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm" x-show="item.badge" x-text="item.badge"></div>
+                        </div>
+                        <div class="p-3 sm:p-4 flex flex-col flex-1 min-w-0 relative">
+                            <h4 class="font-bold text-sm sm:text-base text-professional dark:text-white truncate group-hover:text-primary transition-colors pr-6" x-text="item.title"></h4>
+                            <p class="text-xs text-slate-500 font-medium mb-1 truncate"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="item.location"></span></p>
+                            
+                            <div class="flex flex-wrap gap-1.5 mt-1">
+                                <template x-for="(am, index) in item.amenities" :key="index">
+                                    <span class="text-[9px] sm:text-[10px] font-bold bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-2 py-0.5 sm:py-1 rounded text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                        <i class="fa-solid mr-1 text-slate-400" :class="am.icon"></i><span x-text="am.text"></span>
+                                    </span>
+                                </template>
+                            </div>
+
+                            <div class="mt-auto flex justify-between items-end">
+                                <span class="text-primary font-black text-sm sm:text-lg leading-none">UGX <span x-text="Number(item.price).toLocaleString()"></span> <span class="text-[10px] text-slate-400 font-bold uppercase block sm:inline mt-0.5 sm:mt-0" x-text="item.period"></span></span>
+                            </div>
+                        </div>
+                    </a>
+                </template>
             </div>
         </div>
     </div>
 
     <div class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-4 pb-safe flex gap-3 transition-transform duration-300"
          :class="showMobileContact ? 'translate-y-0' : 'translate-y-full'">
-        <a :href="`tel:${managerProfile.phones[0]}`" class="flex-1 btn-primary py-3 shadow-lg"><i class="fa-solid fa-phone"></i> Call</a>
-        <a :href="`https://wa.me/${managerProfile.whatsapps[0]}`" target="_blank" class="w-14 bg-[#25D366]/10 text-[#25D366] rounded-xl flex items-center justify-center text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+        <a :href="`tel:${hostel.phones && hostel.phones[0] ? hostel.phones[0] : managerProfile.phones[0]}`" class="flex-1 btn-primary py-3 shadow-lg"><i class="fa-solid fa-phone"></i> Call</a>
+        <a :href="`https://wa.me/${hostel.whatsapps && hostel.whatsapps[0] ? hostel.whatsapps[0] : managerProfile.whatsapps[0]}`" target="_blank" class="w-14 bg-[#25D366]/10 text-[#25D366] rounded-xl flex items-center justify-center text-xl"><i class="fa-brands fa-whatsapp"></i></a>
     </div>
 
     <div x-show="galleryOpen" class="fixed inset-0 z-[100] bg-black flex flex-col" style="display: none;">
@@ -194,40 +299,35 @@
 </div>
 
 <script>
-function propertyDetails(serverData) {
+function hostelRoomDetails(serverData) {
     const room = serverData?.room || {};
     const hostel = serverData?.hostel || {};
     const manager = serverData?.managerProfile || {};
 
     return {
-        // Robust Fallbacks to prevent Alpine crashes
-        room: Object.assign({ type: 'Standard', price: 0, availableRooms: 0, totalRooms: 0, photos: [], cookingMethods: [], furniture: [] }, room),
-        hostel: Object.assign({ name: 'Hostel', phones: [''], whatsapps: [''], gallery: [], amenities: {} }, hostel),
-        managerProfile: Object.assign({ firstName: 'Manager', lastName: '', photo: '', phones: [''], whatsapps: [''] }, manager),
+        // Robust Fallbacks based on your EXACT schema
+        room: Object.assign({ type: 'Standard', price: 0, availableRooms: 0, totalRooms: 0, floorLevel: 'Ground', isSelfContained: false, hasBalcony: false, hasAC: false, isAccessible: false, pricingPeriod: 'Per Semester', cookingMethods: [], isFurnished: false, furniture: [], photos: [] }, room),
+        hostel: Object.assign({ _id: '', name: 'Hostel', locationName: '', popularAreaName: '', distance: 0, locationType: 'Standard', phones: [''], whatsapps: [''], gallery: [], isVerified: false, amenities: {} }, hostel),
+        managerProfile: Object.assign({ phones: [''], whatsapps: [''] }, manager), // Fallback if hostel lacks contacts
         
+        comparisonRooms: serverData?.comparisonRooms || [],
+        otherRooms: serverData?.otherRooms || [],
+        
+        viewMode: 'grid',
         allPhotos: [...(room.photos || []), ...(hostel.gallery || [])],
-        activeImageIndex: 0,
-        galleryOpen: false,
-        isSaved: false,
-        showMobileContact: false,
+        activeImageIndex: 0, galleryOpen: false, isSaved: false, showMobileContact: false,
 
-        init() {
-            window.addEventListener('scroll', () => { this.showMobileContact = window.scrollY > 300; });
-        },
-        updateActiveImage(e) {
-            const container = e.target;
-            this.activeImageIndex = Math.round(container.scrollLeft / container.offsetWidth);
-        },
-        openGallery(index) {
-            this.activeImageIndex = index;
-            this.galleryOpen = true;
-        },
+        init() { window.addEventListener('scroll', () => { this.showMobileContact = window.scrollY > 300; }); },
+        updateActiveImage(e) { this.activeImageIndex = Math.round(e.target.scrollLeft / e.target.offsetWidth); },
+        openGallery(index) { this.activeImageIndex = index; this.galleryOpen = true; },
         toggleSave() { this.isSaved = !this.isSaved; },
+        
         generateRoomDescription() {
             let desc = `This is a spacious ${this.room.type} room located on Floor ${this.room.floorLevel || 'Ground'}. `;
             desc += `It is a ${this.room.isSelfContained ? 'self-contained' : 'standard'} unit `;
             desc += this.room.hasBalcony ? 'featuring a private balcony. ' : '. ';
-            if (this.room.isFurnished) desc += `The room comes fully furnished for your convenience. `;
+            if (this.room.isAccessible) desc += `The room is specifically designed to be accessible for persons with disabilities. `;
+            if (this.room.isFurnished) desc += `It comes fully furnished to make your move-in seamless. `;
             if (this.room.cookingMethods && this.room.cookingMethods.length) {
                 desc += `Cooking is permitted using ${this.room.cookingMethods.join(' or ')}. `;
             }
