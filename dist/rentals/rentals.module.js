@@ -26,6 +26,7 @@ exports.RentalsModule = RentalsModule = __decorate([
         ],
         controllers: [rentals_controller_1.RentalsController],
         providers: [rentals_service_1.RentalsService],
+        exports: [rentals_service_1.RentalsService],
     })
 ], RentalsModule);
 //# sourceMappingURL=rentals.module.js.map

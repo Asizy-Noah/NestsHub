@@ -50,7 +50,7 @@ let Hostel = class Hostel extends mongoose_2.Document {
 exports.Hostel = Hostel;
 __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Account', required: true }),
-    __metadata("design:type", mongoose_2.default.Schema.Types.ObjectId)
+    __metadata("design:type", mongoose_2.default.Types.ObjectId)
 ], Hostel.prototype, "managerId", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),

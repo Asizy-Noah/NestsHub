@@ -3,6 +3,9 @@ import mongoose, { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Room extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true })
+  managerId!: mongoose.Types.ObjectId;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Hostel', required: true })
   hostelId!: mongoose.Schema.Types.ObjectId;
 

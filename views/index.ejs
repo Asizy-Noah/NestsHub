@@ -1,33 +1,66 @@
-<div x-data="publicFeed()" class="min-h-screen relative w-full">
+<div x-data="publicFeed(<%= typeof feedData !== 'undefined' ? feedData : '{}' %>)" class="min-h-screen relative w-full" @scroll.window="handleFeedScroll" x-cloak>
 
-    <div class="sticky top-16 z-30 bg-slate-50 dark:bg-dark-bg pb-2 pt-2 transition-all shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <h2 class="text-sm font-black text-professional dark:text-white uppercase tracking-wider mb-3">What are you looking for?</h2>
-            
-            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-                <template x-for="tab in categories" :key="tab.id">
-                    <button @click="activeCategory = tab.id; resetSearch()" 
-                            class="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold whitespace-nowrap transition-all border-2"
-                            :class="activeCategory === tab.id ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-600'">
-                        <i class="fa-solid" :class="tab.icon"></i>
-                        <span x-text="tab.label"></span>
-                    </button>
-                </template>
-            </div>
+    <div class="bg-slate-50 dark:bg-dark-bg px-4 sm:px-6 lg:px-8 text-center transition-all duration-500">
+        <div class="py-12 sm:py-16">
+            <h2 class="text-xl sm:text-2xl font-black text-professional dark:text-white uppercase tracking-widest">What are you looking for?</h2>
+            <div class="w-16 h-1 bg-primary mx-auto mt-4 rounded-full"></div>
+        </div>
+    </div>
 
-            <div class="flex gap-2 mt-4">
-                <button class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-300 shadow-sm hover:border-primary transition-colors flex-shrink-0">
-                    <i class="fa-solid fa-location-dot text-primary"></i>
-                    <span class="hidden sm:inline">Location</span>
+    <div class="sticky z-30 bg-slate-50/95 dark:bg-dark-bg/95 backdrop-blur-xl transition-all duration-300 border-b border-slate-200 dark:border-slate-800"
+         :class="scrollY > 50 ? 'shadow-md' : 'shadow-none'"
+         :style="isNavHidden ? 'top: 0px;' : 'top: 64px;'">
+        
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-center flex-wrap sm:flex-nowrap gap-2 sm:gap-4 overflow-x-auto hide-scrollbar">
+            <template x-for="tab in categories" :key="tab.id">
+                <button @click="switchTab(tab.id)" 
+                        class="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold whitespace-nowrap transition-all flex-1 sm:flex-none text-sm sm:text-base"
+                        :class="activeCategory === tab.id ? 'bg-professional text-white dark:bg-primary dark:text-white sm:scale-105 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-professional dark:hover:border-primary shadow-sm'">
+                    <i class="fa-solid" :class="tab.icon"></i>
+                    <span x-text="tab.label"></span>
                 </button>
+            </template>
+        </div>
+
+        <div x-show="showSearchInputs" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 -translate-y-4 scale-y-90"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-y-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-y-100"
+             x-transition:leave-end="opacity-0 -translate-y-4 scale-y-90"
+             class="pb-4 px-4 sm:px-6 lg:px-8 origin-top">
+             
+            <div class="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3 relative z-20">
                 
-                <button @click="openSearchMode()" class="flex-1 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 shadow-sm hover:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-left">
+                <div class="relative w-full sm:w-auto flex-shrink-0" @click.outside="showLocMenu = false">
+                    <button @click="showLocMenu = !showLocMenu" class="w-full flex items-center justify-between sm:justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3.5 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 shadow-sm hover:border-primary transition-colors">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-primary"></i>
+                            <span class="truncate max-w-[150px]" x-text="selectedLocation"></span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                    </button>
+                    
+                    <div x-show="showLocMenu" x-transition class="absolute top-full left-0 mt-2 w-full sm:w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 py-2 z-50">
+                        <div class="max-h-64 overflow-y-auto hide-scrollbar">
+                            <template x-for="loc in getAvailableLocations()" :key="loc">
+                                <button @click="selectedLocation = loc; showLocMenu = false" 
+                                        class="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" 
+                                        :class="selectedLocation === loc ? 'text-primary bg-primary/5' : 'text-slate-600 dark:text-slate-300'">
+                                    <span x-text="loc"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                
+                <button @click="openSearchMode()" class="flex-1 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3.5 rounded-2xl font-bold text-sm text-slate-400 shadow-sm hover:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-left">
                     <div class="flex items-center gap-3">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span x-text="`Search for ${activeCategory}...`"></span>
                     </div>
-                    <div class="w-6 h-6 rounded bg-primary text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center text-xs shadow-md"><i class="fa-solid fa-arrow-right"></i></div>
                 </button>
             </div>
         </div>
@@ -47,13 +80,19 @@
             </div>
         </div>
 
-        <div x-show="viewMode === 'grid'" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+        <div x-show="getFeedItems().length === 0" class="py-20 flex flex-col items-center justify-center text-slate-400">
+            <i class="fa-solid fa-house-circle-xmark text-6xl mb-4 opacity-50"></i>
+            <p class="font-bold text-lg">No properties found.</p>
+            <p class="text-sm">Try changing your location filter or checking back later.</p>
+        </div>
+
+        <div x-show="viewMode === 'grid' && getFeedItems().length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             <template x-for="item in getFeedItems()" :key="item.id">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer flex flex-col h-full relative">
+                <a :href="item.url" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer flex flex-col h-full relative">
                     <div class="relative w-full pt-[85%] bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <img :src="item.image" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img :src="item.image" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="$event.target.src='https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'">
                         <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm" x-show="item.badge" x-text="item.badge"></div>
-                        <button @click.stop="toggleSave(item.id)" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-900/90 flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                        <button @click.prevent="toggleSave(item.id)" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-900/90 flex items-center justify-center shadow-md hover:scale-110 transition-transform">
                             <i class="fa-solid fa-heart text-sm" :class="isSaved(item.id) ? 'text-red-500' : 'text-slate-300'"></i>
                         </button>
                     </div>
@@ -61,43 +100,54 @@
                         <h4 class="font-bold text-sm text-professional dark:text-white line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors" x-text="item.title"></h4>
                         <p class="text-xs text-slate-500 font-medium mb-2 truncate"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="item.location"></span></p>
                         
-                        <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <span class="text-primary font-black text-sm">UGX <span x-text="item.price"></span><span class="text-[10px] text-slate-400 font-bold ml-1 uppercase hidden sm:inline" x-text="item.period"></span></span>
+                        <div class="flex flex-wrap gap-1 mb-2 mt-auto">
+                            <template x-for="(am, index) in item.amenities" :key="index">
+                                <span class="text-[9px] font-bold bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                    <i class="fa-solid mr-1 text-slate-400" :class="am.icon"></i><span x-text="am.text"></span>
+                                </span>
+                            </template>
+                        </div>
+                        
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <span class="text-primary font-black text-sm">UGX <span x-text="Number(item.price).toLocaleString()"></span><span class="text-[10px] text-slate-400 font-bold ml-1 uppercase hidden sm:inline" x-text="item.period"></span></span>
                         </div>
                     </div>
-                </div>
+                </a>
             </template>
         </div>
 
-        <div x-show="viewMode === 'list'" class="space-y-3">
+        <div x-show="viewMode === 'list' && getFeedItems().length > 0" class="space-y-3">
             <template x-for="item in getFeedItems()" :key="item.id">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all group cursor-pointer flex h-32 sm:h-40">
+                <a :href="item.url" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all group cursor-pointer flex h-36 sm:h-40">
                     <div class="w-32 sm:w-48 flex-shrink-0 relative overflow-hidden bg-slate-100 dark:bg-slate-800">
-                        <img :src="item.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img :src="item.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="$event.target.src='https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'">
                         <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm" x-show="item.badge" x-text="item.badge"></div>
                     </div>
                     <div class="p-3 sm:p-4 flex flex-col flex-1 min-w-0 relative">
-                        <button @click.stop="toggleSave(item.id)" class="absolute top-3 right-3 text-slate-300 hover:text-red-500 transition-colors z-10 hidden sm:block">
+                        <button @click.prevent="toggleSave(item.id)" class="absolute top-3 right-3 text-slate-300 hover:text-red-500 transition-colors z-10 hidden sm:block">
                             <i class="fa-solid fa-heart" :class="isSaved(item.id) ? 'text-red-500' : ''"></i>
                         </button>
                         
                         <h4 class="font-bold text-sm sm:text-base text-professional dark:text-white truncate group-hover:text-primary transition-colors pr-6" x-text="item.title"></h4>
                         <p class="text-xs text-slate-500 font-medium mb-1 truncate"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> <span x-text="item.location"></span></p>
                         
-                        <div class="flex items-center gap-2 mt-1 hidden sm:flex">
-                            <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-bed mr-1"></i> <span x-text="item.details.beds || '1'"></span></span>
-                            <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-bath mr-1"></i> <span x-text="item.details.baths || '1'"></span></span>
+                        <div class="flex flex-wrap gap-1.5 mt-1">
+                            <template x-for="(am, index) in item.amenities" :key="index">
+                                <span class="text-[9px] sm:text-[10px] font-bold bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-2 py-0.5 sm:py-1 rounded text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    <i class="fa-solid mr-1 text-slate-400" :class="am.icon"></i><span x-text="am.text"></span>
+                                </span>
+                            </template>
                         </div>
 
                         <div class="mt-auto flex justify-between items-end">
-                            <span class="text-primary font-black text-sm sm:text-lg leading-none">UGX <span x-text="item.price"></span> <span class="text-[10px] text-slate-400 font-bold uppercase block sm:inline mt-0.5 sm:mt-0" x-text="item.period"></span></span>
+                            <span class="text-primary font-black text-sm sm:text-lg leading-none">UGX <span x-text="Number(item.price).toLocaleString()"></span> <span class="text-[10px] text-slate-400 font-bold uppercase block sm:inline mt-0.5 sm:mt-0" x-text="item.period"></span></span>
                         </div>
                     </div>
-                </div>
+                </a>
             </template>
         </div>
         
-        <div class="py-10 flex justify-center">
+        <div x-show="getFeedItems().length > 0" class="py-10 flex justify-center">
             <button class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-colors shadow-sm flex items-center justify-center">
                 <i class="fa-solid fa-arrow-down"></i>
             </button>
@@ -121,7 +171,7 @@
                     <i class="fa-solid fa-arrow-left text-lg"></i>
                 </button>
                 <div class="flex-1 relative">
-                    <input type="text" x-model="searchQuery" x-ref="searchInput" 
+                    <input type="text" x-model="searchQuery" x-ref="searchInput" @keyup.enter="executeSearch(searchQuery)"
                            class="w-full bg-slate-100 dark:bg-slate-800 border-none outline-none px-4 py-3 rounded-xl font-semibold text-professional dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 transition-shadow"
                            :placeholder="`Search ${activeCategory} in Uganda...`"
                            autocomplete="off">
@@ -139,10 +189,12 @@
                             <i class="fa-solid fa-arrow-right ml-auto text-slate-300 text-xs"></i>
                         </div>
                     </template>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 text-center cursor-pointer hover:text-primary font-bold text-sm text-slate-500" @click="executeSearch(searchQuery)">
+                        Search for "<span x-text="searchQuery"></span>"
+                    </div>
                 </div>
 
                 <div x-show="searchQuery.length === 0" class="space-y-8">
-                    
                     <div>
                         <h4 class="text-sm font-black text-professional dark:text-white mb-3">Recently Viewed</h4>
                         <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
@@ -171,7 +223,6 @@
                             </template>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -179,50 +230,94 @@
 </div>
 
 <script>
-function publicFeed() {
+function publicFeed(serverData) {
     return {
-        // State
+        // --- Core State ---
         activeCategory: 'hostels',
         viewMode: 'grid',
         searchMode: false,
         searchQuery: '',
         savedItems: [],
+        
+        // --- NEW Scroll & Visibility State ---
+        scrollY: 0,
+        lastScrollY: 0,
+        showSearchInputs: true,
+        isNavHidden: false, // Tracks the global navbar state
+        
+        // --- Location Filter State ---
+        showLocMenu: false,
+        selectedLocation: 'All Locations',
 
-        // Config Data
+        // --- Config ---
         categories: [
             { id: 'hostels', label: 'Hostels', icon: 'fa-building-columns' },
             { id: 'hotels', label: 'Hotels', icon: 'fa-hotel' },
-            { id: 'rentals', label: 'Rentals', icon: 'fa-house-user' },
-            { id: 'commercial', label: 'Commercial', icon: 'fa-store' }
+            { id: 'rentals', label: 'Rentals', icon: 'fa-house-user' }
         ],
 
-        // Mock Demo Data (This will be replaced by backend API calls)
-        demoData: {
-            hostels: [
-                { id: 'h1', title: 'Olympia Premium Hostel', location: 'Makerere Kikoni, Kampala', price: '1,500', period: 'Semester', image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=400&auto=format&fit=crop', badge: 'Verified', details: { beds: 2, baths: 1 } },
-                { id: 'h2', title: 'Nana Hostel', location: 'Kagugube, Kampala', price: '900', period: 'Semester', image: 'https://images.unsplash.com/photo-1522771731470-ea43374b422a?q=80&w=400&auto=format&fit=crop', badge: null, details: { beds: 1, baths: 1 } },
-                { id: 'h3', title: 'Douglas Villa', location: 'Wandegeya, Kampala', price: '1,200', period: 'Semester', image: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=400&auto=format&fit=crop', badge: 'Hot', details: { beds: 2, baths: 2 } }
-            ],
-            hotels: [
-                { id: 'ht1', title: 'Kampala Serena Hotel', location: 'Kintu Road, Kampala', price: '950', period: 'Night', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=400&auto=format&fit=crop', badge: '5 Star', details: { beds: 1, baths: 1 } },
-                { id: 'ht2', title: 'Speke Resort Munyonyo', location: 'Munyonyo, Kampala', price: '800', period: 'Night', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=400&auto=format&fit=crop', badge: 'Verified', details: { beds: 2, baths: 1 } }
-            ],
-            rentals: [
-                { id: 'r1', title: 'Modern 2BR Apartment', location: 'Naalya, Kampala', price: '1,200', period: 'Month', image: 'https://images.unsplash.com/photo-1502672260266-1c1e541818bd?q=80&w=400&auto=format&fit=crop', badge: 'New', details: { beds: 2, baths: 2 } },
-                { id: 'r2', title: 'Studio Flat - Tarmac Access', location: 'Kisaasi, Kampala', price: '450', period: 'Month', image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=400&auto=format&fit=crop', badge: null, details: { beds: 1, baths: 1 } },
-                { id: 'r3', title: 'Executive Bungalow', location: 'Kira, Wakiso', price: '2,500', period: 'Month', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=400&auto=format&fit=crop', badge: 'Verified', details: { beds: 3, baths: 3 } }
-            ]
+        // --- Data from NestJS Controller ---
+        feedData: {
+            hostels: serverData?.hostels || [],
+            hotels: serverData?.hotels || [],
+            rentals: serverData?.rentals || []
         },
 
-        recentViews: [
-            { id: 'v1', title: 'Olympia Hostel', price: '1,500', image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=200&auto=format&fit=crop' },
-            { id: 'v2', title: '2BR Naalya', price: '1,200', image: 'https://images.unsplash.com/photo-1502672260266-1c1e541818bd?q=80&w=200&auto=format&fit=crop' }
-        ],
+        recentViews: [],
 
-        // Methods
+        // --- Actions ---
+
+        switchTab(tabId) {
+            this.activeCategory = tabId;
+            this.selectedLocation = 'All Locations';
+            
+            // Immediately expand the search fields below the tabs
+            this.showSearchInputs = true; 
+            
+            // Smoothly scroll back to the top of the feed to reset the view
+            if(window.scrollY > 150) {
+                window.scrollTo({ top: 150, behavior: 'smooth' });
+            }
+        },
+
+        handleFeedScroll() {
+            this.scrollY = window.scrollY;
+            
+            // 1. Navbar Docking Logic
+            if (this.scrollY > this.lastScrollY && this.scrollY > 100) {
+                this.isNavHidden = true; // Scrolling down
+            } else if (this.scrollY < this.lastScrollY - 10 || this.scrollY <= 50) {
+                this.isNavHidden = false; // Scrolling up
+            }
+
+            // 2. Search Field Visibility Logic
+            if (this.scrollY <= 50) {
+                // If user hits the top of the screen, permanently show the search fields
+                this.showSearchInputs = true;
+            } else if (this.scrollY > this.lastScrollY && this.scrollY > 150) {
+                // If user is actively scrolling DOWN past the hero text, collapse the search fields
+                this.showSearchInputs = false;
+            }
+
+            this.lastScrollY = this.scrollY;
+        },
+
+        resetSearch() {
+            this.selectedLocation = 'All Locations';
+        },
+
+        getAvailableLocations() {
+            const items = this.feedData[this.activeCategory] || [];
+            const locs = items.map(i => i.locationFilter).filter(Boolean);
+            return ['All Locations', ...new Set(locs)].sort();
+        },
+
         getFeedItems() {
-            // If they click 'commercial' and we have no data, fallback to rentals for demo
-            return this.demoData[this.activeCategory] || this.demoData.rentals;
+            let items = this.feedData[this.activeCategory] || [];
+            if (this.selectedLocation !== 'All Locations') {
+                items = items.filter(i => i.locationFilter === this.selectedLocation);
+            }
+            return items;
         },
 
         toggleSave(id) {
@@ -233,15 +328,11 @@ function publicFeed() {
             }
         },
 
-        isSaved(id) {
-            return this.savedItems.includes(id);
-        },
+        isSaved(id) { return this.savedItems.includes(id); },
 
         openSearchMode() {
             this.searchMode = true;
-            // Prevent body scroll behind modal
             document.body.style.overflow = 'hidden';
-            // Auto focus input after transition
             setTimeout(() => this.$refs.searchInput.focus(), 300);
         },
 
@@ -251,35 +342,19 @@ function publicFeed() {
             document.body.style.overflow = 'auto';
         },
 
-        resetSearch() {
-            // Placeholder function for when tabs change
-            console.log("Tab changed to:", this.activeCategory);
-        },
-
         getPopularTags() {
             if(this.activeCategory === 'hostels') return ['Makerere', 'MUBS', 'Self Contained', 'Cheap Hostels'];
             if(this.activeCategory === 'hotels') return ['Entebbe', 'Swimming Pool', 'Honeymoon', 'Conference'];
-            return ['2 Bedroom', 'Bungalow', 'Kira', 'Najjera', 'Fenced'];
+            return ['2 Bedroom', 'Bungalow', 'Kira', 'Najjera'];
         },
 
         getSuggestions() {
-            const queries = [
-                `Cheap ${this.activeCategory} in Kampala`,
-                `Premium ${this.activeCategory} near me`,
-                `Top rated ${this.activeCategory} in Wakiso`,
-                `${this.activeCategory} with parking`
-            ];
-            // Filter dummy suggestions based on user input
+            const queries = [`Cheap ${this.activeCategory} in Kampala`, `Top rated ${this.activeCategory}`, `Find ${this.activeCategory} near me`];
             return queries.filter(q => q.toLowerCase().includes(this.searchQuery.toLowerCase()));
         },
 
         executeSearch(query) {
-            this.searchQuery = query;
-            // In a real app, this would trigger a fetch and close the modal
-            setTimeout(() => {
-                alert(`Searching for: ${query}`);
-                this.closeSearchMode();
-            }, 300);
+            window.location.href = `/search?category=${this.activeCategory}&q=${encodeURIComponent(query)}`;
         }
     }
 }

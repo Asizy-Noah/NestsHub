@@ -49,6 +49,10 @@ let Room = class Room extends mongoose_2.Document {
 };
 exports.Room = Room;
 __decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Account', required: true }),
+    __metadata("design:type", mongoose_2.default.Types.ObjectId)
+], Room.prototype, "managerId", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Hostel', required: true }),
     __metadata("design:type", mongoose_2.default.Schema.Types.ObjectId)
 ], Room.prototype, "hostelId", void 0);

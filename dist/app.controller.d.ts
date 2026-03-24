@@ -1,11 +1,18 @@
 import { AppService } from './app.service';
+import { HostelsService } from './hostels/hostels.service';
+import { HotelsService } from './hotels/hotels.service';
+import { RentalsService } from './rentals/rentals.service';
 export declare class AppController {
     private readonly appService;
-    constructor(appService: AppService);
-    getHomePage(): {
+    private readonly hostelsService;
+    private readonly hotelsService;
+    private readonly rentalsService;
+    constructor(appService: AppService, hostelsService: HostelsService, hotelsService: HotelsService, rentalsService: RentalsService);
+    getHomePage(): Promise<{
         title: string;
         layout: string;
-    };
+        feedData: string;
+    }>;
     getSearchResults(query: string, category: string): {
         title: string;
         layout: string;

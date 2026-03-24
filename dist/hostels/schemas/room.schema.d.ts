@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 export declare class Room extends Document {
+    managerId: mongoose.Types.ObjectId;
     hostelId: mongoose.Schema.Types.ObjectId;
     type: string;
     totalRooms: number;

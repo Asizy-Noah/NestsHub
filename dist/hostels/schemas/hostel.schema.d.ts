@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 export declare class Hostel extends Document {
-    managerId: mongoose.Schema.Types.ObjectId;
+    managerId: mongoose.Types.ObjectId;
     name: string;
     phones: string[];
     whatsapps: string[];

@@ -14,5 +14,6 @@ import { RentalProfile, RentalProfileSchema } from './schemas/rental-profile.sch
   ],
   controllers: [RentalsController],
   providers: [RentalsService],
+  exports: [RentalsService],
 })
 export class RentalsModule {}

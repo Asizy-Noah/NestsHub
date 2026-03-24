@@ -15,14 +15,97 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const hostels_service_1 = require("./hostels/hostels.service");
+const hotels_service_1 = require("./hotels/hotels.service");
+const rentals_service_1 = require("./rentals/rentals.service");
 let AppController = class AppController {
-    constructor(appService) {
+    constructor(appService, hostelsService, hotelsService, rentalsService) {
         this.appService = appService;
+        this.hostelsService = hostelsService;
+        this.hotelsService = hotelsService;
+        this.rentalsService = rentalsService;
     }
-    getHomePage() {
+    async getHomePage() {
+        const rawHostelRooms = await this.hostelsService['roomModel'].find({ availableRooms: { $gt: 0 } }).exec();
+        const rawHostels = await this.hostelsService['hostelModel'].find().exec();
+        const hostels = rawHostelRooms.map((room) => {
+            const parent = rawHostels.find((h) => h._id && room.hostelId && h._id.toString() === room.hostelId.toString());
+            const amenities = [];
+            if (room.isSelfContained)
+                amenities.push({ icon: 'fa-bath', text: 'Self Contained' });
+            if (parent?.amenities?.freeInternet)
+                amenities.push({ icon: 'fa-wifi', text: 'Free WiFi' });
+            if (parent?.amenities?.freeTransport)
+                amenities.push({ icon: 'fa-van-shuttle', text: 'Transport' });
+            if (room.hasAC)
+                amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+            return {
+                id: room._id,
+                url: `/public/hostels/room/${room._id}`,
+                title: `${room.type} Room at ${parent?.name || 'Premium Hostel'}`,
+                location: `${parent?.popularAreaName || ''}, ${parent?.locationName || ''}`,
+                locationFilter: parent?.locationName || 'Kampala',
+                price: room.price,
+                period: room.pricingPeriod || 'Semester',
+                image: room.photos?.[0] || parent?.gallery?.[0] || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400',
+                badge: parent?.isVerified ? 'Verified' : null,
+                amenities: amenities.slice(0, 3)
+            };
+        });
+        const rawHotelRooms = await this.hotelsService['roomModel'].find({ availableRooms: { $gt: 0 } }).exec();
+        const rawHotels = await this.hotelsService['hotelModel'].find().exec();
+        const hotels = rawHotelRooms.map((room) => {
+            const parent = rawHotels.find((h) => h._id && room.hotelId && h._id.toString() === room.hotelId.toString());
+            const amenities = [];
+            if (room.bedAndBreakfast)
+                amenities.push({ icon: 'fa-mug-hot', text: 'Breakfast' });
+            if (room.hasAC)
+                amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+            if (room.hotWater)
+                amenities.push({ icon: 'fa-shower', text: 'Hot Water' });
+            if (parent?.amenities?.freeInternet)
+                amenities.push({ icon: 'fa-wifi', text: 'Free WiFi' });
+            return {
+                id: room._id,
+                url: `/public/hotels/room/${room._id}`,
+                title: `${room.type} at ${parent?.name || 'Luxury Hotel'}`,
+                location: `${parent?.street || ''}, ${parent?.districtOrCity || ''}`,
+                locationFilter: parent?.districtOrCity || 'Kampala',
+                price: room.price,
+                period: 'Night',
+                image: room.photos?.[0] || parent?.gallery?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+                badge: parent?.isVerified ? 'Verified' : null,
+                amenities: amenities.slice(0, 3)
+            };
+        });
+        const rawRentals = await this.rentalsService['rentalModel'].find({ availableUnits: { $gt: 0 } }).exec();
+        const rentals = rawRentals.map((rental) => {
+            const amenities = [];
+            if (rental.isSelfContained)
+                amenities.push({ icon: 'fa-bath', text: 'Self Contained' });
+            if (rental.fenced)
+                amenities.push({ icon: 'fa-shield-halved', text: 'Fenced' });
+            if (rental.parking)
+                amenities.push({ icon: 'fa-square-parking', text: 'Parking' });
+            if (rental.hasAC)
+                amenities.push({ icon: 'fa-snowflake', text: 'AC' });
+            return {
+                id: rental._id,
+                url: `/public/rentals/item/${rental._id}`,
+                title: `${rental.category} in ${rental.propertyType}`,
+                location: `${rental.popularAreaName || ''}, ${rental.district || ''}`,
+                locationFilter: rental.district || 'Kampala',
+                price: rental.price,
+                period: rental.rateType || 'Month',
+                image: rental.unitPhotos?.[0] || rental.propertyPhotos?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1e541818bd?w=400',
+                badge: 'Available',
+                amenities: amenities.slice(0, 3)
+            };
+        });
         return {
             title: 'NestHub Uganda | Find Your Perfect Space',
-            layout: 'layouts/public'
+            layout: 'layouts/public',
+            feedData: JSON.stringify({ hostels, hotels, rentals })
         };
     }
     getSearchResults(query, category) {
@@ -64,7 +147,7 @@ __decorate([
     (0, common_1.Render)('index'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getHomePage", null);
 __decorate([
     (0, common_1.Get)('search'),
@@ -140,6 +223,9 @@ __decorate([
 ], AppController.prototype, "getAbout", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [app_service_1.AppService])
+    __metadata("design:paramtypes", [app_service_1.AppService,
+        hostels_service_1.HostelsService,
+        hotels_service_1.HotelsService,
+        rentals_service_1.RentalsService])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map

@@ -4,7 +4,7 @@ import mongoose, { Document } from 'mongoose';
 @Schema({ timestamps: true, autoIndex: true })
 export class Hostel extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true })
-  managerId!: mongoose.Schema.Types.ObjectId;
+  managerId!: mongoose.Types.ObjectId;
 
   @Prop({ required: true }) name!: string;
   
